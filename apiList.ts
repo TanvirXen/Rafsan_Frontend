@@ -3,7 +3,7 @@
 /** Ensure we have an absolute, scheme-prefixed base without trailing slash. */
 function normalizeBase(input?: string): string {
   const raw = (input || "").trim().replace(/\/+$/, "");
-  if (!raw) return "http://localhost:4000/api";
+  if (!raw) return "https://api.rafsansabab.com/api";
   // If someone passes "api.rafsansabab.com/api" add scheme
   const hasScheme = /^https?:\/\//i.test(raw);
   return hasScheme ? raw : `https://${raw}`;
@@ -11,7 +11,9 @@ function normalizeBase(input?: string): string {
 
 
 
-const API_BASE = normalizeBase(process.env.NEXT_PUBLIC_API_BASE);
+const API_BASE = normalizeBase(
+  process.env.NEXT_PUBLIC_API_BASE || process.env.API_BASE
+);
 
 /** Join URL-safe path segments onto the base. No trailing slash. */
 const path = (...parts: (string | number)[]) =>

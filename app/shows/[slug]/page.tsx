@@ -56,29 +56,39 @@ type Reel = {
 };
 
 async function fetchShowsList(): Promise<Show[]> {
-  const res = await fetch(apiList.shows.list, { next: { revalidate: 60 } });
-  if (!res.ok) return [];
-  const json = (await res.json()) as Show[] | { shows?: Show[] };
-  return Array.isArray(json) ? json : json.shows ?? [];
+  try {
+    const res = await fetch(apiList.shows.list, { next: { revalidate: 60 } });
+    if (!res.ok) return [];
+    const json = (await res.json()) as Show[] | { shows?: Show[] };
+    return Array.isArray(json) ? json : json.shows ?? [];
+  } catch (error) {
+    console.error("Failed to load shows list", error);
+    return [];
+  }
 }
 
 async function fetchShowData(showId: string) {
-  const url = apiList.shows.get(showId);
-  const res = await fetch(url, { next: { revalidate: 60 } });
+  try {
+    const url = apiList.shows.get(showId);
+    const res = await fetch(url, { next: { revalidate: 60 } });
 
-  if (!res.ok) {
-    if (res.status === 404) return null;
-    throw new Error(`Failed to load show data (status ${res.status})`);
+    if (!res.ok) {
+      if (res.status === 404) return null;
+      throw new Error(`Failed to load show data (status ${res.status})`);
+    }
+
+    const json = (await res.json()) as {
+      show: Show;
+      seasons: Season[];
+      episodes: Episode[];
+      reels: Reel[];
+    };
+
+    return json;
+  } catch (error) {
+    console.error(`Failed to load show data for ${showId}`, error);
+    return null;
   }
-
-  const json = (await res.json()) as {
-    show: Show;
-    seasons: Season[];
-    episodes: Episode[];
-    reels: Reel[];
-  };
-
-  return json;
 }
 
 export async function generateStaticParams() {
