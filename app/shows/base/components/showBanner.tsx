@@ -119,7 +119,7 @@ export default function ShowBanner({ show }: ShowBannerProps) {
                   href={filterHref}
                   className="
                     elza inline-flex h-9 items-center justify-center rounded-full
-                    bg-[#00D8FF] px-4 text-[14px] font-bold text-[#121212]
+                    bg-[#00D8FF] px-4 text-[14px] font-bold text-black
                     whitespace-nowrap hover:brightness-95 active:scale-[0.99]
                   "
                 >
@@ -187,7 +187,7 @@ export default function ShowBanner({ show }: ShowBannerProps) {
                   href={filterHref}
                   className="
                     elza rounded-full bg-[#00D8FF]
-                    px-6 py-3 text-[16px] font-bold text-[#00131b] hover:brightness-95
+                    px-6 py-3 text-[16px] font-bold text-black hover:brightness-95
                   "
                 >
                   Get Tickets

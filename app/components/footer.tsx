@@ -141,6 +141,9 @@ export default async function Footer() {
                   <FooterLink href='/about'>About</FooterLink>
                 </li>
                 <li>
+                  <FooterLink href='/portfolio'>Portfolio</FooterLink>
+                </li>
+                <li>
                   <FooterLink href='/faqs'>FAQs</FooterLink>
                 </li>
                 <li>

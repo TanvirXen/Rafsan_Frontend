@@ -64,7 +64,7 @@ export default function StoryTeaser({
 
             <Link
               href='/about'
-              className='elza mt-5 inline-flex h-11 items-center justify-center rounded-full bg-[#FFD928] px-6 text-[15px] font-bold text-[#121212] transition hover:brightness-95 sm:h-12 sm:text-base'
+              className='elza mt-5 inline-flex h-11 items-center justify-center rounded-full bg-[#FFD928] px-6 text-[15px] font-bold text-black transition hover:brightness-95 sm:h-12 sm:text-base'
             >
               Full Story
             </Link>
