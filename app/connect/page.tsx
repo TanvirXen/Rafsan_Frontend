@@ -103,7 +103,7 @@ export default function ConnectPage() {
             <div className='mt-4 flex w-full max-w-[24rem] items-center gap-4 pt-2 md:mt-6 md:gap-5'>
               <div className='relative h-16 w-16 shrink-0 overflow-hidden rounded-full sm:h-18 sm:w-18'>
                 <Image
-                  src='/assets/manager.png'
+                  src='/assets/manager1.png'
                   alt='Support avatar'
                   fill
                   sizes='(max-width: 640px) 64px, 72px'
