@@ -199,7 +199,7 @@ export default function Navbar() {
             {/* Brand */}
             <Link href='/' className='group flex items-center gap-3'>
               <span className='relative h-8 w-8 overflow-hidden rounded-full ring-2 ring-zinc-700'>
-                <Image src='/assets/logo.jpg' alt='Avatar' fill sizes='32px' />
+                <Image src='/logo.png' alt='Avatar' fill sizes='32px' />
               </span>
               <span className='text-[#FFFFFF]'>
                 <span className='recoleta text-[1.3rem] sm:text-[1.45rem] lg:text-[1.7rem]'>
@@ -403,7 +403,7 @@ export default function Navbar() {
               >
                 <span className='relative h-8 w-8 overflow-hidden rounded-full ring-2 ring-zinc-700'>
                   <Image
-                    src='/assets/logo.jpg'
+                    src='/logo.png'
                     alt='Avatar'
                     fill
                     sizes='32px'

@@ -35,6 +35,9 @@ type Props = {
 
   /** When provided, the form below is rendered dynamically from these fields */
   customFields?: CustomField[];
+
+  /** Optional array of all available dates to allow multi-registration */
+  availableDates?: { iso: string; label: string; ended: boolean }[];
 };
 
 export default function EventDetailsSection({
@@ -51,6 +54,7 @@ export default function EventDetailsSection({
     "T&C apply.",
   ],
   customFields = [],
+  availableDates = [],
 }: Props) {
   // Normalize custom fields (stable ids + defaults)
   const fields = React.useMemo<Required<CustomField>[]>(() => {
@@ -68,6 +72,15 @@ export default function EventDetailsSection({
   // Fallback defaults (when no customFields provided)
   const useDynamic = fields.length > 0;
 
+  const hasEnded = React.useMemo(() => {
+    if (!eventDateISO) return false;
+    try {
+      return new Date(eventDateISO).getTime() < Date.now();
+    } catch {
+      return false;
+    }
+  }, [eventDateISO]);
+
   // State for dynamic OR fallback fields
   const [form, setForm] = React.useState<Record<string, string>>(() => {
     if (fields.length > 0) {
@@ -82,6 +95,16 @@ export default function EventDetailsSection({
   const [submitting, setSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState(false);
+  const [selectedDates, setSelectedDates] = React.useState<string[]>([]);
+  const [successMsg, setSuccessMsg] = React.useState("Registration received! We’ll email you with updates.");
+
+  React.useEffect(() => {
+    if (eventDateISO) {
+      setSelectedDates([eventDateISO]);
+    } else {
+      setSelectedDates([]);
+    }
+  }, [eventDateISO]);
 
   // Keep state keys in sync if fields prop changes later
   React.useEffect(() => {
@@ -124,6 +147,30 @@ export default function EventDetailsSection({
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+
+    // Verify at least one date is valid
+    const validDates = selectedDates.filter((iso) => {
+      const isEnded = availableDates.find((d) => d.iso === iso)?.ended;
+      if (isEnded) return false;
+      try {
+        return new Date(iso).getTime() >= Date.now();
+      } catch {
+        return true;
+      }
+    });
+
+    if (validDates.length === 0 && !hasEnded && eventDateISO) {
+      validDates.push(eventDateISO);
+    }
+    if (validDates.length === 0) {
+      setError("Please select at least one valid upcoming date.");
+      return;
+    }
+
+    if (hasEnded && validDates.length === 1 && validDates[0] === eventDateISO) {
+       return;
+    }
+
     setError(null);
     setSuccess(false);
 
@@ -135,32 +182,57 @@ export default function EventDetailsSection({
 
     setSubmitting(true);
     try {
-      const res = await fetch(apiList.registrations.list, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          eventId,
-          occurrenceDate: eventDateISO, // keep your existing payload shape
-          fields: form, // dynamic or fallback fields map
-        }),
-      });
+      const results = await Promise.allSettled(
+        validDates.map((iso) =>
+          fetch(apiList.registrations.list, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              eventId,
+              occurrenceDate: iso,
+              fields: form,
+            }),
+          }).then(async (res) => {
+            if (!res.ok) {
+              let msg = `HTTP ${res.status}`;
+              try {
+                const j = await res.json();
+                if (j?.message) msg = j.message;
+              } catch {}
+              throw new Error(msg);
+            }
+            return true;
+          })
+        )
+      );
 
-      if (!res.ok) {
-        let msg = `Registration failed (HTTP ${res.status}).`;
-        try {
-          const j = await res.json();
-          if (j?.message) msg = j.message;
-        } catch {}
-        throw new Error(msg);
+      const failed = results.filter((r) => r.status === "rejected");
+      if (failed.length > 0) {
+        if (failed.length === validDates.length) {
+          throw new Error(
+            `Registration failed: ${(failed[0] as PromiseRejectedResult).reason.message}`
+          );
+        } else {
+          throw new Error(
+            `Partial success. ${failed.length} date(s) failed to register.`
+          );
+        }
       }
 
       setSuccess(true);
+      setSuccessMsg(
+        validDates.length > 1
+          ? `Successfully registered for ${validDates.length} dates! We'll email you with updates.`
+          : "Registration received! We'll email you with updates."
+      );
+
       // clear values
       setForm((prev) => {
         const cleared: Record<string, string> = {};
         for (const k of Object.keys(prev)) cleared[k] = "";
         return cleared;
       });
+      if (eventDateISO) setSelectedDates([eventDateISO]);
     } catch (err: any) {
       setError(err?.message || "Something went wrong while registering.");
     } finally {
@@ -220,7 +292,7 @@ export default function EventDetailsSection({
           {/* success/error banners */}
           {success && (
             <div className='mb-4 rounded-md bg-green-600/15 px-3 py-2 text-sm text-green-300 ring-1 ring-green-600/30'>
-              Registration received! We’ll email you with updates.
+              {successMsg}
             </div>
           )}
           {error && (
@@ -230,6 +302,67 @@ export default function EventDetailsSection({
           )}
 
           <form onSubmit={onSubmit} className='space-y-5 text-[14px]'>
+            {availableDates && availableDates.length > 1 && (
+              <div className='mb-7'>
+                <label className='mb-3 block text-white text-lg font-bold'>
+                  Which dates do you want to register for?
+                </label>
+                <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-64 overflow-y-auto pr-2 pb-1 custom-scrollbar'>
+                  {Object.entries(
+                    availableDates.reduce((acc, d) => {
+                      const dateLabel = d.label.split(' - ')[0];
+                      if (!acc[dateLabel]) acc[dateLabel] = [];
+                      acc[dateLabel].push(d);
+                      return acc;
+                    }, {} as Record<string, typeof availableDates>)
+                  ).map(([dateLabel, slots]) => (
+                    <div key={dateLabel} className="col-span-full mb-2">
+                      <p className="mb-2 text-[#00D8FF] font-bold border-b border-white/10 pb-1">{dateLabel}</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {slots.map((d) => {
+                          const isChecked = selectedDates.includes(d.iso);
+                          const disabled = d.ended;
+                          const timeLabel = d.label.split(' - ')[1] || "All Day";
+                          return (
+                            <label
+                              key={d.iso}
+                              className={`group flex items-start gap-3 p-3.5 rounded-xl border transition-all duration-200 ${
+                                isChecked 
+                                  ? "border-[#00D8FF] bg-[#00D8FF]/10 shadow-[0_0_15px_rgba(0,216,255,0.15)]" 
+                                  : "border-white/10 bg-black/30 hover:border-white/25 hover:bg-black/40"
+                              } ${disabled ? "opacity-50 grayscale cursor-not-allowed" : "cursor-pointer"}`}
+                            >
+                              <div className="flex h-5 items-center mt-0.5">
+                                <input
+                                  type="checkbox"
+                                  checked={isChecked}
+                                  disabled={disabled}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setSelectedDates((prev) => [...prev, d.iso]);
+                                    } else {
+                                      setSelectedDates((prev) => prev.filter((iso) => iso !== d.iso));
+                                    }
+                                  }}
+                                  className="h-4 w-4 rounded border-white/20 text-[#00D8FF] focus:ring-[#00D8FF] focus:ring-offset-black bg-black/50 transition-colors"
+                                />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className={`text-[14px] font-semibold leading-5 ${isChecked ? "text-white" : "text-white/80"} ${disabled ? "line-through text-white/50" : ""}`}>
+                                  {timeLabel}
+                                  {disabled && <span className="uppercase text-[10px] ml-2 font-bold text-red-400">Ended</span>}
+                                </p>
+                              </div>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {useDynamic ? (
               /* --- dynamic fields rendering --- */
               fields.map((f) => {
@@ -254,7 +387,7 @@ export default function EventDetailsSection({
                         className='w-full rounded-md bg-black/30 px-4 py-3 outline-none ring-1 ring-white/30 placeholder:text-white/70 focus:ring-2 focus:ring-white/40'
                         rows={4}
                         required={f.required}
-                        disabled={submitting}
+                        disabled={submitting || hasEnded}
                       />
                     ) : f.type === "select" ? (
                       <select
@@ -265,7 +398,7 @@ export default function EventDetailsSection({
                         }
                         className='w-full rounded-md bg-black/30 px-4 py-3 outline-none ring-1 ring-white/30 focus:ring-2 focus:ring-white/40'
                         required={f.required}
-                        disabled={submitting}
+                        disabled={submitting || hasEnded}
                       >
                         <option value='' disabled>
                           {`Select ${f.label}`}
@@ -287,7 +420,7 @@ export default function EventDetailsSection({
                         }
                         className='w-full rounded-md bg-black/30 px-4 py-3 outline-none ring-1 ring-white/30 placeholder:text-white/70 focus:ring-2 focus:ring-white/40'
                         required={f.required}
-                        disabled={submitting}
+                        disabled={submitting || hasEnded}
                       />
                     )}
                   </div>
@@ -306,7 +439,7 @@ export default function EventDetailsSection({
                       setForm((p) => ({ ...p, name: e.target.value }))
                     }
                     className='w-full rounded-md bg-black/30 px-4 py-3 outline-none ring-1 ring-white/30 placeholder:text-white/70 focus:ring-2 focus:ring-white/40'
-                    disabled={submitting}
+                    disabled={submitting || hasEnded}
                     required
                   />
                 </div>
@@ -320,7 +453,7 @@ export default function EventDetailsSection({
                       setForm((p) => ({ ...p, email: e.target.value }))
                     }
                     className='w-full rounded-md bg-black/30 px-4 py-3 outline-none ring-1 ring-white/30 placeholder:text-white/70 focus:ring-2 focus:ring-white/40'
-                    disabled={submitting}
+                    disabled={submitting || hasEnded}
                     required
                   />
                 </div>
@@ -334,7 +467,7 @@ export default function EventDetailsSection({
                       setForm((p) => ({ ...p, phone: e.target.value }))
                     }
                     className='w-full rounded-md bg-black/30 px-4 py-3 outline-none ring-1 ring-white/30 placeholder:text-white/70 focus:ring-2 focus:ring-white/40'
-                    disabled={submitting}
+                    disabled={submitting || hasEnded}
                     required
                   />
                 </div>
@@ -350,10 +483,14 @@ export default function EventDetailsSection({
             <div className='pt-1'>
               <button
                 type='submit'
-                disabled={submitting}
-                className='mx-auto block rounded-full bg-[#FFD928] px-[26px] py-3 text-[16px] font-bold text-black shadow-[0_10px_24px_rgba(0,0,0,.25)] hover:brightness-95 disabled:opacity-60'
+                disabled={submitting || hasEnded}
+                className={`mx-auto block rounded-full px-[26px] py-3 text-[16px] font-bold shadow-[0_10px_24px_rgba(0,0,0,.25)] transition ${
+                  hasEnded
+                    ? 'bg-white/20 text-white/50 border border-white/10 cursor-not-allowed'
+                    : 'bg-[#FFD928] text-black hover:brightness-95 disabled:opacity-60'
+                }`}
               >
-                {submitting ? "Submitting..." : "Submit"}
+                {submitting ? "Submitting..." : hasEnded ? "Ended" : "Submit"}
               </button>
             </div>
           </form>

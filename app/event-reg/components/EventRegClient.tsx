@@ -65,6 +65,23 @@ export default function EventRegClient({ occurrences }: Props) {
     });
   };
 
+  const availableDatesForEvent = React.useMemo(() => {
+    if (!sel) return [];
+    return occurrences
+      .filter((o) => o.eventId === sel.eventId)
+      .map((o) => {
+        let ended = false;
+        try {
+          ended = new Date(o.dateISO).getTime() < Date.now();
+        } catch {}
+        return {
+          iso: o.dateISO,
+          label: `${fmtDate(o.dateISO)} - ${fmtTime(o.dateISO)}`,
+          ended,
+        };
+      });
+  }, [sel, occurrences]);
+
   return (
     <div className='bg-[#121212] text-white'>
       {/* ======= Banner with poster (left) + title/rail (right) ======= */}
@@ -104,13 +121,13 @@ export default function EventRegClient({ occurrences }: Props) {
           {/* Right: Title + rail */}
           <div className='flex w-full max-w-[34rem] flex-col gap-3 md:gap-5'>
             <h2 className='recoleta w-full text-[28px] leading-tight sm:text-[34px] md:text-[40px]'>
-              {sel?.title ?? "Upcoming Events"}
+              {sel?.title ?? "Events"}
             </h2>
 
             {/* Controls */}
             <div className='flex w-full items-center justify-between'>
               <span className='text-sm text-white/80'>
-                {occurrences.length} upcoming{" "}
+                {occurrences.length}{" "}
                 {occurrences.length === 1 ? "date" : "dates"}
               </span>
               <div className='flex gap-2'>
@@ -203,6 +220,7 @@ export default function EventRegClient({ occurrences }: Props) {
           primaryDate={fmtDate(sel.dateISO)}
           timeText={fmtTime(sel.dateISO)}
           venue={venueLine(sel) || undefined}
+          availableDates={availableDatesForEvent}
         />
       )}
 

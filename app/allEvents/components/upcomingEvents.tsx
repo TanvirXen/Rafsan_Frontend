@@ -24,7 +24,7 @@ export default async function UpcomingEvents({ showFilter }: UpcomingProps) {
 
   return (
     <EventsSection
-      title={showFilter ? `Upcoming – ${showFilter}` : "Upcoming Events"}
+      title={showFilter ? `${showFilter} Events` : "Events"}
       events={upcoming}
       divider
     />

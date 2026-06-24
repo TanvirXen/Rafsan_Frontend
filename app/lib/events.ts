@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import apiList, { withQuery } from "@/apiList";
 
-export type ApiOccurrence = { date: string; season?: number; episode?: number };
+export type ApiOccurrence = { date: string; season?: number; episode?: number; image?: string; };
 
 export type ApiEvent = {
   _id: string;
@@ -14,8 +14,11 @@ export type ApiEvent = {
   description?: string;
   imageLinkBg?: string;
   imageLinkOverlay?: string;
+  bannerImage?: string;
+  cardImage?: string;
   category?: string;
   brands?: any[];
+  rangeDays?: { date: string; enabled: boolean; startTime: string; endTime: string; image?: string; }[];
   createdAt: string;
   updatedAt: string;
 };
@@ -29,6 +32,8 @@ export type EventItem = {
   id: string;
   title: string;
   date: string;   // e.g., "November 22, 2025 — S2E5"
+  timeText?: string; // e.g., "7:00 PM - 10:00 PM"
+  venue?: string;
   img: string;
   href: string;   // /event-reg/<slugOrId>--YYYY-MM-DD
 };
@@ -65,8 +70,10 @@ const dateToken = (iso: string) => {
   try { return new Date(iso).toISOString().slice(0,10); } catch { return iso.slice(0,10); }
 };
 
-function pickImg(ev: ApiEvent) {
-  return ev.imageLinkBg?.trim() || ev.imageLinkOverlay?.trim() || "/assets/exp1.jpg";
+import { pickEventCardImage } from "./eventImages";
+
+function pickImg(ev: ApiEvent, occ?: ApiOccurrence) {
+  return pickEventCardImage(ev, "/assets/exp1.jpg", occ);
 }
 
 function labelWithSE(base: string, occ?: ApiOccurrence) {
@@ -95,12 +102,38 @@ export function buildUpcoming(events: ApiEvent[], now = new Date()): EventItem[]
 
       const baseDateStr = formatDate(d);
       const label = labelWithSE(baseDateStr, occ);
-      const img = pickImg(ev);
+      const img = pickImg(ev, occ);
       const slugOrId = ev.slug || ev._id;
       const href = `/event-reg/${encodeURIComponent(`${slugOrId}--${dateToken(occ.date)}`)}`;
 
+      let timeText = "";
+      if (ev.rangeDays) {
+        const localDateStr = new Date(occ.date).toLocaleDateString("en-CA", { timeZone: "Asia/Dhaka" });
+        const rd = ev.rangeDays.find(r => r.enabled && r.date === localDateStr && (!r.image || r.image === occ.image || occ.image === ""));
+        if (rd) {
+          const formatTime = (t: string) => {
+            if (!t) return "";
+            const [h, m] = t.split(":");
+            let hr = parseInt(h, 10);
+            const ampm = hr >= 12 ? "PM" : "AM";
+            hr = hr % 12 || 12;
+            return `${hr}:${m} ${ampm}`;
+          };
+          const startStr = formatTime(rd.startTime);
+          const endStr = formatTime(rd.endTime);
+          timeText = endStr ? `${startStr} - ${endStr}` : startStr;
+        } else {
+          // Fallback to extracting time from ISO
+          const timeStr = new Date(occ.date).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "Asia/Dhaka" });
+          if (timeStr && timeStr !== "12:00 AM") timeText = timeStr;
+        }
+      } else {
+         const timeStr = new Date(occ.date).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "Asia/Dhaka" });
+         if (timeStr && timeStr !== "12:00 AM") timeText = timeStr;
+      }
+
       rows.push({
-        item: { id: `${ev._id}:${occ.date}`, title: ev.title, date: label, img, href },
+        item: { id: `${ev._id}:${occ.date}`, title: ev.title, date: label, timeText, venue: ev.venue, img, href },
         t: d.getTime(),
       });
     }
@@ -128,12 +161,38 @@ export function buildPast(events: ApiEvent[], now = new Date()): EventItem[] {
 
       const baseDateStr = formatDate(d);
       const label = labelWithSE(baseDateStr, occ);
-      const img = pickImg(ev);
+      const img = pickImg(ev, occ);
       const slugOrId = ev.slug || ev._id;
       const href = `/event-reg/${encodeURIComponent(`${slugOrId}--${dateToken(occ.date)}`)}`;
 
+      let timeText = "";
+      if (ev.rangeDays) {
+        const localDateStr = new Date(occ.date).toLocaleDateString("en-CA", { timeZone: "Asia/Dhaka" });
+        const rd = ev.rangeDays.find(r => r.enabled && r.date === localDateStr && (!r.image || r.image === occ.image || occ.image === ""));
+        if (rd) {
+          const formatTime = (t: string) => {
+            if (!t) return "";
+            const [h, m] = t.split(":");
+            let hr = parseInt(h, 10);
+            const ampm = hr >= 12 ? "PM" : "AM";
+            hr = hr % 12 || 12;
+            return `${hr}:${m} ${ampm}`;
+          };
+          const startStr = formatTime(rd.startTime);
+          const endStr = formatTime(rd.endTime);
+          timeText = endStr ? `${startStr} - ${endStr}` : startStr;
+        } else {
+          // Fallback to extracting time from ISO
+          const timeStr = new Date(occ.date).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "Asia/Dhaka" });
+          if (timeStr && timeStr !== "12:00 AM") timeText = timeStr;
+        }
+      } else {
+         const timeStr = new Date(occ.date).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "Asia/Dhaka" });
+         if (timeStr && timeStr !== "12:00 AM") timeText = timeStr;
+      }
+
       rows.push({
-        item: { id: `${ev._id}:${occ.date}`, title: ev.title, date: label, img, href },
+        item: { id: `${ev._id}:${occ.date}`, title: ev.title, date: label, timeText, venue: ev.venue, img, href },
         t: d.getTime(),
       });
     }

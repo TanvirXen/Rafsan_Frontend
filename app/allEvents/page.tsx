@@ -1,6 +1,7 @@
 // app/allEvents/page.tsx
 import React from "react";
 import UpcomingEvents from "./components/upcomingEvents";
+import PastEvents from "./components/pastEvents";
 import Newsletter from "../section/newsletter";
 
 export const revalidate = 60;
@@ -21,6 +22,7 @@ export default async function Page({ searchParams }: PageProps) {
   return (
     <div>
       <UpcomingEvents showFilter={showFilter} />
+      <PastEvents showFilter={showFilter} />
       <Newsletter />
     </div>
   );

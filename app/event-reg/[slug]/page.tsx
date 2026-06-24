@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // app/event-reg/[slug]/page.tsx
 import apiList, { withQuery } from "@/apiList";
+import { pickEventBannerAssets } from "@/app/lib/eventImages";
 import RegBanner from "../components/regBanner";
 import EventDetailsSection from "../components/eventDetails";
 import Collaboration from "../components/collaboration";
@@ -27,12 +28,13 @@ type BrandDoc = {
   photo?: string;
 };
 
-type Occurrence = { date: string; season?: number; episode?: number };
+type Occurrence = { date: string; season?: number; episode?: number; image?: string };
 
 type EventDoc = {
   _id: string;
   slug?: string;
   title: string;
+  category?: string;
   occurrences?: Occurrence[];
   date?: string[];
   venue?: string;
@@ -249,18 +251,7 @@ export default async function Page(props: {
     pickFirst(ev.longBlurb, ev.shortBlurb) ||
     "Grab the chances to watch my upcoming shows!";
 
-  // --- DIFFERENT IMAGES ---
-  // Card/foreground image: overlay-first
-  const posterSrc =
-    pickFirst(
-      ev.imageLinkOverlay,
-      ev.cardImage,
-      ev.bannerImage,
-      ev.imageLinkBg
-    ) || "/assets/reg.png";
-  // Background image: bg-first (kept separate from poster)
-  const bgSrc =
-    pickFirst(ev.imageLinkBg, ev.bannerImage, ev.cardImage) || posterSrc;
+  const { posterSrc, bgSrc } = pickEventBannerAssets(ev, "/assets/reg.png", occ);
 
   const ctaHref = isNE(ev.ticketUrl) ? ev.ticketUrl : undefined;
   const venueLine = toVenueLine(ev);
@@ -279,6 +270,18 @@ export default async function Page(props: {
           : "" // keep title clean; pills handle S/E
       }`
     : undefined;
+
+  const availableDates = (normalizeOccurrences(ev) || []).map((o) => {
+    let ended = false;
+    try {
+      ended = new Date(o.date).getTime() < Date.now();
+    } catch {}
+    return {
+      iso: o.date,
+      label: `${readableDate(o.date) ?? ""} - ${readableTime(o.date) ?? ""}`,
+      ended,
+    };
+  });
 
   return (
     <div className='bg-[#121212]'>
@@ -299,6 +302,7 @@ export default async function Page(props: {
         venue={venueLine || undefined}
         notes={notes}
         customFields={ev.customFields ?? []}
+        availableDates={availableDates}
       />
 
       <Collaboration logos={logos as any} />

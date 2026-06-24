@@ -14,6 +14,8 @@ import FeaturedShows from "../alternate/components/FeaturedShows";
 
 import Newsletter from "@/app/section/newsletter";
 import EnhancedPlayer from "./components/EnhancedPlayer";
+import EventsSection from "@/app/allEvents/components/EventsSection";
+import { buildUpcoming, fetchAllEvents } from "@/app/lib/events";
 
 export const revalidate = 60;
 
@@ -192,6 +194,21 @@ export default async function ShowPage(props: {
 
   const { show, seasons, episodes } = data;
 
+  // Fetch and filter upcoming events for this show
+  let matchedEvents: any[] = [];
+  try {
+    const allEvents = await fetchAllEvents(200);
+    const upcoming = buildUpcoming(allEvents);
+    const showTitleNorm = show.title.toLowerCase().replace(/[^a-z0-9]/g, "");
+    
+    matchedEvents = upcoming.filter((ev) => {
+      const evTitleNorm = ev.title.toLowerCase().replace(/[^a-z0-9]/g, "");
+      return evTitleNorm.includes(showTitleNorm) || evTitleNorm.includes("whatashow");
+    });
+  } catch (error) {
+    console.error("Failed to fetch upcoming events for show page", error);
+  }
+
   const selectedEpisode = selectedEpId
     ? episodes.find((e) => e._id === selectedEpId)
     : null;
@@ -257,12 +274,18 @@ export default async function ShowPage(props: {
             <>
               <PodcastBanner show={show} />
               <FeaturedShows episodes={episodes} />
+              {matchedEvents.length > 0 && (
+                <EventsSection title="Upcoming Events" events={matchedEvents} divider={true} variant="small" />
+              )}
               <SeasonsSection seasons={seasons} episodes={episodes} showSlug={slug} />
             </>
           ) : (
             <>
               <ShowBanner show={show} />
               <ShowFeaturedEp seasons={seasons} episodes={episodes} />
+              {matchedEvents.length > 0 && (
+                <EventsSection title="Upcoming Events" events={matchedEvents} divider={true} variant="small" />
+              )}
               <SeasonsSection seasons={seasons} episodes={episodes} showSlug={slug} />
             </>
           )}

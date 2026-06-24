@@ -3,8 +3,11 @@ export type EventDoc = {
   slug: string;                // "what-a-show", "work-show", etc.
   title: string;               // "What A Show"
   type: string;                // "free" | "paid" | ...
+  category?: string;
   bannerImage?: string;        // preferred banner
   cardImage?: string;          // preferred card
+  imageLinkBg?: string;
+  imageLinkOverlay?: string;
   date?: string[];             // ["2025-11-15T18:00:00Z", "2025-12-15T18:00:00Z"]
   venue?: string;              // "Dhaka National Stadium"
   city?: string;               // "Dhaka"

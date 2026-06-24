@@ -13,7 +13,10 @@ type Workshop = {
   title: string;
   date: string; // human readable (for UI)
   dateISO: string; // stable ISO (for sorting/link)
+  timeText?: string;
+  venue?: string;
   href?: string; // /event-reg/<slugOrId>--YYYY-MM-DD
+  ended?: boolean;
 };
 
 const TZ = "Asia/Dhaka";
@@ -98,13 +101,15 @@ function getDims(w: number): Dims {
 }
 
 /* ---------------- API shapes + helpers ---------------- */
-type Occurrence = { date: string; season?: number; episode?: number };
+type Occurrence = { date: string; season?: number; episode?: number; image?: string; };
 type ApiEvent = {
   _id: string;
   slug?: string;
   title: string;
   occurrences?: Occurrence[];
   date?: string[]; // legacy
+  rangeDays?: { date: string; enabled: boolean; startTime: string; endTime: string; image?: string; }[];
+  venue?: string;
   bannerImage?: string;
   cardImage?: string;
   imageLinkBg?: string;
@@ -164,28 +169,67 @@ export default function UpcomingEventsHome() {
 
         const flattened: Workshop[] = events
           .flatMap((ev) => {
-            const img =
-              pickFirst(
-                ev.imageLinkOverlay,
-                ev.cardImage,
-                ev.bannerImage,
-                ev.imageLinkBg
-              ) || "/assets/exp1.jpg";
-
             return normalizeOccurrences(ev)
-              .filter((o) => isNE(o.date) && o.date >= nowISO) // future or today
-              .map<Workshop>((o) => ({
-                src: img,
-                alt: ev.title || "Event",
-                title: ev.title || "Event",
-                date: toDateText(o.date),
-                dateISO: o.date,
-                href: hrefFor(ev, o.date),
-              }));
+              .filter((o) => isNE(o.date)) // keep all occurrences
+              .map<Workshop>((o) => {
+                const img = pickFirst(
+                  o.image,
+                  ev.imageLinkOverlay,
+                  ev.cardImage,
+                  ev.bannerImage,
+                  ev.imageLinkBg
+                ) || "/assets/exp1.jpg";
+                
+                let timeText = "";
+                if (ev.rangeDays) {
+                  const localDateStr = new Date(o.date).toLocaleDateString("en-CA", { timeZone: "Asia/Dhaka" });
+                  // try matching exactly by image too if available, but matching by date is most important
+                  const rd = ev.rangeDays.find(r => r.enabled && r.date === localDateStr && (!r.image || r.image === o.image || !o.image));
+                  if (rd) {
+                    const formatTime = (t: string) => {
+                      if (!t) return "";
+                      const [h, m] = t.split(":");
+                      let hr = parseInt(h, 10);
+                      const ampm = hr >= 12 ? "PM" : "AM";
+                      hr = hr % 12 || 12;
+                      return `${hr}:${m} ${ampm}`;
+                    };
+                    const startStr = formatTime(rd.startTime);
+                    const endStr = formatTime(rd.endTime);
+                    timeText = endStr ? `${startStr} - ${endStr}` : startStr;
+                  } else {
+                    const timeStr = new Date(o.date).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "Asia/Dhaka" });
+                    if (timeStr && timeStr !== "12:00 AM") timeText = timeStr;
+                  }
+                } else {
+                  const timeStr = new Date(o.date).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "Asia/Dhaka" });
+                  if (timeStr && timeStr !== "12:00 AM") timeText = timeStr;
+                }
+
+                return {
+                  src: img,
+                  alt: ev.title || "Event",
+                  title: ev.title || "Event",
+                  date: toDateText(o.date),
+                  timeText,
+                  venue: ev.venue,
+                  dateISO: o.date,
+                  href: hrefFor(ev, o.date),
+                  ended: o.date < nowISO,
+                };
+              });
           })
-          .sort((a, b) =>
-            a.dateISO < b.dateISO ? -1 : a.dateISO > b.dateISO ? 1 : 0
-          )
+          .sort((a, b) => {
+            const aUpcoming = a.dateISO >= nowISO;
+            const bUpcoming = b.dateISO >= nowISO;
+            if (aUpcoming && !bUpcoming) return -1;
+            if (!aUpcoming && bUpcoming) return 1;
+            if (aUpcoming && bUpcoming) {
+              return a.dateISO < b.dateISO ? -1 : a.dateISO > b.dateISO ? 1 : 0;
+            } else {
+              return a.dateISO > b.dateISO ? -1 : a.dateISO < b.dateISO ? 1 : 0;
+            }
+          })
           .slice(0, 3);
 
         if (!cancelled) setApiItems(flattened);
@@ -195,6 +239,7 @@ export default function UpcomingEventsHome() {
             WORKSHOPS.map((w, idx) => ({
               ...w,
               dateISO: `2099-01-0${idx + 1}T00:00:00.000Z`,
+              ended: false,
             }))
           );
         }
@@ -211,6 +256,7 @@ export default function UpcomingEventsHome() {
     : WORKSHOPS.map((w, idx) => ({
         ...w,
         dateISO: `2099-01-0${idx + 1}T00:00:00.000Z`,
+        ended: false,
       }));
 
   /** ---------- responsive dims (SSR-safe) ---------- */
@@ -290,10 +336,10 @@ export default function UpcomingEventsHome() {
         >
           {/* Header */}
           <h2 className='recoleta text-center text-[28px] font-bold leading-[30px] sm:text-[40px] sm:leading-[48px]'>
-            Upcoming Events
+            Events
           </h2>
           <p className='elza mt-2 mb-7 text-center text-[13px] leading-5 text-[#00D8FF] sm:text-[16px] sm:leading-6'>
-            Grab the chance to join my workshops!
+            Grab the chance to join my events!
           </p>
 
           {/* Carousel */}
@@ -386,18 +432,42 @@ export default function UpcomingEventsHome() {
                           <p className='text-[14px] sm:text-[16px] font-bold recoleta text-white'>
                             {w.title}
                           </p>
-                          <p className='mt-1 text-[12px] sm:text-[16px] font-normal text-white/85 elza'>
+                          <div className="flex flex-wrap items-center gap-1.5 mt-1.5 mb-1">
+                            {w.timeText && (
+                              <span className="inline-flex items-center rounded-full bg-[#00D8FF] px-2 py-0.5 text-[9px] sm:text-[11px] font-bold text-[#121212]">
+                                {w.timeText}
+                              </span>
+                            )}
+                            {w.venue && (
+                              <span className="inline-flex items-center justify-center rounded-full bg-[#00D8FF] h-[18px] w-[18px] sm:h-[22px] sm:w-[22px] text-[#121212]" title={w.venue}>
+                                <svg width="10" height="12" viewBox="0 0 10 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-2 h-2.5 sm:w-2.5 sm:h-3">
+                                  <path d="M5 0C2.23858 0 0 2.23858 0 5C0 8.75 5 12 5 12C5 12 10 8.75 10 5C10 2.23858 7.76142 0 5 0ZM5 6.5C4.17157 6.5 3.5 5.82843 3.5 5C3.5 4.17157 4.17157 3.5 5 3.5C5.82843 3.5 6.5 4.17157 6.5 5C6.5 5.82843 5.82843 6.5 5 6.5Z" fill="currentColor"/>
+                                </svg>
+                              </span>
+                            )}
+                          </div>
+                          <p className='text-[12px] sm:text-[16px] font-normal text-white/85 elza'>
                             {w.date}
                           </p>
                         </div>
 
-                        <Link
-                          href={w.href ?? "#"}
-                          className='elza grid h-9 min-w-[7rem] place-items-center rounded-full bg-[#FFD928] px-4 text-sm font-extrabold text-black shadow-[0_10px_26px_rgba(0,0,0,.35)] transition hover:brightness-105 sm:h-10'
-                          aria-label='Get tickets'
-                        >
-                          Get Tickets
-                        </Link>
+                        {w.ended ? (
+                          <button
+                            disabled
+                            className='elza grid h-9 min-w-[7rem] place-items-center rounded-full bg-white/20 px-4 text-sm font-extrabold text-white/50 border border-white/10 shadow-[0_10px_26px_rgba(0,0,0,.35)] cursor-not-allowed sm:h-10'
+                            aria-label='Ended'
+                          >
+                            Ended
+                          </button>
+                        ) : (
+                          <Link
+                            href={w.href ?? "#"}
+                            className='elza grid h-9 min-w-[7rem] place-items-center rounded-full bg-[#00D8FF] px-4 text-sm font-extrabold text-[#121212] shadow-[0_10px_26px_rgba(0,0,0,.35)] transition hover:brightness-105 sm:h-10'
+                            aria-label='Get tickets'
+                          >
+                            Get Tickets
+                          </Link>
+                        )}
                       </div>
                     )}
                   </div>

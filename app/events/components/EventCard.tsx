@@ -2,6 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { EventDoc } from "@/app/types/events";
+import { pickEventCardImage } from "@/app/lib/eventImages";
 
 export default function EventCard({ ev }: { ev: EventDoc }) {
   return (
@@ -11,7 +12,7 @@ export default function EventCard({ ev }: { ev: EventDoc }) {
     >
       <div className="relative h-44">
         <Image
-          src={ev.cardImage || ev.bannerImage || "/assets/reg.png"}
+          src={pickEventCardImage(ev, "/assets/reg.png")}
           alt={ev.title}
           fill
           className="object-cover"
