@@ -1,3 +1,5 @@
+import { resolveMediaUrl } from "./mediaUrl";
+
 type EventImageShape = {
   category?: string;
   imageLinkBg?: string;
@@ -34,28 +36,29 @@ export function pickEventCardImage(
 ) {
   const category = normalizeCategory(event.category);
   const occImage = occ?.image ? occ.image.trim() : "";
-
-  if (category === "what_a_show") {
-    return (
-      pickFirstImage(
-        occImage,
-        event.imageLinkBg,
-        event.bannerImage,
-        event.imageLinkOverlay,
-        event.cardImage
-      ) || fallback
-    );
-  }
-
-  return (
+  const picked =
     pickFirstImage(
       occImage,
       event.imageLinkOverlay,
       event.cardImage,
       event.imageLinkBg,
       event.bannerImage
-    ) || fallback
-  );
+    ) || fallback;
+
+  if (category === "what_a_show") {
+    const bannerPicked =
+      pickFirstImage(
+        occImage,
+        event.imageLinkBg,
+        event.bannerImage,
+        event.imageLinkOverlay,
+        event.cardImage
+      ) || fallback;
+
+    return resolveMediaUrl(bannerPicked);
+  }
+
+  return resolveMediaUrl(picked);
 }
 
 export function pickEventBannerAssets(
@@ -77,8 +80,8 @@ export function pickEventBannerAssets(
       ) || fallback;
 
     return {
-      posterSrc: bannerSrc,
-      bgSrc: bannerSrc,
+      posterSrc: resolveMediaUrl(bannerSrc),
+      bgSrc: resolveMediaUrl(bannerSrc),
     };
   }
 
@@ -100,7 +103,7 @@ export function pickEventBannerAssets(
     ) || posterSrc;
 
   return {
-    posterSrc,
-    bgSrc,
+    posterSrc: resolveMediaUrl(posterSrc),
+    bgSrc: resolveMediaUrl(bgSrc),
   };
 }

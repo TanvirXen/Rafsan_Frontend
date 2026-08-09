@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import apiList from "@/apiList";
+import { resolveMediaUrl } from "@/app/lib/mediaUrl";
 
 type Workshop = {
   src: string;
@@ -207,7 +208,7 @@ export default function UpcomingEventsHome() {
                 }
 
                 return {
-                  src: img,
+                  src: resolveMediaUrl(img),
                   alt: ev.title || "Event",
                   title: ev.title || "Event",
                   date: toDateText(o.date),

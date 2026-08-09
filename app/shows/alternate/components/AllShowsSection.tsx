@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FiChevronLeft, FiChevronRight, FiPlay } from "react-icons/fi";
+import { resolveMediaUrl } from "@/app/lib/mediaUrl";
 
 type Season = {
   _id: string;
@@ -42,7 +43,7 @@ export default function ShowFeaturedEp({ seasons, episodes }: ShowFeaturedEpProp
       id: ep._id,
       season: seasonMap.get(ep.seasonId)?.title ?? "Season",
       episode: ep.title,
-      img: ep.thumbnail || "/assets/exp1.jpg",
+      img: resolveMediaUrl(ep.thumbnail, "/assets/exp1.jpg"),
       href: ep.link || "#",
       disabled: !ep.link,
     }));

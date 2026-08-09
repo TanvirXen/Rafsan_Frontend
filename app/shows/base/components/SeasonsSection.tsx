@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FiPlay } from "react-icons/fi";
+import { resolveMediaUrl } from "@/app/lib/mediaUrl";
 
 type Season = {
   _id: string;
@@ -233,7 +234,7 @@ function EpisodeCard({
       style={style}
     >
       <Image
-        src={ep.thumbnail || "/assets/exp1.jpg"}
+        src={resolveMediaUrl(ep.thumbnail, "/assets/exp1.jpg")}
         alt={ep.title}
         fill
         className="object-cover transition-transform duration-700 group-hover:scale-110"

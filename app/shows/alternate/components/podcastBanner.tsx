@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { FiPlay, FiYoutube } from "react-icons/fi";
+import { resolveMediaUrl } from "@/app/lib/mediaUrl";
 
 type PodcastBannerProps = {
   show?: {
@@ -18,8 +19,9 @@ type PodcastBannerProps = {
 export default function PodcastBanner({ show }: PodcastBannerProps) {
   const title = show?.title ?? "Next Level Podcast";
   const description = (show?.description ?? "Adda, Game, Entertainment").trim();
-  const heroSrc =
-    show?.heroImage || show?.thumbnail || "/assets/podcastBanner.png";
+  const heroSrc = resolveMediaUrl(
+    show?.heroImage || show?.thumbnail || "/assets/podcastBanner.png"
+  );
 
   const [expanded, setExpanded] = React.useState(false);
   const isLong = description.length > 120;

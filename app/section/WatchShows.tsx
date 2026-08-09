@@ -12,6 +12,7 @@ import Image from "next/image";
 import Link from "next/link";
 import apiList from "../../apiList";
 import { slugifyTitle } from "../lib/slugifyTitle";
+import { resolveMediaUrl } from "@/app/lib/mediaUrl";
 
 type ShowFromApi = {
   _id: string;
@@ -125,7 +126,7 @@ export default function WatchShows() {
             return {
               id: s._id,
               title: s.title,
-              src,
+              src: resolveMediaUrl(src),
               alt: s.title,
               slug: slugifyTitle(s.title),
             };

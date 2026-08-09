@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import apiList from "@/apiList";
 import { slugifyTitle } from "@/app/lib/slugifyTitle";
+import { resolveMediaUrl } from "@/app/lib/mediaUrl";
 
 export const revalidate = 60;
 
@@ -38,9 +39,11 @@ async function fetchShowEpisodes(showId: string): Promise<Episode[]> {
 }
 
 function pickShowImage(s: Show) {
-  return (s.thumbnail && s.thumbnail.trim()) ||
-    (s.heroImage && s.heroImage.trim()) ||
-    "/assets/exp.png";
+  return resolveMediaUrl(
+    (s.thumbnail && s.thumbnail.trim()) ||
+      (s.heroImage && s.heroImage.trim()) ||
+      "/assets/exp.png"
+  );
 }
 
 export default async function SearchPage(props: {
@@ -155,7 +158,7 @@ export default async function SearchPage(props: {
                 >
                   <div className="relative aspect-video">
                     <Image
-                      src={episode.thumbnail || "/assets/exp1.jpg"}
+                      src={resolveMediaUrl(episode.thumbnail, "/assets/exp1.jpg")}
                       alt={episode.title}
                       fill
                       className="object-cover"

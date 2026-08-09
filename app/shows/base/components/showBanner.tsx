@@ -2,6 +2,7 @@
 "use client";
 
 import { PipeText } from "@/app/components/PipeText";
+import { resolveMediaUrl } from "@/app/lib/mediaUrl";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -20,7 +21,9 @@ type ShowBannerProps = {
 export default function ShowBanner({ show }: ShowBannerProps) {
   const title = show?.title || "What a Show!";
   const description = (show?.description || "Adda. Game. Entertainment").trim();
-  const heroSrc = show?.heroImage || show?.thumbnail || "/assets/showBanner.jpg";
+  const heroSrc = resolveMediaUrl(
+    show?.heroImage || show?.thumbnail || "/assets/showBanner.jpg"
+  );
 
   const showKey = show?.slug || title;
   const filterHref = `/allEvents?show=${encodeURIComponent(showKey)}`;

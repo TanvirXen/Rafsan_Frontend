@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FiChevronLeft, FiChevronRight, FiPlay } from "react-icons/fi";
+import { resolveMediaUrl } from "@/app/lib/mediaUrl";
 
 type ShowCard = {
   id: string;
@@ -41,7 +42,7 @@ export default function FeaturedShows({ episodes }: Props) {
         id: ep._id,
         title: ep.title,
         subtitle: "Episode",
-        img: ep.thumbnail || "/assets/exp2.png",
+        img: resolveMediaUrl(ep.thumbnail, "/assets/exp2.png"),
         href: ep.link || "#",
       }));
     }

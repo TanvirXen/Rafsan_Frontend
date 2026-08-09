@@ -1,4 +1,16 @@
 /** @type {import('next').NextConfig} */
+function normalizeOrigin(input: string | undefined) {
+  const raw = String(input || "").trim().replace(/\/+$/, "");
+  if (!raw) return "";
+  return /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+}
+
+const uploadsOrigin = normalizeOrigin(
+  process.env.NEXT_PUBLIC_UPLOADS_ORIGIN ||
+    process.env.UPLOADS_ORIGIN ||
+    "https://api.rafsansabab.com"
+);
+
 const nextConfig = {
   images: {
     remotePatterns: [
@@ -21,6 +33,17 @@ const nextConfig = {
         pathname: "/**",
       },
     ],
+  },
+  async rewrites() {
+    if (!uploadsOrigin) return [];
+
+    const target = new URL(uploadsOrigin);
+    return [
+      {
+        source: "/uploads/:path*",
+        destination: `${target.origin}/uploads/:path*`,
+      },
+    ];
   },
 };
 

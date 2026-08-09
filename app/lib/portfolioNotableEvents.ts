@@ -1,5 +1,6 @@
 import apiList from "@/apiList";
 import { slugifyTitle } from "@/app/lib/slugifyTitle";
+import { resolveMediaUrl } from "./mediaUrl";
 
 export const PORTFOLIO_TYPES = [
   "Event Hosting",
@@ -82,7 +83,7 @@ function normalizeNotableEvent(
 ): PortfolioNotableEvent | null {
   const type = event.type?.trim();
   const title = event.title?.trim();
-  const image = event.imageLink?.trim();
+  const image = resolveMediaUrl(event.imageLink);
   const dateISO = event.date?.trim() ?? "";
   const description =
     event.description?.trim() || "Details for this event will be shared soon.";

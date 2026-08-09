@@ -19,6 +19,7 @@ import {
 } from "react-icons/fi";
 import { ChannelLogo } from "./ChannelLogo";
 import { PipeText } from "@/app/components/PipeText";
+import { resolveMediaUrl } from "@/app/lib/mediaUrl";
 
 type Season = {
   _id: string;
@@ -386,7 +387,7 @@ export default function EnhancedPlayer({
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setReady(false), [current?.youtubeId]);
 
-  const poster = current?.thumbnail || "/assets/exp1.jpg";
+  const poster = resolveMediaUrl(current?.thumbnail, "/assets/exp1.jpg");
   const watchOnYouTube = current?.youtubeId ? toWatchUrl(current.youtubeId) : null;
 
   const onEnded = () => {
@@ -714,7 +715,7 @@ export default function EnhancedPlayer({
 
                       <div className="relative h-[56px] w-[96px] overflow-hidden rounded-xl ring-1 ring-white/10 bg-black">
                         <Image
-                          src={ep.thumbnail || "/assets/exp1.jpg"}
+                          src={resolveMediaUrl(ep.thumbnail, "/assets/exp1.jpg")}
                           alt={ep.title}
                           fill
                           className="object-cover"

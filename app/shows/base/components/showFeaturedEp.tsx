@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { FaPlay } from "react-icons/fa";
+import { resolveMediaUrl } from "@/app/lib/mediaUrl";
 
 type Season = {
   _id: string;
@@ -51,7 +52,7 @@ const cards = useMemo(() => {
       id: ep._id,
       season: seasonTitle,
       episode: ep.title,
-      img: ep.thumbnail || "/assets/exp1.jpg",
+      img: resolveMediaUrl(ep.thumbnail, "/assets/exp1.jpg"),
       href: ep.link || "#",
       disabled: !ep.link,
     };

@@ -174,7 +174,7 @@ export default function NotFound() {
           <div className="flex flex-wrap items-center justify-center gap-3 px-6 py-5 sm:px-7">
             <Link
               href="/"
-              className="elza inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-[14px] font-extrabold text-black shadow-[0_14px_30px_rgba(255,255,255,.10)] hover:brightness-95 active:scale-[0.99]"
+              className="elza inline-flex items-center justify-center gap-2 rounded-full border border-white/15 bg-[#111114] px-6 py-3 text-[14px] font-extrabold text-white shadow-[0_14px_30px_rgba(255,255,255,.10)] hover:bg-[#1a1a20] active:scale-[0.99]"
             >
               <FiHome className="h-4 w-4" />
               Go Home
