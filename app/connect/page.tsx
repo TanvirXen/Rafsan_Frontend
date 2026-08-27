@@ -114,7 +114,7 @@ export default function ConnectPage() {
               <div className='leading-[1.2] [&>p]:m-0 [&>p+p]:mt-1'>
                 <p className='elza text-sm text-white/90'>For any kind of query</p>
                 <p className='elza text-[15px] font-semibold text-white sm:text-lg md:text-2xl'>
-                  Fazleh Kabir
+                  Kabir
                 </p>
                 <p className='elza text-sm text-white/80 sm:text-[15px]'>Manager</p>
                 <p className='elza text-sm font-bold text-white sm:text-[15px]'>

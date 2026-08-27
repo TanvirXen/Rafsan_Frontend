@@ -501,10 +501,10 @@ export default function UpcomingEventsHome() {
           {/* CTA */}
           <div className='mt-3 sm:mt-6 flex justify-center'>
             <Link
-              href='/allEvents'
+              href='/portfolio'
               className='elza inline-flex h-11 items-center justify-center rounded-full border border-[#40D7FF] px-6 text-sm font-semibold text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,.06)] transition hover:bg-white/10 sm:h-12 sm:text-base'
             >
-              Explore more!
+              Explore more
             </Link>
           </div>
         </div>

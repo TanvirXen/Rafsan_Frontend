@@ -50,12 +50,10 @@ export default function StoryFlipCard({
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setMobileFlipped(true);
-        }
+        setMobileFlipped(entry.intersectionRatio >= 0.55);
       },
       {
-        threshold: 0.45,
+        threshold: [0, 0.55, 1],
         rootMargin: "0px 0px -12% 0px",
       }
     );
@@ -77,7 +75,7 @@ export default function StoryFlipCard({
 
   const fullText = (
     <p
-      className={`elza text-[13px] leading-6 text-white/95 md:text-[16px] ${
+      className={`elza text-[13px] leading-6 text-white/95 drop-shadow-[0_2px_10px_rgba(0,0,0,.75)] md:text-[16px] ${
         reverse ? "text-left" : "text-right"
       }`}
     >
@@ -128,10 +126,8 @@ export default function StoryFlipCard({
           />
           <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(0,0,0,.78),rgba(0,0,0,.42))] backdrop-blur-[4px]" />
           <div className="relative z-10 flex h-full items-end p-5 md:p-6">
-            <div className="w-full rounded-[18px] bg-black/30 p-4 backdrop-blur-md">
-              <div className="max-h-[11rem] overflow-y-auto pr-1 [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,.35)_transparent]">
-                {fullText}
-              </div>
+            <div className="w-full max-h-[11rem] overflow-y-auto pr-1 [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,.35)_transparent]">
+              {fullText}
             </div>
           </div>
         </div>

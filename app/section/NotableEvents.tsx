@@ -242,10 +242,10 @@ export default function NotableEvents({ events }: { events?: NotableEventCard[] 
 
           <Zig from='right' delay={0.2}>
             <Link
-              href='/allEvents'
+              href='/portfolio'
               className='elza inline-flex h-11 items-center justify-center rounded-full border border-[#00D8FF] px-6 text-sm font-bold text-white transition hover:bg-white/6'
             >
-              Explore more events!
+              Explore more
             </Link>
           </Zig>
         </div>
@@ -293,10 +293,10 @@ export default function NotableEvents({ events }: { events?: NotableEventCard[] 
 
         <div className={`${railInner} mt-10 flex justify-center`}>
           <Link
-            href='/allEvents'
+            href='/portfolio'
             className='elza inline-flex h-12 items-center justify-center rounded-full border border-[#00D8FF] px-6 text-[16px] font-bold text-white transition hover:bg-white/6'
           >
-            Explore more events!
+            Explore more
           </Link>
         </div>
       </div>
