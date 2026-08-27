@@ -222,7 +222,9 @@ function EpisodeCard({
   style: React.CSSProperties;
 }) {
   const hasLink = !!ep.link?.trim(); // we only enable play if there is a link
-  const watchHref = hasLink ? { target: "_blank", rel: "noopener noreferrer" } : {};
+  const playerHref = `/shows/${encodeURIComponent(showSlug)}?ep=${encodeURIComponent(
+    ep._id
+  )}`;
 
   return (
     <article
@@ -262,8 +264,7 @@ function EpisodeCard({
           </span>
         ) : (
           <Link
-            href={ep.link || "#"}
-            {...watchHref}
+            href={playerHref}
             prefetch={false}
             className="
               absolute bottom-3 right-3

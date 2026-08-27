@@ -1,5 +1,4 @@
 // app/shows/[slug]/page.tsx
-import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import apiList from "@/apiList";
@@ -16,6 +15,7 @@ import Newsletter from "@/app/section/newsletter";
 import EnhancedPlayer from "./components/EnhancedPlayer";
 import EventsSection from "@/app/allEvents/components/EventsSection";
 import { buildUpcoming, fetchAllEvents } from "@/app/lib/events";
+import type { EventItem } from "@/app/lib/events";
 
 export const revalidate = 60;
 
@@ -195,7 +195,7 @@ export default async function ShowPage(props: {
   const { show, seasons, episodes } = data;
 
   // Fetch and filter upcoming events for this show
-  let matchedEvents: any[] = [];
+  let matchedEvents: EventItem[] = [];
   try {
     const allEvents = await fetchAllEvents(200);
     const upcoming = buildUpcoming(allEvents);
@@ -248,11 +248,7 @@ export default async function ShowPage(props: {
       {playerMode && (
         <>
           {videoJsonLd && (
-            <script
-              type="application/ld+json"
-              // eslint-disable-next-line react/no-danger
-              dangerouslySetInnerHTML={{ __html: JSON.stringify(videoJsonLd) }}
-            />
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(videoJsonLd) }} />
           )}
 
           <EnhancedPlayer
@@ -262,9 +258,6 @@ export default async function ShowPage(props: {
             episodes={episodes}
             initialEpisodeId={selectedEpId}
           />
-
-          {/* ✅ Player-only mode: no other sections below */}
-          <Newsletter />
         </>
       )}
 
@@ -273,7 +266,7 @@ export default async function ShowPage(props: {
           {variant === "podcast" ? (
             <>
               <PodcastBanner show={show} />
-              <FeaturedShows episodes={episodes} />
+              <FeaturedShows episodes={episodes} showSlug={slug} />
               {matchedEvents.length > 0 && (
                 <EventsSection title="Upcoming Events" events={matchedEvents} divider={true} variant="small" />
               )}
@@ -282,7 +275,7 @@ export default async function ShowPage(props: {
           ) : (
             <>
               <ShowBanner show={show} />
-              <ShowFeaturedEp seasons={seasons} episodes={episodes} />
+              <ShowFeaturedEp seasons={seasons} episodes={episodes} showSlug={slug} />
               {matchedEvents.length > 0 && (
                 <EventsSection title="Upcoming Events" events={matchedEvents} divider={true} variant="small" />
               )}

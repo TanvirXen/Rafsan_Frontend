@@ -3,8 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { FaPlay } from "react-icons/fa";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { resolveMediaUrl } from "@/app/lib/mediaUrl";
 
 type Season = {
@@ -24,74 +24,75 @@ type Episode = {
 type ShowFeaturedEpProps = {
   seasons: Season[];
   episodes: Episode[];
+  showSlug: string;
 };
+
+type CardData = {
+  id: string;
+  season: string;
+  episode: string;
+  img: string;
+  href: string;
+  disabled?: boolean;
+};
+
+const GAP = 24;
 
 export default function ShowFeaturedEp({
   seasons,
   episodes,
+  showSlug,
 }: ShowFeaturedEpProps) {
-  // Build seasons map
   const seasonMap = useMemo(() => {
-    const m = new Map<string, Season>();
-    seasons.forEach((s) => m.set(s._id, s));
-    return m;
+    const map = new Map<string, Season>();
+    seasons.forEach((season) => map.set(season._id, season));
+    return map;
   }, [seasons]);
 
-  // Derive cards from episodes
-const cards = useMemo(() => {
-  if (!episodes?.length) return [];
+  const cards: CardData[] = useMemo(() => {
+    if (!episodes?.length) return [];
 
-  // ✅ only keep featured === true
-  const featured = episodes.filter((e) => e.featured);
+    const featured = episodes.filter((episode) => episode.featured);
+    const source = featured.length ? featured : episodes.slice(0, 6);
 
-  if (!featured.length) return []; // or show a message instead
+    return source.map((episode) => ({
+      id: episode._id,
+      season: seasonMap.get(episode.seasonId)?.title ?? "Season",
+      episode: episode.title,
+      img: resolveMediaUrl(episode.thumbnail, "/assets/exp1.jpg"),
+      href: episode.link
+        ? `/shows/${encodeURIComponent(showSlug)}?ep=${encodeURIComponent(episode._id)}`
+        : "#",
+      disabled: !episode.link,
+    }));
+  }, [episodes, seasonMap, showSlug]);
 
-  return featured.map((ep) => {
-    const seasonTitle = seasonMap.get(ep.seasonId)?.title ?? "Season";
-    return {
-      id: ep._id,
-      season: seasonTitle,
-      episode: ep.title,
-      img: resolveMediaUrl(ep.thumbnail, "/assets/exp1.jpg"),
-      href: ep.link || "#",
-      disabled: !ep.link,
-    };
-  });
-}, [episodes, seasonMap]);
-
-
-  /** responsive cards per view */
   const [perView, setPerView] = useState(4);
   useEffect(() => {
     const onResize = () => {
-      const w = window.innerWidth;
-      setPerView(w >= 1024 ? 4 : w >= 768 ? 2 : 1);
+      const width = window.innerWidth;
+      setPerView(width >= 1024 ? 4 : width >= 768 ? 2 : 1);
     };
+
     onResize();
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  /** Calculate total pages (groups of cards) */
   const totalPages = Math.ceil(cards.length / perView);
-
-  /** scroll-snap carousel state */
   const railRef = useRef<HTMLDivElement | null>(null);
   const [activePage, setActivePage] = useState(0);
 
-  /** Scroll to a specific PAGE */
   const scrollToPage = (pageIndex: number) => {
     const el = railRef.current;
     if (!el || !cards.length) return;
 
     const targetPage = Math.max(0, Math.min(pageIndex, totalPages - 1));
-    const cardIndex = targetPage * perView;
-    const cardElement = el.querySelector(".featured-card") as HTMLElement;
-    
+    const cardElement = el.querySelector(".featured-card") as HTMLElement | null;
     if (!cardElement) return;
 
     const cardWidth = cardElement.offsetWidth;
-    const targetScrollLeft = cardIndex * (cardWidth + GAP);
+    const targetScrollLeft = targetPage * perView * (cardWidth + GAP);
 
     el.scrollTo({
       left: targetScrollLeft,
@@ -100,7 +101,6 @@ const cards = useMemo(() => {
     setActivePage(targetPage);
   };
 
-  /** Controls */
   const next = () => {
     const nextPage = activePage >= totalPages - 1 ? 0 : activePage + 1;
     scrollToPage(nextPage);
@@ -110,19 +110,17 @@ const cards = useMemo(() => {
     const prevPage = activePage <= 0 ? totalPages - 1 : activePage - 1;
     scrollToPage(prevPage);
   };
-  const GAP = 24;
 
-  /** Update active page on scroll */
   useEffect(() => {
     const el = railRef.current;
     if (!el || !cards.length) return;
 
     const updatePageOnScroll = () => {
-      const cardElement = el.querySelector(".featured-card") as HTMLElement;
+      const cardElement = el.querySelector(".featured-card") as HTMLElement | null;
       if (!cardElement) return;
 
       const fullCardWidth = cardElement.offsetWidth + GAP;
-      if (fullCardWidth === 0) return;
+      if (!fullCardWidth) return;
 
       const newPageIndex = Math.round(el.scrollLeft / (fullCardWidth * perView));
       const clampedIndex = Math.max(0, Math.min(newPageIndex, totalPages - 1));
@@ -131,20 +129,18 @@ const cards = useMemo(() => {
 
     let ticking = false;
     const onScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          updatePageOnScroll();
-          ticking = false;
-        });
-        ticking = true;
-      }
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(() => {
+        updatePageOnScroll();
+        ticking = false;
+      });
     };
 
     el.addEventListener("scroll", onScroll, { passive: true });
     return () => el.removeEventListener("scroll", onScroll);
   }, [cards.length, perView, totalPages]);
 
-  /** --- mouse hold & drag to scroll + CLICK BLOCKING --- */
   const draggingRef = useRef(false);
   const dragStartXRef = useRef(0);
   const dragScrollLeftRef = useRef(0);
@@ -167,8 +163,7 @@ const cards = useMemo(() => {
     const el = railRef.current;
     if (!el) return;
     e.preventDefault();
-    const currentX = e.pageX;
-    const dist = currentX - dragStartXRef.current;
+    const dist = e.pageX - dragStartXRef.current;
     dragDistanceRef.current = Math.abs(dist);
     el.scrollLeft = dragScrollLeftRef.current - dist;
   };
@@ -195,181 +190,138 @@ const cards = useMemo(() => {
   if (!cards.length) return null;
 
   return (
-    <section className='relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-0 text-white overflow-x-hidden'>
-      {/* header */}
-      <div className='mb-4 mt-10 flex items-center justify-between'>
-        <h2 className='recoleta text-2xl sm:text-3xl lg:text-4xl font-extrabold'>
+    <section className="relative mx-auto max-w-6xl overflow-x-hidden px-4 text-white sm:px-6 lg:px-0">
+      <div className="mb-4 mt-10 flex items-center justify-between">
+        <h2 className="recoleta text-2xl font-extrabold sm:text-3xl lg:text-4xl">
           Featured Episodes
         </h2>
 
-        <div className='flex items-center gap-2'>
+        <div className="flex items-center gap-2">
           <button
-            aria-label='Previous'
+            aria-label="Previous"
             onClick={prev}
-            className='grid h-8 w-8 place-items-center rounded-md bg-white/10 p-1 ring-1 ring-white/10 hover:bg-white/20 transition'
+            className="grid h-8 w-8 place-items-center rounded-md bg-white/10 p-1 ring-1 ring-white/10 transition hover:bg-white/20"
           >
-            <FiChevronLeft className='h-4 w-4 text-white/70' />
+            <FiChevronLeft className="h-4 w-4 text-white/70" />
           </button>
           <button
-            aria-label='Next'
+            aria-label="Next"
             onClick={next}
-            className='grid h-8 w-8 place-items-center rounded-md bg-white/10 p-1 ring-1 ring-white/10 hover:bg-white/20 transition'
+            className="grid h-8 w-8 place-items-center rounded-md bg-white/10 p-1 ring-1 ring-white/10 transition hover:bg-white/20"
           >
-            <FiChevronRight className='h-4 w-4 text-white/70' />
+            <FiChevronRight className="h-4 w-4 text-white/70" />
           </button>
         </div>
       </div>
 
-      {/* scroll-snap rail */}
       <div
         ref={railRef}
-        className='
-          relative
-          overflow-x-auto overflow-y-visible
+        className="
+          relative overflow-x-auto overflow-y-visible cursor-grab
           snap-x snap-mandatory
           [scrollbar-width:none] [-ms-overflow-style:none]
           [&::-webkit-scrollbar]:hidden
-          cursor-grab
-        '
+        "
         onMouseDown={onMouseDown}
         onMouseMove={onMouseMove}
         onMouseUp={endDrag}
         onMouseLeave={endDrag}
       >
-        <div className='flex' style={{ gap: GAP }}>
-          {cards.map((c) => (
-            <Card 
-              key={c.id} 
-              card={c} 
-              basis={cardBasis} 
+        <div className="flex" style={{ gap: GAP }}>
+          {cards.map((card) => (
+            <Card
+              key={card.id}
+              card={card}
+              basis={cardBasis}
               onLinkClick={handleLinkClick}
             />
           ))}
         </div>
       </div>
 
-      {/* Dots */}
-      <div className='mt-6 flex items-center justify-center gap-3'>
+      <div className="mt-6 flex items-center justify-center gap-3">
         {Array.from({ length: totalPages }).map((_, i) => (
           <button
             key={i}
             onClick={() => scrollToPage(i)}
             aria-label={`Go to page ${i + 1}`}
             className={`h-2 w-2 rounded-full transition-all duration-300 ${
-              activePage === i
-                ? "bg-white scale-125"
-                : "bg-white/40 hover:bg-white/70"
+              activePage === i ? "scale-125 bg-white" : "bg-white/40 hover:bg-white/70"
             }`}
           />
         ))}
       </div>
 
-      <div className='mx-auto mt-10 w-full max-w-[520px] px-6 lg:px-0'>
-        <div className='h-0.5 rounded-full bg-linear-to-r from-transparent via-[#00D8FF]/80 to-transparent' />
+      <div className="mx-auto mt-10 w-full max-w-[520px] px-6 lg:px-0">
+        <div className="h-0.5 rounded-full bg-linear-to-r from-transparent via-[#00D8FF]/80 to-transparent" />
       </div>
     </section>
   );
 }
 
-type CardData = {
-  id: string;
-  season: string;
-  episode: string;
-  img: string;
-  href: string;
-  disabled?: boolean;
-};
-
-function Card({ 
-  card, 
-  basis, 
-  onLinkClick 
-}: { 
-  card: CardData; 
+function Card({
+  card,
+  basis,
+  onLinkClick,
+}: {
+  card: CardData;
   basis: string;
-  onLinkClick: (e: React.MouseEvent) => void; 
+  onLinkClick: (e: React.MouseEvent) => void;
 }) {
   const { season, episode, img, href, disabled } = card;
 
   const inner = (
     <article
-      className='
-      featured-card
-  group 
-  snap-start 
-  relative overflow-hidden rounded-2xl ring-1 ring-white/10
-  shadow-[0_10px_25px_rgba(0,0,0,.45)]
-  h-[240px] sm:h-[260px] md:h-[180px]
-  select-none
-      '
+      className="
+        featured-card group relative h-[180px] select-none overflow-hidden rounded-2xl
+        ring-1 ring-white/10 shadow-[0_10px_25px_rgba(0,0,0,.45)]
+        sm:h-[200px] md:h-[180px]
+      "
       style={{ flex: `0 0 ${basis}` }}
     >
-      {/* Background Image with Zoom Effect */}
       <Image
         src={img}
-        alt={`${season} ${episode}`}
+        alt={episode}
         fill
-        className='
-          object-fill pointer-events-none 
-          transition-transform duration-700 ease-in-out 
+        sizes="(max-width:1024px) 60vw, 25vw"
+        className="
+          object-cover object-center
+          transition-transform duration-700 ease-in-out
           group-hover:scale-110
-        '
-        sizes='(max-width:1024px) 50vw, 25vw'
+        "
       />
-      
-      {/* Dark overlay that gets stronger on hover */}
-      <div className='absolute inset-0 bg-black/10 transition-colors duration-300 group-hover:bg-black/40 pointer-events-none' />
-      
-      {/* Bottom Gradient - Taller to support text expansion */}
-      <div className='absolute inset-0 bg-linear-to-t from-black via-black/40 to-transparent pointer-events-none opacity-90' />
 
-      {/* Content Container */}
-      <div className='absolute inset-x-0 bottom-0 p-4 pointer-events-none'>
-        
-        {/* 
-           Wrapper handles the Layout. 
-           pr-[48px] creates a safe zone on the right for the Play button,
-           so text wraps before hitting it.
-        */}
-        <div className='relative pr-[48px]'>
-          
-          <p className='recoleta text-[15px] sm:text-[16px] font-bold text-white drop-shadow-sm truncate mb-0.5'>
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,.10)_0%,rgba(0,0,0,.22)_45%,rgba(0,0,0,.72)_100%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.35)_0%,rgba(0,0,0,.15)_55%,rgba(0,0,0,0)_100%)]" />
+
+      <div className="absolute inset-x-0 bottom-0 p-4">
+        <div className="relative pr-[52px]">
+          <p className="recoleta mb-0.5 truncate text-[15px] font-bold text-white drop-shadow-sm sm:text-[16px]">
             {season}
           </p>
-          
-          {/* 
-             Title Logic: 
-             Default: line-clamp-1 (shows ...)
-             Hover: line-clamp-none (expands upwards to show full text)
-          */}
-          <p className='
-            elza text-[12px] sm:text-[13px] text-white/85 
-            line-clamp-1 group-hover:line-clamp-none
-            transition-all duration-300
-          '>
+          <p className="elza line-clamp-2 text-[12px] leading-[1.15] text-white/85 sm:text-[13px]">
             {episode}
           </p>
-
         </div>
 
-        {/* Play Button - Positioned Absolute Bottom Right */}
-        <div className='absolute bottom-4 right-4 z-20'>
-          <div 
-            className='
-              flex items-center justify-center 
-              h-10 w-10 rounded-full 
-              bg-white/20 backdrop-blur-md 
-              shadow-[0_4px_12px_rgba(0,0,0,0.5)]
-              ring-1 ring-white/50
-              opacity-0 translate-y-2 scale-90
-              transition-all duration-300 ease-out
-              group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100
-            '
-          >
-            <FaPlay className="text-white ml-0.5 text-xs sm:text-sm" />
-          </div>
+        <div className="absolute bottom-4 right-4">
+          {disabled ? (
+            <span className="grid h-10 w-10 place-items-center rounded-full bg-white/10 text-[10px] text-white/60 ring-1 ring-white/25">
+              N/A
+            </span>
+          ) : (
+            <div
+              className="
+                grid h-10 w-10 place-items-center rounded-full
+                bg-white/18 ring-1 ring-white/35 backdrop-blur-[4px]
+                shadow-[0_6px_16px_rgba(0,0,0,.55)]
+                transition group-hover:bg-white/25
+              "
+            >
+              <FaPlay className="text-sm text-white" />
+            </div>
+          )}
         </div>
-
       </div>
     </article>
   );
@@ -381,11 +333,10 @@ function Card({
   return (
     <Link
       href={href}
-      target='_blank'
-      rel='noopener noreferrer'
-      className='block'
+      prefetch={false}
+      className="block"
       style={{ flex: `0 0 ${basis}` }}
-      onClick={onLinkClick} 
+      onClick={onLinkClick}
       draggable={false}
     >
       {inner}

@@ -19,6 +19,7 @@ type Episode = {
   title: string;
   thumbnail?: string;
   link?: string;
+  featured?: boolean;
 };
 
 const STATIC_SHOWS: ShowCard[] = [
@@ -29,25 +30,34 @@ const STATIC_SHOWS: ShowCard[] = [
 
 type Props = {
   episodes?: Episode[];
+  /** slug of the show, used to open the in-site player */
+  showSlug?: string;
 };
 
 type CSSWithVars = React.CSSProperties & {
   ["--slide-w"]?: string;
 };
 
-export default function FeaturedShows({ episodes }: Props) {
+export default function FeaturedShows({ episodes, showSlug }: Props) {
   const cards: ShowCard[] = useMemo(() => {
     if (episodes?.length) {
-      return episodes.slice(0, 6).map((ep) => ({
+      // Show ALL featured episodes (matching the cinematic variant); only
+      // fall back to the first few episodes if none are flagged featured.
+      const featured = episodes.filter((ep) => ep.featured);
+      const source = featured.length ? featured : episodes.slice(0, 6);
+      return source.map((ep) => ({
         id: ep._id,
         title: ep.title,
         subtitle: "Episode",
         img: resolveMediaUrl(ep.thumbnail, "/assets/exp2.png"),
-        href: ep.link || "#",
+        href:
+          ep.link && showSlug
+            ? `/shows/${encodeURIComponent(showSlug)}?ep=${encodeURIComponent(ep._id)}`
+            : "#",
       }));
     }
     return STATIC_SHOWS;
-  }, [episodes]);
+  }, [episodes, showSlug]);
 
   // hydration-safe viewport detect
   const [isMobile, setIsMobile] = useState(false);

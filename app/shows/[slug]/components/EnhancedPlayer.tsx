@@ -6,18 +6,16 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import {
+  FiChevronDown,
   FiChevronLeft,
   FiChevronRight,
-  FiExternalLink,
   FiList,
-  FiSearch,
-  FiPlay,
-  FiX,
   FiMaximize,
   FiMinimize,
-  FiChevronDown,
+  FiPlay,
+  FiSearch,
+  FiX,
 } from "react-icons/fi";
-import { ChannelLogo } from "./ChannelLogo";
 import { PipeText } from "@/app/components/PipeText";
 import { resolveMediaUrl } from "@/app/lib/mediaUrl";
 
@@ -56,12 +54,9 @@ function extractLastNumber(input?: string | null): number {
   return Number(m[m.length - 1]);
 }
 
-/* ---------------------- YouTube helpers ---------------------- */
-
 function getYouTubeId(input: string): string | null {
   try {
     const u = new URL(input);
-
     if (u.hostname.includes("youtu.be")) {
       const id = u.pathname.split("/").filter(Boolean)[0];
       return id || null;
@@ -89,10 +84,35 @@ function toWatchUrl(youtubeId: string) {
   return `https://www.youtube.com/watch?v=${youtubeId}`;
 }
 
-const CHANNEL_SUBSCRIBE_URL =
-  "https://www.youtube.com/@WHATASHOW_OFFICIAL?sub_confirmation=1";
+function isFacebookUrl(input: string): boolean {
+  return /(?:facebook\.com|fb\.watch|fb\.me)\//i.test(input);
+}
 
-/* ---------------------- Isolated YT Mount (fixed origin + safer init) ---------------------- */
+function toFacebookEmbedUrl(input: string): string {
+  const params = new URLSearchParams({
+    href: input,
+    show_text: "false",
+    autoplay: "true",
+    width: "1280",
+    allowfullscreen: "true",
+  });
+  return `https://www.facebook.com/plugins/video.php?${params.toString()}`;
+}
+
+type VideoSource =
+  | { platform: "youtube"; youtubeId: string; embedUrl: null }
+  | { platform: "facebook"; youtubeId: null; embedUrl: string }
+  | { platform: null; youtubeId: null; embedUrl: null };
+
+function resolveVideoSource(link?: string | null): VideoSource {
+  if (!link) return { platform: null, youtubeId: null, embedUrl: null };
+  const yt = getYouTubeId(link);
+  if (yt) return { platform: "youtube", youtubeId: yt, embedUrl: null };
+  if (isFacebookUrl(link)) {
+    return { platform: "facebook", youtubeId: null, embedUrl: toFacebookEmbedUrl(link) };
+  }
+  return { platform: null, youtubeId: null, embedUrl: null };
+}
 
 type YTMountProps = {
   youtubeId: string | null;
@@ -100,11 +120,7 @@ type YTMountProps = {
   onEnded?: () => void;
 };
 
-const YTMount = memo(function YTMount({
-  youtubeId,
-  onReady,
-  onEnded,
-}: YTMountProps) {
+const YTMount = memo(function YTMount({ youtubeId, onReady, onEnded }: YTMountProps) {
   const mountRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<any>(null);
 
@@ -131,7 +147,6 @@ const YTMount = memo(function YTMount({
       if (window.YT?.Player) return resolve();
 
       let done = false;
-
       const prev = window.onYouTubeIframeAPIReady;
       window.onYouTubeIframeAPIReady = () => {
         try {
@@ -142,7 +157,6 @@ const YTMount = memo(function YTMount({
         resolve();
       };
 
-      // Safety poll (prevents hanging forever if callback already fired)
       const start = Date.now();
       const tick = () => {
         if (window.YT?.Player) {
@@ -153,7 +167,6 @@ const YTMount = memo(function YTMount({
           return;
         }
         if (Date.now() - start > 8000) {
-          // resolve anyway; create() will no-op if YT still missing
           if (!done) {
             done = true;
             resolve();
@@ -181,7 +194,6 @@ const YTMount = memo(function YTMount({
           autoplay: 1,
           rel: 0,
           modestbranding: 1,
-          // ✅ fixes your "postMessage origin mismatch" in dev/local
           origin: window.location.origin,
           enablejsapi: 1,
         },
@@ -207,8 +219,6 @@ const YTMount = memo(function YTMount({
   return <div ref={mountRef} className="absolute inset-0 h-full w-full" />;
 });
 
-/* ---------------------- Component ---------------------- */
-
 type Props = {
   showSlug: string;
   showTitle?: string;
@@ -226,7 +236,6 @@ export default function EnhancedPlayer({
 }: Props) {
   const shellRef = useRef<HTMLDivElement | null>(null);
 
-  // ✅ season sort: 9 -> 8 -> 7 ...
   const seasonsSorted = useMemo(() => {
     const copy = [...seasons];
     copy.sort((a, b) => {
@@ -244,20 +253,24 @@ export default function EnhancedPlayer({
     return m;
   }, [seasons]);
 
-  const normalized = useMemo(() => {
-    return episodes.map((ep) => {
-      const yt = ep.link ? getYouTubeId(ep.link) : null;
-      return {
-        ...ep,
-        youtubeId: yt,
-        watchUrl: yt ? toWatchUrl(yt) : null,
-        seasonTitle: seasonById.get(ep.seasonId)?.title || "Season",
-        _epSort: extractLastNumber(ep.title),
-      };
-    });
-  }, [episodes, seasonById]);
+  const normalized = useMemo(
+    () =>
+      episodes.map((ep) => {
+        const src = resolveVideoSource(ep.link);
+        return {
+          ...ep,
+          youtubeId: src.youtubeId,
+          fbEmbedUrl: src.embedUrl,
+          platform: src.platform,
+          playable: src.platform !== null,
+          watchUrl: src.youtubeId ? toWatchUrl(src.youtubeId) : ep.link || null,
+          seasonTitle: seasonById.get(ep.seasonId)?.title || "Season",
+          _epSort: extractLastNumber(ep.title),
+        };
+      }),
+    [episodes, seasonById]
+  );
 
-  // ✅ build master order: Season 9.. then episodes 9.. inside each
   const playlistAll = useMemo(() => {
     const bySeason = new Map<string, typeof normalized>();
     for (const ep of normalized) {
@@ -282,29 +295,32 @@ export default function EnhancedPlayer({
   }, [normalized, seasonsSorted]);
 
   const firstPlayable = useMemo(
-    () => playlistAll.find((e) => !!e.youtubeId) || playlistAll[0],
+    () => playlistAll.find((e) => e.playable) || playlistAll[0],
     [playlistAll]
   );
 
   const [query, setQuery] = useState("");
   const [onlyFeatured, setOnlyFeatured] = useState(false);
-  const [autoplay, setAutoplay] = useState(true);
+  const [autoplay] = useState(true);
   const [panelOpen, setPanelOpen] = useState(true);
-
-  // ✅ Season dropdown filter (custom themed)
   const [seasonFilter, setSeasonFilter] = useState<string>("all");
   const [seasonMenuOpen, setSeasonMenuOpen] = useState(false);
-  const seasonMenuRef = useRef<HTMLDivElement | null>(null);
-
-  // ✅ theater + fullscreen
-  const [theater, setTheater] = useState(false);
+  const [theater, setTheater] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const seasonMenuRef = useRef<HTMLDivElement | null>(null);
 
   const [currentId, setCurrentId] = useState<string>(
     initialEpisodeId || firstPlayable?._id || ""
   );
 
-  // back/forward
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, []);
+
   useEffect(() => {
     const onPop = () => {
       const sp = new URLSearchParams(window.location.search);
@@ -315,16 +331,12 @@ export default function EnhancedPlayer({
     return () => window.removeEventListener("popstate", onPop);
   }, []);
 
-  // keep URL shareable
   useEffect(() => {
     if (!currentId) return;
-    const url = `/shows/${encodeURIComponent(showSlug)}?ep=${encodeURIComponent(
-      currentId
-    )}`;
+    const url = `/shows/${encodeURIComponent(showSlug)}?ep=${encodeURIComponent(currentId)}`;
     window.history.replaceState(null, "", url);
   }, [currentId, showSlug]);
 
-  // close season menu on outside click
   useEffect(() => {
     const onDown = (e: MouseEvent) => {
       if (!seasonMenuOpen) return;
@@ -339,11 +351,9 @@ export default function EnhancedPlayer({
 
   const playlistVisible = useMemo(() => {
     const q = query.trim().toLowerCase();
-
     return playlistAll.filter((e) => {
       if (seasonFilter !== "all" && e.seasonId !== seasonFilter) return false;
       if (onlyFeatured && !e.featured) return false;
-
       if (q) {
         const hay = `${e.title} ${e.seasonTitle}`.toLowerCase();
         if (!hay.includes(q)) return false;
@@ -352,11 +362,11 @@ export default function EnhancedPlayer({
     });
   }, [playlistAll, query, onlyFeatured, seasonFilter]);
 
-  const current = useMemo(() => {
-    return playlistAll.find((e) => e._id === currentId) || firstPlayable;
-  }, [playlistAll, currentId, firstPlayable]);
+  const current = useMemo(
+    () => playlistAll.find((e) => e._id === currentId) || firstPlayable,
+    [playlistAll, currentId, firstPlayable]
+  );
 
-  // nav should always work (even if current filtered out)
   const navList = useMemo(() => {
     const inVisible = playlistVisible.some((e) => e._id === current?._id);
     return inVisible ? playlistVisible : playlistAll;
@@ -383,12 +393,10 @@ export default function EnhancedPlayer({
     nextIdRef.current = nextEp?._id ?? null;
   }, [nextEp?._id]);
 
-  const [ready, setReady] = useState(false);
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => setReady(false), [current?.youtubeId]);
+  const [readyId, setReadyId] = useState<string | null>(null);
+  const ready = readyId === current?._id;
 
   const poster = resolveMediaUrl(current?.thumbnail, "/assets/exp1.jpg");
-  const watchOnYouTube = current?.youtubeId ? toWatchUrl(current.youtubeId) : null;
 
   const onEnded = () => {
     if (!autoplayRef.current) return;
@@ -422,11 +430,10 @@ export default function EnhancedPlayer({
   return (
     <section
       className={cn(
-        "mx-auto max-w-6xl px-4 sm:px-6 lg:px-0 pt-6 text-white",
-        theater ? "min-h-[calc(100svh-64px)]" : ""
+        "fixed inset-0 z-[60] overflow-hidden text-white",
+        "bg-[radial-gradient(circle_at_top,rgba(162,82,255,0.20),transparent_34%),linear-gradient(180deg,#120a1d_0%,#09070f_48%,#050508_100%)]"
       )}
     >
-      {/* load once */}
       <Script
         id="youtube-iframe-api"
         src="https://www.youtube.com/iframe_api"
@@ -436,22 +443,19 @@ export default function EnhancedPlayer({
       <div
         ref={shellRef}
         className={cn(
-          "overflow-hidden rounded-3xl ring-1 ring-white/10 bg-[#0f0f0f] shadow-[0_22px_70px_rgba(0,0,0,.55)]",
+          "flex h-[100svh] w-full flex-col overflow-hidden border border-white/10",
+          "bg-[linear-gradient(180deg,rgba(18,10,29,.96),rgba(7,6,12,.98))]",
+          "shadow-[0_30px_120px_rgba(0,0,0,.7)]",
           isFullscreen ? "rounded-none" : ""
         )}
       >
-        <div
-          className={cn(
-            "grid grid-cols-1 lg:grid-cols-[1fr_380px]",
-            theater ? "lg:min-h-[calc(100svh-120px)]" : ""
-          )}
-        >
-          {/* LEFT */}
-          <div className="p-4">
+        <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_420px]">
+          <div className="flex min-h-0 flex-col gap-4 p-3 sm:p-4 lg:p-5">
             <div
               className={cn(
-                "relative w-full overflow-hidden rounded-2xl bg-black ring-1 ring-white/10",
-                theater ? "aspect-video lg:aspect-auto lg:h-[calc(100svh-240px)]" : "aspect-video"
+                "relative min-h-[44svh] flex-1 overflow-hidden rounded-[28px] border border-white/10 bg-black",
+                "ring-1 ring-purple-500/15 shadow-[0_18px_60px_rgba(0,0,0,.55)]",
+                theater ? "lg:min-h-0" : ""
               )}
             >
               <Image
@@ -468,7 +472,7 @@ export default function EnhancedPlayer({
 
               <div
                 className={cn(
-                  "absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,.12)_0%,rgba(0,0,0,.40)_55%,rgba(0,0,0,.78)_100%)] transition-opacity duration-300",
+                  "absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,.10)_0%,rgba(0,0,0,.34)_52%,rgba(0,0,0,.80)_100%)] transition-opacity duration-300",
                   ready ? "opacity-0" : "opacity-100"
                 )}
               />
@@ -481,115 +485,121 @@ export default function EnhancedPlayer({
                 </div>
               )}
 
-              <YTMount
-                youtubeId={current?.youtubeId || null}
-                onReady={() => setReady(true)}
-                onEnded={onEnded}
-              />
-
-              {!current?.youtubeId && (
+              {current?.youtubeId ? (
+                <YTMount
+                  youtubeId={current.youtubeId}
+                  onReady={() => setReadyId(current?._id ?? null)}
+                  onEnded={onEnded}
+                />
+              ) : current?.fbEmbedUrl ? (
+                <iframe
+                  key={current._id}
+                  src={current.fbEmbedUrl}
+                  title={current.title}
+                  className="absolute inset-0 h-full w-full"
+                  style={{ border: 0, overflow: "hidden" }}
+                  scrolling="no"
+                  frameBorder="0"
+                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                  allowFullScreen
+                  onLoad={() => setReadyId(current?._id ?? null)}
+                />
+              ) : (
                 <div className="absolute inset-0 grid place-items-center text-white/70">
-                  This episode has no playable YouTube link.
+                  This episode has no playable video link.
                 </div>
               )}
             </div>
 
-      <h1 className="recoleta mt-4 text-[18px] sm:text-[22px] font-extrabold leading-snug">
-  <PipeText text={current?.title ?? ""} pipeClassName="recoleta" />
-</h1>
-
-            <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-             
-              <div className="flex items-center gap-3">
-                                    <ChannelLogo />
-
-                <a
-                  href={CHANNEL_SUBSCRIBE_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center rounded-full bg-white px-4 py-2 text-sm font-extrabold text-black hover:brightness-95"
-                >
-                  Subscribe
-                </a>
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-2">
+                <p className="elza text-xs font-extrabold uppercase tracking-[0.34em] text-purple-200/70">
+                  Now Playing
+                </p>
+                <h1 className="recoleta text-[18px] font-extrabold leading-snug sm:text-[22px] lg:text-[26px]">
+                  <PipeText text={current?.title ?? ""} pipeClassName="recoleta" />
+                </h1>
               </div>
 
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  onClick={() => setPanelOpen(true)}
-                  className="elza inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-extrabold hover:bg-white/15 lg:hidden"
-                  title="Open playlist"
-                >
-                  <FiList /> Playlist
-                </button>
+              <div className="flex flex-col gap-3 rounded-[24px] border border-white/8 bg-white/[0.03] p-3 backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    onClick={() => setPanelOpen(true)}
+                    className="elza inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-extrabold hover:bg-white/15 lg:hidden"
+                    title="Open playlist"
+                  >
+                    <FiList /> Playlist
+                  </button>
 
-                <button
-                  onClick={() => prevEp && setCurrentId(prevEp._id)}
-                  disabled={!prevEp}
-                  className={cn(
-                    "elza inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold",
-                    prevEp
-                      ? "bg-white/10 hover:bg-white/15"
-                      : "bg-white/5 text-white/40 cursor-not-allowed"
-                  )}
-                >
-                  <FiChevronLeft /> Previous
-                </button>
+                  <button
+                    onClick={() => prevEp && setCurrentId(prevEp._id)}
+                    disabled={!prevEp}
+                    className={cn(
+                      "elza inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold",
+                      prevEp
+                        ? "bg-white/10 hover:bg-white/15"
+                        : "cursor-not-allowed bg-white/5 text-white/40"
+                    )}
+                  >
+                    <FiChevronLeft /> Previous
+                  </button>
 
-                <button
-                  onClick={() => nextEp && setCurrentId(nextEp._id)}
-                  disabled={!nextEp}
-                  className={cn(
-                    "elza inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold",
-                    nextEp
-                      ? "bg-white/10 hover:bg-white/15"
-                      : "bg-white/5 text-white/40 cursor-not-allowed"
-                  )}
-                >
-                  Next <FiChevronRight />
-                </button>
+                  <button
+                    onClick={() => nextEp && setCurrentId(nextEp._id)}
+                    disabled={!nextEp}
+                    className={cn(
+                      "elza inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold",
+                      nextEp
+                        ? "bg-white/10 hover:bg-white/15"
+                        : "cursor-not-allowed bg-white/5 text-white/40"
+                    )}
+                  >
+                    Next <FiChevronRight />
+                  </button>
 
-                <button
-                  onClick={() => setTheater((v) => !v)}
-                  className={cn(
-                    "elza inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-extrabold",
-                    theater ? "bg-cyan-400/20 ring-1 ring-cyan-400/30" : "bg-white/10 hover:bg-white/15"
-                  )}
-                  title="Theater mode"
-                >
-                  -h
-                </button>
+                  <button
+                    onClick={() => setTheater((v) => !v)}
+                    className={cn(
+                      "elza inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-extrabold transition",
+                      theater
+                        ? "bg-violet-500/20 text-violet-100 ring-1 ring-violet-400/30"
+                        : "bg-white/10 hover:bg-white/15"
+                    )}
+                    title="Theater mode"
+                  >
+                    Theater
+                  </button>
 
-                <button
-                  onClick={toggleFullscreen}
-                  className="elza inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-extrabold hover:bg-white/15"
-                  title="Fullscreen"
-                >
-                  {isFullscreen ? <FiMinimize /> : <FiMaximize />}
-                  Fullscreen
-                </button>
+                  <button
+                    onClick={toggleFullscreen}
+                    className="elza inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-extrabold hover:bg-white/15"
+                    title="Fullscreen"
+                  >
+                    {isFullscreen ? <FiMinimize /> : <FiMaximize />}
+                    Fullscreen
+                  </button>
 
-             
-                <Link
-                  href={`/shows/${encodeURIComponent(showSlug)}`}
-                  className="elza inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-extrabold hover:bg-white/15"
-                  title="Close player"
-                >
-                  <FiX />
-                  Close
-                </Link>
+                  <Link
+                    href={`/shows/${encodeURIComponent(showSlug)}`}
+                    className="elza inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-white/12 to-white/6 px-4 py-2 text-sm font-extrabold hover:bg-white/15"
+                    title="Close player"
+                  >
+                    <FiX />
+                    Close
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* RIGHT: Playlist */}
           <aside
             className={cn(
-              "border-t lg:border-t-0 lg:border-l border-white/10 bg-[#121212]",
-              panelOpen ? "block" : "hidden lg:block",
-              "lg:max-h-[calc(100svh-120px)] lg:overflow-y-auto"
+              "border-t border-white/10 bg-[linear-gradient(180deg,rgba(18,12,30,.98),rgba(10,9,16,.98))] lg:border-l lg:border-t-0",
+              panelOpen ? "flex" : "hidden lg:flex",
+              "min-h-0 flex-col"
             )}
           >
-            <div className="p-4">
+            <div className="flex min-h-0 flex-1 flex-col p-4">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="elza text-xs font-extrabold tracking-widest text-white/65">
@@ -609,88 +619,87 @@ export default function EnhancedPlayer({
                 </button>
               </div>
 
-              {/* Filters row */}
-              <div className="mt-4 flex items-center gap-2">
-                {/* Search */}
-                <div className="relative flex-1">
-                  <FiSearch className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/45" />
-                  <input
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search…"
-                    className="w-full rounded-2xl border border-white/10 bg-white/5 py-2.5 pl-10 pr-3 text-sm text-white outline-none placeholder:text-white/40 focus:border-cyan-400/40 focus:ring-2 focus:ring-cyan-400/20"
-                  />
-                </div>
+              <div className="mt-4 rounded-[24px] border border-white/8 bg-white/[0.03] p-3">
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <FiSearch className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/45" />
+                    <input
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      placeholder="Search episodes..."
+                      className="w-full rounded-2xl border border-white/10 bg-white/5 py-2.5 pl-10 pr-3 text-sm text-white outline-none placeholder:text-white/40 focus:border-violet-400/40 focus:ring-2 focus:ring-violet-400/20"
+                    />
+                  </div>
 
-                {/* ✅ Custom season dropdown */}
-                <div ref={seasonMenuRef} className="relative">
-                  <button
-                    onClick={() => setSeasonMenuOpen((v) => !v)}
-                    className="elza inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm font-extrabold text-white/90 hover:bg-white/10"
-                    title="Filter by season"
-                    type="button"
-                  >
-                    {currentSeasonLabel}
-                    <FiChevronDown className="text-white/70" />
-                  </button>
+                  <div ref={seasonMenuRef} className="relative">
+                    <button
+                      onClick={() => setSeasonMenuOpen((v) => !v)}
+                      className="elza inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm font-extrabold text-white/90 hover:bg-white/10"
+                      title="Filter by season"
+                      type="button"
+                    >
+                      {currentSeasonLabel}
+                      <FiChevronDown className="text-white/70" />
+                    </button>
 
-                  {seasonMenuOpen && (
-                    <div className="absolute right-0 z-30 mt-2 w-56 overflow-hidden rounded-2xl border border-white/10 bg-[#0f0f0f] shadow-[0_18px_50px_rgba(0,0,0,.55)]">
-                      <button
-                        onClick={() => {
-                          setSeasonFilter("all");
-                          setSeasonMenuOpen(false);
-                        }}
-                        className={cn(
-                          "w-full px-3 py-2 text-left text-sm font-bold hover:bg-white/10",
-                          seasonFilter === "all" ? "bg-cyan-400/10 text-cyan-200" : "text-white/85"
-                        )}
-                      >
-                        All Seasons
-                      </button>
+                    {seasonMenuOpen && (
+                      <div className="absolute right-0 z-30 mt-2 w-56 overflow-hidden rounded-2xl border border-white/10 bg-[#120a1d] shadow-[0_18px_50px_rgba(0,0,0,.55)]">
+                        <button
+                          onClick={() => {
+                            setSeasonFilter("all");
+                            setSeasonMenuOpen(false);
+                          }}
+                          className={cn(
+                            "w-full px-3 py-2 text-left text-sm font-bold hover:bg-white/10",
+                            seasonFilter === "all"
+                              ? "bg-violet-500/10 text-violet-100"
+                              : "text-white/85"
+                          )}
+                        >
+                          All Seasons
+                        </button>
 
-                      <div className="h-px bg-white/10" />
+                        <div className="h-px bg-white/10" />
 
-                      <div className="max-h-72 overflow-auto">
-                        {seasonsSorted.map((s) => (
-                          <button
-                            key={s._id}
-                            onClick={() => {
-                              setSeasonFilter(s._id);
-                              setSeasonMenuOpen(false);
-                            }}
-                            className={cn(
-                              "w-full px-3 py-2 text-left text-sm font-bold hover:bg-white/10",
-                              seasonFilter === s._id
-                                ? "bg-cyan-400/10 text-cyan-200"
-                                : "text-white/85"
-                            )}
-                          >
-                            {s.title}
-                          </button>
-                        ))}
+                        <div className="max-h-72 overflow-auto playlist-scrollbar">
+                          {seasonsSorted.map((s) => (
+                            <button
+                              key={s._id}
+                              onClick={() => {
+                                setSeasonFilter(s._id);
+                                setSeasonMenuOpen(false);
+                              }}
+                              className={cn(
+                                "w-full px-3 py-2 text-left text-sm font-bold hover:bg-white/10",
+                                seasonFilter === s._id
+                                  ? "bg-violet-500/10 text-violet-100"
+                                  : "text-white/85"
+                              )}
+                            >
+                              {s.title}
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </div>
+                    )}
+                  </div>
 
-                {/* Featured */}
-                <button
-                  onClick={() => setOnlyFeatured((v) => !v)}
-                  className={cn(
-                    "rounded-2xl px-3 py-2.5 text-sm font-bold border",
-                    onlyFeatured
-                      ? "border-purple-400/30 bg-purple-400/10 text-purple-100"
-                      : "border-white/10 bg-white/5 text-white/80 hover:bg-white/10"
-                  )}
-                  title="Featured only"
-                >
-                  ★
-                </button>
+                  <button
+                    onClick={() => setOnlyFeatured((v) => !v)}
+                    className={cn(
+                      "rounded-2xl border px-3 py-2.5 text-sm font-bold",
+                      onlyFeatured
+                        ? "border-violet-400/30 bg-violet-400/10 text-violet-100"
+                        : "border-white/10 bg-white/5 text-white/80 hover:bg-white/10"
+                    )}
+                    title="Featured only"
+                  >
+                    ★
+                  </button>
+                </div>
               </div>
 
-              {/* ✅ Flat list (no grouping) */}
-              <div className="mt-4 grid gap-3">
+              <div className="mt-4 flex-1 min-h-0 overflow-y-auto pr-2 playlist-scrollbar">
                 {playlistVisible.map((ep) => {
                   const active = ep._id === currentId;
                   return (
@@ -698,10 +707,10 @@ export default function EnhancedPlayer({
                       key={ep._id}
                       onClick={() => setCurrentId(ep._id)}
                       className={cn(
-                        "group flex w-full items-start gap-3 rounded-2xl border p-2 text-left",
+                        "group mb-3 flex w-full items-start gap-3 rounded-[22px] border p-2 text-left transition",
                         active
-                          ? "border-cyan-400/35 bg-cyan-400/10"
-                          : "border-white/10 bg-white/5 hover:bg-white/10"
+                          ? "border-violet-400/35 bg-[linear-gradient(135deg,rgba(168,85,247,.22),rgba(236,72,153,.12))] shadow-[0_14px_35px_rgba(168,85,247,.16)]"
+                          : "border-white/10 bg-white/5 hover:border-violet-400/20 hover:bg-white/10"
                       )}
                     >
                       <div className="elza w-10 pt-1 text-[11px] font-extrabold text-white/55">
@@ -713,7 +722,7 @@ export default function EnhancedPlayer({
                           : ""}
                       </div>
 
-                      <div className="relative h-[56px] w-[96px] overflow-hidden rounded-xl ring-1 ring-white/10 bg-black">
+                      <div className="relative h-[56px] w-[96px] overflow-hidden rounded-xl bg-black ring-1 ring-white/10">
                         <Image
                           src={resolveMediaUrl(ep.thumbnail, "/assets/exp1.jpg")}
                           alt={ep.title}
@@ -730,7 +739,7 @@ export default function EnhancedPlayer({
                             active ? "text-white" : "text-white/90 group-hover:text-white"
                           )}
                         >
-<PipeText text={ep.title} pipeClassName="recoleta" />
+                          <PipeText text={ep.title} pipeClassName="recoleta" />
                         </p>
                         <p className="elza mt-1 text-[11px] text-white/55 line-clamp-1">
                           {ep.seasonTitle}
@@ -744,8 +753,6 @@ export default function EnhancedPlayer({
                   <p className="text-sm text-white/60">No videos match your filter.</p>
                 )}
               </div>
-
-              <div className="h-6" />
             </div>
           </aside>
         </div>
