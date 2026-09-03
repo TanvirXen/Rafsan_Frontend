@@ -132,7 +132,8 @@ export default function Newsletter({ settings }: NewsletterProps) {
                   <button
                     type='submit'
                     className='
-                      block h-10 w-[80px] max-w-xs rounded-full bg-[#FFD928]
+                      grid h-10 w-auto min-w-[8rem] max-w-xs place-items-center
+                      whitespace-nowrap rounded-full bg-[#FFD928] px-5
                       text-[12px] font-bold text-[#121212]
                       shadow-[0_8px_16px_rgba(0,0,0,.2)] hover:brightness-105
                       md:w-[240px] md:text-[16px]

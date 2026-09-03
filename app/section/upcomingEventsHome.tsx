@@ -443,15 +443,18 @@ export default function UpcomingEventsHome() {
                     {!isCenter && !hideSides && (
                       <div className='absolute inset-0 bg-black/45' />
                     )}
+                    {/*
+                      Overlay content. The scrim lives on this container rather
+                      than a fixed-height sibling so it always grows with the
+                      text — event posters are busy, and a short scrim left the
+                      title sitting on artwork. Below sm the card is only 300px
+                      wide, which is not enough for the title and the button
+                      side by side, so they stack.
+                    */}
                     {isCenter && (
-                      <div className='pointer-events-none absolute inset-x-0 bottom-0 h-24 sm:h-28 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,.55)_55%,rgba(0,0,0,.85)_100%)]' />
-                    )}
-
-                    {/* Overlay content */}
-                    {isCenter && (
-                      <div className='absolute inset-x-0 bottom-0 flex items-end justify-between p-3 sm:p-4'>
-                        <div className='leading-none'>
-                          <p className='text-[14px] sm:text-[16px] font-bold recoleta text-white'>
+                      <div className='absolute inset-x-0 bottom-0 flex flex-col gap-2 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,.4)_22%,rgba(0,0,0,.82)_52%,rgba(0,0,0,.96)_100%)] p-3 pt-16 sm:flex-row sm:items-end sm:justify-between sm:gap-3 sm:p-4 sm:pt-16'>
+                        <div className='min-w-0 leading-none'>
+                          <p className='text-[14px] sm:text-[16px] font-bold recoleta text-white line-clamp-2 break-words'>
                             {w.title}
                           </p>
                           <div className="flex flex-wrap items-center gap-1.5 mt-1.5 mb-1">
@@ -476,7 +479,7 @@ export default function UpcomingEventsHome() {
                         {w.ended ? (
                           <button
                             disabled
-                            className='elza grid h-9 min-w-[7rem] place-items-center rounded-full bg-white/20 px-4 text-sm font-extrabold text-white/50 border border-white/10 shadow-[0_10px_26px_rgba(0,0,0,.35)] cursor-not-allowed sm:h-10'
+                            className='elza grid h-9 w-full shrink-0 place-items-center whitespace-nowrap rounded-full bg-white/20 px-4 text-sm font-extrabold text-white/50 border border-white/10 shadow-[0_10px_26px_rgba(0,0,0,.35)] cursor-not-allowed sm:h-10 sm:w-auto sm:min-w-[7rem]'
                             aria-label='Ended'
                           >
                             Ended
@@ -484,7 +487,7 @@ export default function UpcomingEventsHome() {
                         ) : (
                           <Link
                             href={w.href ?? "#"}
-                            className='elza grid h-9 min-w-[7rem] place-items-center rounded-full bg-[#00D8FF] px-4 text-sm font-extrabold text-[#121212] shadow-[0_10px_26px_rgba(0,0,0,.35)] transition hover:brightness-105 sm:h-10'
+                            className='elza grid h-9 w-full shrink-0 place-items-center whitespace-nowrap rounded-full bg-[#00D8FF] px-4 text-sm font-extrabold text-[#121212] shadow-[0_10px_26px_rgba(0,0,0,.35)] transition hover:brightness-105 sm:h-10 sm:w-auto sm:min-w-[7rem]'
                             aria-label='Get tickets'
                           >
                             Get Tickets

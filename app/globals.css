@@ -50,8 +50,16 @@ body {
   font-family: var(--font-body);
 }
 
-body * {
-  min-width: 0;
+/*
+ * Keeps flex/grid children from refusing to shrink below their content.
+ * This must stay inside a layer: rules written outside a cascade layer beat
+ * every layered rule regardless of specificity, and unlayered it silently
+ * overrode every Tailwind min-w-* utility in the app.
+ */
+@layer base {
+  body * {
+    min-width: 0;
+  }
 }
 
 main {
