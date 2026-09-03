@@ -155,7 +155,12 @@ export default function StoryFlipCard({
             fill
             priority={priority}
             sizes={sizes}
-            className="object-cover transition duration-700 ease-out group-hover:scale-105 group-hover:blur-[2px] group-focus:scale-105 group-focus:blur-[2px]"
+            /*
+             * Desktop-only affordance. Tapping the card focuses it, and the
+             * focus outlives the tap, so on touch the blur stayed on the front
+             * image after flipping back. md matches the mobile media query.
+             */
+            className="object-cover transition duration-700 ease-out md:group-hover:scale-105 md:group-hover:blur-[2px] md:group-focus:scale-105 md:group-focus:blur-[2px]"
           />
           <div className="absolute inset-0 bg-[radial-gradient(95%_75%_at_50%_40%,rgba(0,0,0,0)_0%,rgba(0,0,0,.18)_55%,rgba(0,0,0,.62)_100%)]" />
           <div className="absolute inset-x-0 bottom-0 z-10 flex items-end justify-between gap-4 p-5 md:p-6">
