@@ -257,15 +257,19 @@ export default function WatchShows() {
   /** ------- drag / swipe ------- */
   const dragStartX = useRef<number | null>(null);
   const dragging = useRef(false);
+  /** Set once a pointer travels far enough to count as a swipe rather than a tap. */
+  const moved = useRef(false);
 
   const handleStart = (clientX: number) => {
     stop();
     dragStartX.current = clientX;
     dragging.current = true;
+    moved.current = false;
   };
   const handleMove = (clientX: number) => {
     if (!dragging.current || dragStartX.current === null) return;
     const diff = clientX - dragStartX.current;
+    if (Math.abs(diff) > 6) moved.current = true;
     if (Math.abs(diff) > 60) {
       setActive((a) => wrap(a + (diff < 0 ? 1 : -1)));
       dragging.current = false;
@@ -288,6 +292,17 @@ export default function WatchShows() {
   const handleTouchMove = (e: TouchEvent<HTMLDivElement>) =>
     handleMove(e.touches[0].clientX);
   const handleTouchEnd = () => handleEnd();
+
+  /**
+   * Swallow the click that browsers fire after a swipe, so dragging across a
+   * card never navigates. Runs in the capture phase to beat the card links.
+   */
+  const handleClickCapture = (e: MouseEvent<HTMLDivElement>) => {
+    if (!moved.current) return;
+    e.preventDefault();
+    e.stopPropagation();
+    moved.current = false;
+  };
 
   const dots = useMemo(
     () => Array.from({ length: items.length }, (_, i) => i),
@@ -361,6 +376,7 @@ export default function WatchShows() {
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
+                onClickCapture={handleClickCapture}
                 aria-roledescription='carousel'
               >
                 {items.map((item, i) => {
@@ -419,6 +435,20 @@ export default function WatchShows() {
                           priority={isCenter}
                           className='object-cover'
                         />
+
+                        {/*
+                          Side cards carry no visible CTA, so the whole card is
+                          the link. tabIndex -1 keeps it out of the tab order,
+                          since the card is aria-hidden while off-centre.
+                        */}
+                        {!isCenter && (
+                          <Link
+                            href={href}
+                            tabIndex={-1}
+                            aria-label={`Open ${item.title}`}
+                            className='absolute inset-0 z-10 cursor-pointer'
+                          />
+                        )}
 
                         {isCenter && (
                           <div

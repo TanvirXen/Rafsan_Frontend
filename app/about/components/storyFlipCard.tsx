@@ -27,9 +27,9 @@ export default function StoryFlipCard({
   className = "",
 }: StoryFlipCardProps) {
   const rootRef = useRef<HTMLDivElement | null>(null);
-  const [isMobile, setIsMobile] = useState(() =>
-    typeof window !== "undefined" ? window.matchMedia("(max-width: 768px)").matches : false
-  );
+  // Starts false so the server and the first client render agree; the effect
+  // below corrects it immediately after mount.
+  const [isMobile, setIsMobile] = useState(false);
   const [mobileFlipped, setMobileFlipped] = useState(false);
 
   useEffect(() => {
@@ -38,9 +38,17 @@ export default function StoryFlipCard({
       setIsMobile(media.matches);
       if (!media.matches) setMobileFlipped(false);
     };
+    update();
     media.addEventListener("change", update);
     return () => media.removeEventListener("change", update);
   }, []);
+
+  /**
+   * Set once the reader taps a card, so scrolling does not immediately undo
+   * their choice. Cleared when the card leaves the viewport, which lets the
+   * scroll-driven flip take over again on the next pass.
+   */
+  const tapped = useRef(false);
 
   useEffect(() => {
     if (!isMobile) return;
@@ -50,7 +58,10 @@ export default function StoryFlipCard({
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setMobileFlipped(entry.intersectionRatio >= 0.55);
+        const inView = entry.intersectionRatio >= 0.55;
+        if (!inView) tapped.current = false;
+        if (tapped.current) return;
+        setMobileFlipped(inView);
       },
       {
         threshold: [0, 0.55, 1],
@@ -61,6 +72,12 @@ export default function StoryFlipCard({
     observer.observe(el);
     return () => observer.disconnect();
   }, [isMobile]);
+
+  const toggleFlip = () => {
+    if (!isMobile) return;
+    tapped.current = true;
+    setMobileFlipped((f) => !f);
+  };
 
   const dateBlock = (
     <div
@@ -83,11 +100,43 @@ export default function StoryFlipCard({
     </p>
   );
 
+  /*
+   * WebKit ignores the unprefixed backface-visibility once a face contains a
+   * filter (the back has a backdrop-blur), so the hidden front face bleeds
+   * through mirrored on iOS. The prefix plus an opacity fallback, swapped at
+   * the midpoint of the flip, keeps exactly one face visible everywhere.
+   */
+  const faceBase =
+    "absolute inset-0 overflow-hidden rounded-[inherit] [backface-visibility:hidden] [-webkit-backface-visibility:hidden] transition-opacity duration-0 delay-[350ms]";
+
+  const frontFade = isMobile
+    ? mobileFlipped
+      ? "opacity-0"
+      : "opacity-100"
+    : "group-hover:opacity-0 group-focus:opacity-0";
+
+  const backFade = isMobile
+    ? mobileFlipped
+      ? "opacity-100"
+      : "opacity-0"
+    : "opacity-0 group-hover:opacity-100 group-focus:opacity-100";
+
   return (
     <div
       ref={rootRef}
       className={`group relative h-full w-full rounded-[inherit] [perspective:1600px] ${className}`}
       tabIndex={0}
+      role={isMobile ? "button" : undefined}
+      aria-pressed={isMobile ? mobileFlipped : undefined}
+      aria-label={isMobile ? `${month} ${year} — show story` : undefined}
+      onClick={toggleFlip}
+      onKeyDown={(e) => {
+        if (!isMobile) return;
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          toggleFlip();
+        }
+      }}
     >
       <div
         className={`relative h-full w-full transition-transform duration-700 ease-out [transform-style:preserve-3d] ${
@@ -99,7 +148,7 @@ export default function StoryFlipCard({
         }`}
       >
         {/* Front */}
-        <div className="absolute inset-0 overflow-hidden rounded-[inherit] [backface-visibility:hidden]">
+        <div className={`${faceBase} ${frontFade} [transform:translateZ(1px)]`}>
           <Image
             src={img}
             alt={alt || "Story"}
@@ -115,7 +164,7 @@ export default function StoryFlipCard({
         </div>
 
         {/* Back */}
-        <div className="absolute inset-0 overflow-hidden rounded-[inherit] [backface-visibility:hidden] [transform:rotateY(180deg)]">
+        <div className={`${faceBase} ${backFade} [transform:rotateY(180deg)]`}>
           <Image
             src={img}
             alt={alt || "Story"}
