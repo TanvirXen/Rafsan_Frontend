@@ -10,6 +10,7 @@ import React, {
 } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import apiList, { withQuery } from "../../apiList";
 import { slugifyTitle } from "../lib/slugifyTitle";
 import { resolveMediaUrl } from "@/app/lib/mediaUrl";
@@ -87,6 +88,8 @@ function getDims(w: number): Dims {
 }
 
 export default function WatchShows() {
+  const router = useRouter();
+
   /** ------- data from API ------- */
   const [items, setItems] = useState<ShowItem[]>([]);
   const [upcomingEventHrefByShow, setUpcomingEventHrefByShow] = useState<
@@ -304,6 +307,28 @@ export default function WatchShows() {
     moved.current = false;
   };
 
+  /**
+   * Navigate for the off-centre cards from the container instead of from a
+   * link inside them. Those cards are rotated in 3D, and Chrome's hit testing
+   * against the projected quad does not reliably agree with their layout box —
+   * an anchor covering the card only responded near one edge. Working out which
+   * card was clicked from the pointer's x offset is exact, since the same
+   * geometry positions the cards in the first place.
+   */
+  const handleContainerClick = (e: MouseEvent<HTMLDivElement>) => {
+    if (moved.current || items.length < 2) return;
+    // Anything inside the centre card already has its own links.
+    if ((e.target as HTMLElement).closest("a")) return;
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const offset = e.clientX - (rect.left + rect.width / 2);
+    if (Math.abs(offset) <= CENTER_W / 2) return;
+
+    const step = offset < 0 ? -1 : 1;
+    const item = items[wrap(active + step)];
+    if (item) router.push(`/shows/${item.slug}`);
+  };
+
   const dots = useMemo(
     () => Array.from({ length: items.length }, (_, i) => i),
     [items.length]
@@ -377,6 +402,7 @@ export default function WatchShows() {
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
                 onClickCapture={handleClickCapture}
+                onClick={handleContainerClick}
                 aria-roledescription='carousel'
               >
                 {items.map((item, i) => {
@@ -406,6 +432,7 @@ export default function WatchShows() {
                       key={item.id}
                       className={[
                         "absolute overflow-hidden shadow-[0_18px_50px_rgba(0,0,0,.55)] rounded-[18px]",
+                        isCenter ? "" : "cursor-pointer",
                         "transition-[transform,opacity,filter,visibility] ease-linear",
                         "before:pointer-events-none before:absolute before:inset-0 before:rounded-inherit before:[box-shadow:inset_0_0_0_1px_rgba(255,255,255,0.04)]",
                       ].join(" ")}
@@ -474,7 +501,7 @@ export default function WatchShows() {
                             </Link>
 
                             <Link
-                              href={href}
+                              href={bookingHref || href}
                               aria-label={`Open ${item.title}`}
                               className='
                                 font-extrabold elza text-black bg-[#00D8FF]
