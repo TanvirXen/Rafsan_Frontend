@@ -1,9 +1,26 @@
 export const SITE_NAME = "Rafsan Sabab";
 
-export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
-  process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim() ||
-  "https://rafsan-sabab-frontend.vercel.app";
+const DEFAULT_SITE_URL = "https://rafsan-sabab-frontend.vercel.app";
+
+function normalizeSiteUrl(value?: string) {
+  const trimmed = value?.trim();
+  if (!trimmed) return DEFAULT_SITE_URL;
+
+  const candidate = /^https?:\/\//i.test(trimmed)
+    ? trimmed
+    : `https://${trimmed}`;
+
+  try {
+    return new URL(candidate).toString().replace(/\/+$/, "");
+  } catch {
+    return DEFAULT_SITE_URL;
+  }
+}
+
+export const SITE_URL = normalizeSiteUrl(
+  process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.VERCEL_PROJECT_PRODUCTION_URL
+);
 
 export const SITE_DESCRIPTION =
   "Official website of Rafsan Sabab, an event host, emcee, podcaster, and vlogger known for live shows, stage hosting, brand collaborations, and What a Show.";
