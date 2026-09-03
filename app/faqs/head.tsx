@@ -1,9 +1,9 @@
 import { FAQ_ITEMS, buildFaqJsonLd } from "./faqData";
-import { SITE_KEYWORDS, SITE_META_IMAGE, SITE_NAME, SITE_TITLE, SITE_DESCRIPTION, getSiteUrl } from "../lib/siteSeo";
+import { SITE_KEYWORDS, SITE_META_IMAGE, SITE_NAME, getSiteUrl } from "../lib/siteSeo";
 
 export default function Head() {
-  const title = SITE_TITLE;
-  const description = SITE_DESCRIPTION;
+  const title = "FAQs | Booking Rafsan Sabab";
+  const description = "Answers about booking Rafsan Sabab for events, workshops, shows, and brand collaborations.";
   const canonical = getSiteUrl("/faqs");
   const jsonLd = buildFaqJsonLd(FAQ_ITEMS);
 

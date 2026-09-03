@@ -3,6 +3,16 @@ import React from "react";
 import UpcomingEvents from "./components/upcomingEvents";
 import PastEvents from "./components/pastEvents";
 import Newsletter from "../section/newsletter";
+import type { Metadata } from "next";
+import { createPageMetadata } from "../lib/siteSeo";
+
+export const metadata: Metadata = createPageMetadata({
+  title: "All Events | Rafsan Sabab",
+  description: "Browse all upcoming and past Rafsan Sabab event listings.",
+  path: "/events",
+  keywords: ["all Rafsan Sabab events", "event listings"],
+  noIndex: true,
+});
 
 export const revalidate = 15;
 
@@ -21,6 +31,7 @@ export default async function Page({ searchParams }: PageProps) {
 
   return (
     <div>
+      <h1 className="sr-only">All Rafsan Sabab Events</h1>
       <UpcomingEvents showFilter={showFilter} />
       <PastEvents showFilter={showFilter} />
       <Newsletter />

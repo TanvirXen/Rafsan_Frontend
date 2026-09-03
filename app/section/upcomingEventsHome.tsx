@@ -35,21 +35,21 @@ const WORKSHOPS: Omit<Workshop, "dateISO">[] = [
     alt: "Talk on stage",
     title: "What a Show",
     date: "September 20, 2025",
-    href: "/workshops/leadership-training",
+    href: "/events",
   },
   {
     src: "/assets/exp1.jpg",
     alt: "Office session",
     title: "What a Show",
     date: "September 20, 2025",
-    href: "/workshops/leadership-training",
+    href: "/events",
   },
   {
     src: "/assets/works2.jpg",
     alt: "Studio floor",
     title: "What a Show",
     date: "September 20, 2025",
-    href: "/workshops/leadership-training",
+    href: "/events",
   },
 ];
 

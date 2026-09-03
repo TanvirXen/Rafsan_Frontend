@@ -5,8 +5,7 @@ import "./globals.css";
 import Navbar from "./components/navbar";
 import Footer from "./components/footer";
 import {
-  buildPersonJsonLd,
-  buildWebSiteJsonLd,
+  buildRootJsonLd,
   getSiteUrl,
   SITE_TITLE,
   SITE_META_IMAGE,
@@ -88,14 +87,16 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://fonts.cdnfonts.com" />
+        <link rel="preconnect" href="https://api.rafsansabab.com" />
+        <link rel="dns-prefetch" href="https://api.rafsansabab.com" />
+        <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/recoleta" />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased site-bg`}>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(buildWebSiteJsonLd()) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(buildPersonJsonLd()) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(buildRootJsonLd()) }}
         />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-21P5L3FESE"

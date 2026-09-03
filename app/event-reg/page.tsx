@@ -3,6 +3,16 @@
 import EventRegClient from "./components/EventRegClient";
 import apiList from "@/apiList";
 import { pickEventCardImage } from "@/app/lib/eventImages";
+import type { Metadata } from "next";
+import { createPageMetadata } from "@/app/lib/siteSeo";
+
+export const metadata: Metadata = createPageMetadata({
+  title: "Event Registration | Rafsan Sabab",
+  description: "Find current Rafsan Sabab event registrations and ticket information.",
+  path: "/events",
+  keywords: ["Rafsan Sabab tickets", "event registration Bangladesh"],
+  noIndex: true,
+});
 
 export const revalidate = 15;
 
@@ -99,6 +109,7 @@ export default async function EventRegIndexPage() {
   if (occurrences.length === 0) {
     return (
       <div className="min-h-[50vh] grid place-items-center bg-[#121212] text-white">
+        <h1 className="sr-only">Event Registration</h1>
         <div className="text-center">
           <p className="text-xl">No events yet.</p>
           <p className="text-white/70 mt-1">Please check back soon!</p>
@@ -107,5 +118,10 @@ export default async function EventRegIndexPage() {
     );
   }
 
-  return <EventRegClient occurrences={occurrences} />;
+  return (
+    <>
+      <h1 className="sr-only">Event Registration</h1>
+      <EventRegClient occurrences={occurrences} />
+    </>
+  );
 }

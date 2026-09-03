@@ -19,7 +19,6 @@ import type { EventItem } from "@/app/lib/events";
 import {
   SITE_DESCRIPTION,
   SITE_META_IMAGE,
-  SITE_TITLE,
   WHAT_A_SHOW_DESCRIPTION,
   WHAT_A_SHOW_META_IMAGE,
 } from "@/app/lib/siteSeo";
@@ -137,16 +136,16 @@ export async function generateMetadata(props: {
 
   const shows = await fetchShowsList();
   const match = shows.find((s) => slugifyTitle(s.title) === slug);
-  if (!match) return { title: { absolute: SITE_TITLE } };
+  if (!match) return { title: { absolute: "Show Not Found | Rafsan Sabab" }, robots: { index: false, follow: true } };
 
   const data = await fetchShowData(match._id);
-  if (!data) return { title: { absolute: SITE_TITLE } };
+  if (!data) return { title: { absolute: "Show Not Found | Rafsan Sabab" }, robots: { index: false, follow: true } };
 
   const { show, episodes } = data;
   const ep = epId ? episodes.find((e) => e._id === epId) : null;
 
   const isWhatAShow = /what\s*a\s*show/i.test(show.title);
-  const title = SITE_TITLE;
+  const title = `${show.title} | Rafsan Sabab`;
   const description = isWhatAShow
     ? WHAT_A_SHOW_DESCRIPTION
     : SITE_DESCRIPTION;

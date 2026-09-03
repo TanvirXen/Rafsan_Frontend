@@ -6,16 +6,16 @@ import Newsletter from "../section/newsletter";
 import SetbackSection from "./components/setbackSection";
 import JourneySection from "./components/journeySection";
 import apiList from "@/apiList";
-import { SITE_DESCRIPTION, SITE_KEYWORDS, SITE_META_IMAGE, SITE_NAME, SITE_TITLE } from "../lib/siteSeo";
+import { SITE_DESCRIPTION, SITE_KEYWORDS, SITE_META_IMAGE, SITE_NAME } from "../lib/siteSeo";
 
 export const revalidate = 15;
 export const metadata: Metadata = {
-  title: { absolute: SITE_TITLE },
-  description: SITE_DESCRIPTION,
+  title: { absolute: "About Rafsan Sabab | Host, Comedian and Creator" },
+  description: "Learn about Rafsan Sabab's journey as a Bangladeshi host, comedian, podcaster, and content creator.",
   keywords: [...SITE_KEYWORDS, "about Rafsan Sabab", "Rafsan Sabab biography"],
   alternates: { canonical: "/about" },
   openGraph: {
-    title: SITE_TITLE,
+    title: "About Rafsan Sabab | Host, Comedian and Creator",
     description: SITE_DESCRIPTION,
     url: "/about",
     siteName: SITE_NAME,

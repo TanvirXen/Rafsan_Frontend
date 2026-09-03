@@ -161,10 +161,10 @@ export default function ShowBanner({ show }: ShowBannerProps) {
         <div className="absolute inset-0 flex">
           <div className="mx-auto h-full w-full max-w-6xl px-5 sm:px-6 lg:px-0 flex flex-col justify-end pb-4 md:justify-center md:pb-0">
             <div className="hidden md:flex flex-col items-start max-w-[720px]">
-              <h1 className="mb-4 font-bold recoleta text-[40px] leading-tight drop-shadow-[0_2px_10px_rgba(0,0,0,.75)]">
+              <h2 className="mb-4 font-bold recoleta text-[40px] leading-tight drop-shadow-[0_2px_10px_rgba(0,0,0,.75)]">
 
 <PipeText text={title} pipeClassName="recoleta" />
-              </h1>
+              </h2>
 
               <p
                 className="elza mb-5 text-[16px] leading-6 text-white/88"

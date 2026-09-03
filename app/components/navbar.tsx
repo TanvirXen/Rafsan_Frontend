@@ -105,6 +105,7 @@ export default function Navbar() {
   const [loadingShows, setLoadingShows] = useState(false);
 
   const showsRef = useRef<HTMLDivElement>(null);
+  const closeMenuRef = useRef<HTMLButtonElement>(null);
 
   // -------- fetch shows dynamically on client --------
   useEffect(() => {
@@ -179,8 +180,16 @@ export default function Navbar() {
     if (!mobileOpen) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    closeMenuRef.current?.focus();
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setMobileOpen(false);
+    }
+    document.addEventListener("keydown", onKeyDown);
+
     return () => {
       document.body.style.overflow = prev;
+      document.removeEventListener("keydown", onKeyDown);
     };
   }, [mobileOpen]);
 
@@ -362,6 +371,8 @@ export default function Navbar() {
                   : "border-zinc-800",
               ].join(" ")}
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileOpen}
+              aria-controls='mobile-menu'
               onClick={() => setMobileOpen((s) => !s)}
             >
               {mobileOpen ? (
@@ -420,6 +431,7 @@ export default function Navbar() {
               </Link>
 
               <button
+                ref={closeMenuRef}
                 className='inline-flex h-9 w-9 items-center justify-center rounded-md border border-zinc-800 text-zinc-300 hover:text-white'
                 aria-label='Close menu'
                 onClick={() => setMobileOpen(false)}

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // app/event-reg/[slug]/page.tsx
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import apiList, { withQuery } from "@/apiList";
 import { pickEventBannerAssets } from "@/app/lib/eventImages";
 import RegBanner from "../components/regBanner";
@@ -10,7 +11,6 @@ import Newsletter from "@/app/section/newsletter";
 import {
   SITE_DESCRIPTION,
   SITE_META_IMAGE,
-  SITE_TITLE,
   WHAT_A_SHOW_DESCRIPTION,
   WHAT_A_SHOW_META_IMAGE,
 } from "@/app/lib/siteSeo";
@@ -28,14 +28,16 @@ export async function generateMetadata(props: {
     const event = await fetchEventBySlugOrId(slug);
     const isWhatAShow = /what\s*a\s*show/i.test(event?.title || event?.category || "");
     const image = isWhatAShow ? WHAT_A_SHOW_META_IMAGE : SITE_META_IMAGE;
+    const title = `${event?.title || "Event Registration"} | Rafsan Sabab`;
     return {
-      title: { absolute: SITE_TITLE },
+      title: { absolute: title },
       description: isWhatAShow ? WHAT_A_SHOW_DESCRIPTION : SITE_DESCRIPTION,
-      openGraph: { title: SITE_TITLE, description: isWhatAShow ? WHAT_A_SHOW_DESCRIPTION : SITE_DESCRIPTION, images: [{ url: image }] },
-      twitter: { card: "summary_large_image", title: SITE_TITLE, description: isWhatAShow ? WHAT_A_SHOW_DESCRIPTION : SITE_DESCRIPTION, images: [image] },
+      alternates: { canonical: `/event-reg/${encodeURIComponent(slug)}` },
+      openGraph: { title, description: isWhatAShow ? WHAT_A_SHOW_DESCRIPTION : SITE_DESCRIPTION, images: [{ url: image }] },
+      twitter: { card: "summary_large_image", title, description: isWhatAShow ? WHAT_A_SHOW_DESCRIPTION : SITE_DESCRIPTION, images: [image] },
     };
   } catch {
-    return { title: { absolute: SITE_TITLE }, description: SITE_DESCRIPTION };
+    return { title: { absolute: "Event Registration | Rafsan Sabab" }, description: SITE_DESCRIPTION, robots: { index: false, follow: true } };
   }
 }
 
@@ -159,14 +161,6 @@ const brandToLogo = (b: BrandDoc) => {
   };
 };
 
-const dateOnly = (iso: string) => {
-  try {
-    return new Date(iso).toISOString().slice(0, 10);
-  } catch {
-    return iso.slice(0, 10);
-  }
-};
-
 function normalizeOccurrences(ev: EventDoc): Occurrence[] {
   if (Array.isArray(ev.occurrences) && ev.occurrences.length)
     return ev.occurrences.filter(Boolean);
@@ -239,25 +233,13 @@ export default async function Page(props: {
   const { slug: raw } = await props.params;
 
   if (!isNE(raw)) {
-    return (
-      <div className='min-h-[50vh] grid place-items-center bg-[#121212] text-white p-6'>
-        <p className='text-xl font-semibold'>Invalid URL.</p>
-        <p className='opacity-80 mt-2'>No slug or id was provided.</p>
-      </div>
-    );
+    notFound();
   }
 
   const { key, token } = splitKey(raw);
   const ev = await fetchEventBySlugOrId(key);
   if (!ev) {
-    return (
-      <div className='min-h-[50vh] grid place-items-center bg-[#121212] text-white p-6'>
-        <p className='text-xl font-semibold'>
-          We couldn’t find an event for “{key}”.
-        </p>
-        <p className='opacity-80 mt-2'>Please check the URL or try again.</p>
-      </div>
-    );
+    notFound();
   }
 
   const occ = chooseOccurrence(ev, token);
@@ -299,10 +281,11 @@ export default async function Page(props: {
       }`
     : undefined;
 
+  const nowMs = new Date().getTime();
   const availableDates = (normalizeOccurrences(ev) || []).map((o) => {
     let ended = false;
     try {
-      ended = new Date(o.date).getTime() < Date.now();
+      ended = new Date(o.date).getTime() < nowMs;
     } catch {}
     return {
       iso: o.date,
@@ -313,6 +296,7 @@ export default async function Page(props: {
 
   return (
     <div className='bg-[#121212]'>
+      <h1 className='sr-only'>{title} Event Registration</h1>
       <RegBanner
         title={title}
         dates={[datePill, sePill].filter(Boolean)} // ✅ separate pills

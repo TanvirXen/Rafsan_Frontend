@@ -11,9 +11,7 @@ import {
   type PortfolioType,
 } from "@/app/lib/portfolioNotableEvents";
 import {
-  SITE_DESCRIPTION,
-  SITE_META_IMAGE,
-  SITE_TITLE,
+  createPageMetadata,
 } from "@/app/lib/siteSeo";
 
 export const revalidate = 15;
@@ -187,21 +185,16 @@ export async function generateMetadata(props: {
   const { slug } = await props.params;
   const type = portfolioSlugToType(slug);
 
-  if (!type) {
-    return {
-      title: { absolute: SITE_TITLE },
-      description: SITE_DESCRIPTION,
-      openGraph: { title: SITE_TITLE, description: SITE_DESCRIPTION, images: [{ url: SITE_META_IMAGE }] },
-    };
-  }
+  if (!type) return {};
 
   const copy = CATEGORY_COPY[type];
 
-  return {
-    title: { absolute: SITE_TITLE },
-    description: SITE_DESCRIPTION,
-    openGraph: { title: SITE_TITLE, description: SITE_DESCRIPTION, images: [{ url: SITE_META_IMAGE }] },
-  };
+  return createPageMetadata({
+    title: `${copy.title} | Rafsan Sabab`,
+    description: copy.description,
+    path: `/categories/${slug}`,
+    keywords: [type, `${type} Bangladesh`, `Rafsan Sabab ${type}`],
+  });
 }
 
 export default async function CategoryPage(props: {

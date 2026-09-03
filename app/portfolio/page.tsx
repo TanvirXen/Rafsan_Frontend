@@ -8,25 +8,15 @@ import {
   type PortfolioType,
 } from "@/app/lib/portfolioNotableEvents";
 import PortfolioEventShowcase from "./components/PortfolioEventShowcase";
-import { SITE_DESCRIPTION, SITE_KEYWORDS, SITE_META_IMAGE, SITE_NAME, SITE_TITLE } from "../lib/siteSeo";
+import { createPageMetadata } from "../lib/siteSeo";
 
 export const metadata: Metadata = {
-  title: { absolute: SITE_TITLE },
-  description: SITE_DESCRIPTION,
-  keywords: [
-    ...SITE_KEYWORDS,
-    "Rafsan Sabab portfolio",
-    "event hosting portfolio",
-    "brand collaboration portfolio",
-  ],
-  alternates: { canonical: "/portfolio" },
-  openGraph: {
-    title: SITE_TITLE,
-    description: SITE_DESCRIPTION,
-    url: "/portfolio",
-    siteName: SITE_NAME,
-    images: [{ url: SITE_META_IMAGE, alt: SITE_NAME }],
-  },
+  ...createPageMetadata({
+    title: "Portfolio | Event Hosting and Brand Work | Rafsan Sabab",
+    description: "Explore Rafsan Sabab's event hosting, workshops, brand collaborations, and corporate entertainment work.",
+    path: "/portfolio",
+    keywords: ["Rafsan Sabab portfolio", "event hosting portfolio", "brand collaboration portfolio"],
+  }),
 };
 
 type PortfolioTone = "yellow" | "cyan";

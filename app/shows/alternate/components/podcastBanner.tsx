@@ -108,7 +108,7 @@ export default function PodcastBanner({ show }: PodcastBannerProps) {
                 "
               >
                 <FiYoutube className="h-5 w-5 text-[#121212]" />
-                GET TICKETS
+                CHANNEL
               </Link>
             </div>
           </div>
@@ -138,9 +138,9 @@ export default function PodcastBanner({ show }: PodcastBannerProps) {
         <div className="absolute inset-0 flex">
           <div className="mx-auto h-full w-full max-w-6xl px-6 lg:px-0 flex flex-col justify-center">
             <div className="flex flex-col items-start max-w-[720px]">
-              <h1 className="mb-4 font-bold recoleta text-[40px] leading-tight drop-shadow-[0_2px_10px_rgba(0,0,0,.75)]">
+              <h2 className="mb-4 font-bold recoleta text-[40px] leading-tight drop-shadow-[0_2px_10px_rgba(0,0,0,.75)]">
                 {title}
-              </h1>
+              </h2>
 
               <p
                 className="elza mb-5 text-[16px] leading-6 text-white/88"

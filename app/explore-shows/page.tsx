@@ -1,10 +1,18 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import Newsletter from "../section/newsletter";
 import apiList from "../../apiList";
 import { slugifyTitle } from "../lib/slugifyTitle";
+import { createPageMetadata, WHAT_A_SHOW_DESCRIPTION } from "../lib/siteSeo";
 
 export const revalidate = 15;
+export const metadata: Metadata = createPageMetadata({
+  title: "Shows and Videos | Rafsan Sabab",
+  description: WHAT_A_SHOW_DESCRIPTION,
+  path: "/explore-shows",
+  keywords: ["Rafsan Sabab shows", "Bangladesh entertainment shows", "watch Rafsan Sabab"],
+});
 
 type ShowFromApi = {
   _id: string;

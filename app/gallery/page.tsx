@@ -1,11 +1,19 @@
 // app/gallery/page.tsx
+import type { Metadata } from "next";
 import GalleryBanner from "./components/galleryBanner";
 import GalleryNotableEvents from "./components/galleryNotableEvents";
-import ShotsSection from "./components/shotSection.tsx/page";
+import ShotsSection from "../../components/galleryShotSection/page";
 import apiList from "@/apiList";
 import { resolveMediaUrl } from "../lib/mediaUrl";
+import { createPageMetadata } from "../lib/siteSeo";
 
 export const revalidate = 15;
+export const metadata: Metadata = createPageMetadata({
+  title: "Gallery | Rafsan Sabab",
+  description: "Browse event photography, show moments, and selected visual work from Rafsan Sabab.",
+  path: "/gallery",
+  keywords: ["Rafsan Sabab gallery", "event host photos", "show photography"],
+});
 
 type Shot = {
   _id: string;

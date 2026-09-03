@@ -1,9 +1,11 @@
+import type { Metadata } from "next";
+
 export const SITE_NAME = "Rafsan Sabab";
 export const SITE_TITLE = "Rafsan Sabab — Host • Comedian • Creator";
 export const SITE_META_IMAGE = "/rafsanmeta.jpeg";
 export const WHAT_A_SHOW_META_IMAGE = "/whatashowmeta.jpeg";
 
-const DEFAULT_SITE_URL = "https://rafsan-sabab-frontend.vercel.app";
+const DEFAULT_SITE_URL = "https://www.rafsansabab.com";
 
 function normalizeSiteUrl(value?: string) {
   const trimmed = value?.trim();
@@ -53,6 +55,48 @@ export const SITE_KEYWORDS = [
   "English host",
 ];
 
+export function createPageMetadata({
+  title,
+  description,
+  path,
+  keywords = [],
+  image = SITE_META_IMAGE,
+  noIndex = false,
+}: {
+  title: string;
+  description: string;
+  path: string;
+  keywords?: string[];
+  image?: string;
+  noIndex?: boolean;
+}): Metadata {
+  const url = getSiteUrl(path);
+
+  return {
+    title: { absolute: title },
+    description,
+    keywords: [...SITE_KEYWORDS, ...keywords],
+    alternates: { canonical: path },
+    openGraph: {
+      type: "website",
+      title,
+      description,
+      url,
+      siteName: SITE_NAME,
+      images: [{ url: image, alt: title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+    },
+    robots: noIndex
+      ? { index: false, follow: true }
+      : { index: true, follow: true },
+  };
+}
+
 export const SITE_SOCIALS = [
   "https://www.facebook.com/rafsansababshows",
   "https://www.instagram.com/rafsan_sabab/?hl=en",
@@ -97,6 +141,16 @@ export function buildPersonJsonLd() {
       "Podcasting",
       "Brand collaborations",
       "Live stage events",
+    ],
+  };
+}
+
+export function buildRootJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      { ...buildWebSiteJsonLd(), "@context": undefined },
+      { ...buildPersonJsonLd(), "@context": undefined },
     ],
   };
 }

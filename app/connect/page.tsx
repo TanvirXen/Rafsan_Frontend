@@ -89,15 +89,15 @@ export default function ConnectPage() {
         <div className='grid gap-10 lg:grid-cols-12 lg:gap-12'>
           <div className='lg:col-span-5'>
             <h1 className='recoleta mb-4 text-[clamp(2.25rem,6vw,3rem)] font-extrabold leading-[0.95] text-white md:mb-6'>
-              Let's Connect
+              Let&apos;s Connect
             </h1>
 
             <div className='elza mb-6 max-w-[34rem] text-[15px] leading-7 text-white/92 md:mb-8 md:text-[22px] md:leading-9 [&>p]:m-0 [&>p+p]:mt-1'>
               <p>Got an idea?</p>
               <p>A brand collaboration?</p>
               <p>Or a speaking engagement?</p>
-              <p>Let's talk.</p>
-              <p>We're always ready to create something awesome together.</p>
+              <p>Let&apos;s talk.</p>
+              <p>We&apos;re always ready to create something awesome together.</p>
             </div>
 
             <div className='mt-4 flex w-full max-w-[24rem] items-center gap-4 pt-2 md:mt-6 md:gap-5'>
@@ -178,7 +178,7 @@ export default function ConnectPage() {
                 </Field>
 
                 {(successMsg || errorMsg) && (
-                  <div className='pt-1 text-center'>
+                  <div className='pt-1 text-center' role='status' aria-live='polite'>
                     {successMsg && (
                       <p className='text-sm text-emerald-300 md:text-[15px]'>
                         {successMsg}
@@ -202,7 +202,7 @@ export default function ConnectPage() {
                   >
                     <Image
                       src='/assets/Icon.png'
-                      alt='rocket'
+                      alt=''
                       width={20}
                       height={20}
                       className='mr-2'

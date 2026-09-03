@@ -18,21 +18,21 @@ const WORKSHOPS: Workshop[] = [
     alt: "Talk on stage",
     title: "Leadership Training",
     date: "September 20, 2025",
-    href: "/workshops/leadership-training",
+    href: "/connect",
   },
   {
     src: "/assets/works1.jpg",
     alt: "Office session",
     title: "Team Collaboration Workshop",
     date: "October 10, 2025",
-    href: "/workshops/team-collaboration",
+    href: "/connect",
   },
   {
     src: "/assets/works2.jpg",
     alt: "Studio floor",
     title: "Creative Thinking Session",
     date: "November 15, 2025",
-    href: "/workshops/creative-thinking",
+    href: "/connect",
   },
 ];
 

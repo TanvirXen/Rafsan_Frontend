@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import React, { useMemo, useState, type ReactNode } from "react";
+import React, { useState, type ReactNode } from "react";
 
 export type NotableEventCard = {
   date: string;
@@ -65,76 +65,6 @@ const DEFAULT_EVENTS: NotableEventCard[] = [
   },
 ];
 
-function needsReadMore(text: string, limit = 140) {
-  return text.trim().length > limit;
-}
-
-function truncateText(text: string, limit = 140) {
-  const t = text.trim();
-  if (t.length <= limit) return t;
-  const cut = t.slice(0, limit);
-  const lastSpace = cut.lastIndexOf(" ");
-  return (lastSpace > 60 ? cut.slice(0, lastSpace) : cut).trim() + "…";
-}
-
-function CompactEventCard({
-  event,
-  tone,
-  reverse = false,
-  onReadMore,
-}: {
-  event: NotableEventCard;
-  tone: "yellow" | "cyan";
-  reverse?: boolean;
-  onReadMore: (event: NotableEventCard) => void;
-}) {
-  const previewLimit = 140;
-  const long = needsReadMore(event.blurb, previewLimit);
-  const preview = long ? truncateText(event.blurb, previewLimit) : event.blurb;
-  const panelBg = tone === "yellow" ? "bg-[#FFD928]" : "bg-[#00D8FF]";
-
-  const panel = (
-    <div className={`flex items-center px-4 ${panelBg}`}>
-      <div className='flex w-full flex-col items-start justify-center gap-2 py-4'>
-        <p className='elza text-[11px] leading-4 text-[#121212]/80'>{event.date}</p>
-        <h3 className='recoleta text-[15px] font-bold leading-5 text-[#121212]'>
-          {event.title}
-        </h3>
-        <p className='elza text-[11px] leading-4 text-[#121212]/90'>{preview}</p>
-        {long && (
-          <button
-            type='button'
-            onClick={() => onReadMore(event)}
-            className='elza text-[11px] font-bold text-[#121212] underline underline-offset-2'
-          >
-            Read more
-          </button>
-        )}
-      </div>
-    </div>
-  );
-
-  const image = (
-    <div className='relative min-h-[15.5rem] overflow-hidden'>
-      <Image
-        src={event.img}
-        alt={event.alt || event.title}
-        fill
-        className='object-cover'
-        sizes='(max-width: 768px) calc(100vw - 2rem), 420px'
-        priority
-      />
-    </div>
-  );
-
-  return (
-    <div className='mx-auto grid w-full max-w-[28rem] min-h-[15.5rem] overflow-hidden rounded-[18px] shadow-[0_14px_28px_rgba(0,0,0,.35)] ring-1 ring-white/10 grid-cols-[minmax(0,1.7fr)_minmax(7.25rem,1fr)]'>
-      {reverse ? panel : image}
-      {reverse ? image : panel}
-    </div>
-  );
-}
-
 function Figure({ src, alt }: { src: string; alt: string }) {
   return (
     <figure className='relative min-h-[20rem] overflow-hidden rounded-[28px] bg-black/20 md:min-h-[22rem] lg:min-h-[28rem] xl:min-h-[33.75rem]'>
@@ -155,11 +85,13 @@ function EventCard({
   date,
   title,
   body,
+  onReadMore,
 }: {
   tone: "yellow" | "cyan";
   date: string;
   title: string;
   body: string;
+  onReadMore: () => void;
 }) {
   const bg =
     tone === "yellow"
@@ -169,15 +101,24 @@ function EventCard({
   return (
     <article
       className={[
-        "flex h-full items-center rounded-[28px] p-8 lg:p-10",
-        "min-h-[20rem] md:min-h-[22rem] lg:min-h-[28rem] xl:min-h-[33.75rem]",
+        "flex h-full items-center rounded-[18px] p-4 md:rounded-[28px] md:p-8 lg:p-10",
+        "min-h-[15.5rem] md:min-h-[22rem] lg:min-h-[28rem] xl:min-h-[33.75rem]",
         bg,
       ].join(" ")}
     >
-      <div className='max-w-[16rem] space-y-3'>
-        <p className='elza text-[15px] leading-6'>{date}</p>
-        <h3 className='recoleta text-[24px] font-bold leading-[1.15]'>{title}</h3>
-        <p className='elza text-[16px] leading-7'>{body}</p>
+      <div className='max-w-[16rem] space-y-2 md:space-y-3'>
+        <p className='elza text-[11px] leading-4 md:text-[15px] md:leading-6'>{date}</p>
+        <h3 className='recoleta text-[15px] font-bold leading-5 md:text-[24px] md:leading-[1.15]'>{title}</h3>
+        <p className='elza text-[11px] leading-4 md:text-[16px] md:leading-7'>{body}</p>
+        {body.trim().length > 140 && (
+          <button
+            type='button'
+            onClick={onReadMore}
+            className='elza text-[11px] font-bold underline underline-offset-2 md:text-[13px]'
+          >
+            Read more
+          </button>
+        )}
       </div>
     </article>
   );
@@ -210,48 +151,11 @@ export default function NotableEvents({ events }: { events?: NotableEventCard[] 
     }
   };
 
-  const activeEvent = useMemo(() => active, [active]);
+  const activeEvent = active;
 
   return (
     <section className='relative isolate overflow-x-hidden'>
-      <div className='site-shell py-8 md:hidden'>
-        <div className='mx-auto flex w-full max-w-[30rem] flex-col items-center gap-4 sm:gap-5'>
-          <Zig from='left' delay={0.05}>
-            <div className='flex flex-col items-center gap-2 text-center'>
-              <h2 className='recoleta text-[28px] font-bold leading-none text-[#FFD928]'>
-                Notable Events
-              </h2>
-              <p className='elza text-[13px] leading-5 text-[#00D8FF]'>
-                I have had the privilege to host some fantastic events:
-              </p>
-            </div>
-          </Zig>
-
-          <Zig from='right' delay={0.1}>
-            <CompactEventCard event={first} tone='yellow' onReadMore={openModal} />
-          </Zig>
-
-          <Zig from='left' delay={0.15}>
-            <CompactEventCard
-              event={second}
-              tone='cyan'
-              reverse
-              onReadMore={openModal}
-            />
-          </Zig>
-
-          <Zig from='right' delay={0.2}>
-            <Link
-              href='/portfolio'
-              className='elza inline-flex h-11 items-center justify-center rounded-full border border-[#00D8FF] px-6 text-sm font-bold text-white transition hover:bg-white/6'
-            >
-              Explore more
-            </Link>
-          </Zig>
-        </div>
-      </div>
-
-      <div className='site-shell-wide hidden py-12 md:block lg:py-14'>
+      <div className='site-shell-wide py-8 md:py-12 lg:py-14'>
         <header className={`${railInner} mb-10 flex flex-col items-center gap-4`}>
           <h2 className='recoleta text-center text-[34px] font-bold leading-[40px] text-[#FFD928] lg:text-[40px] lg:leading-[48px]'>
             Notable Events
@@ -272,6 +176,7 @@ export default function NotableEvents({ events }: { events?: NotableEventCard[] 
                 date={first.date}
                 title={first.title}
                 body={first.blurb}
+                onReadMore={() => openModal(first)}
               />
             </Zig>
           </div>
@@ -283,6 +188,7 @@ export default function NotableEvents({ events }: { events?: NotableEventCard[] 
                 date={second.date}
                 title={second.title}
                 body={second.blurb}
+                onReadMore={() => openModal(second)}
               />
             </Zig>
             <Zig from='right' delay={0.12}>

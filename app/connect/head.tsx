@@ -1,8 +1,8 @@
-import { SITE_KEYWORDS, SITE_META_IMAGE, SITE_NAME, SITE_TITLE, SITE_DESCRIPTION, getSiteUrl } from "../lib/siteSeo";
+import { SITE_KEYWORDS, SITE_META_IMAGE, SITE_NAME, getSiteUrl } from "../lib/siteSeo";
 
 export default function Head() {
-  const title = SITE_TITLE;
-  const description = SITE_DESCRIPTION;
+  const title = "Contact Rafsan Sabab | Book an Event or Collaboration";
+  const description = "Contact Rafsan Sabab to book event hosting, workshops, corporate shows, or brand collaborations.";
   const canonical = getSiteUrl("/connect");
 
   return (

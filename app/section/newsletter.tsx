@@ -113,9 +113,15 @@ export default function Newsletter({ settings }: NewsletterProps) {
                 method='post'
                 onSubmit={onSubmit}
               >
+                <label htmlFor='newsletter-email' className='sr-only'>
+                  Email address
+                </label>
                 <input
+                  id='newsletter-email'
+                  name='email'
                   type='email'
                   required
+                  autoComplete='email'
                   placeholder='Your email'
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}

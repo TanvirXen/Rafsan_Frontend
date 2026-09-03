@@ -4,6 +4,15 @@ import Image from "next/image";
 import apiList from "@/apiList";
 import { slugifyTitle } from "@/app/lib/slugifyTitle";
 import { resolveMediaUrl } from "@/app/lib/mediaUrl";
+import type { Metadata } from "next";
+import { createPageMetadata } from "@/app/lib/siteSeo";
+
+export const metadata: Metadata = createPageMetadata({
+  title: "Search | Rafsan Sabab",
+  description: "Search Rafsan Sabab shows and episodes.",
+  path: "/search",
+  noIndex: true,
+});
 
 export const revalidate = 15;
 
