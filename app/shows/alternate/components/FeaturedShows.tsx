@@ -30,132 +30,66 @@ const STATIC_SHOWS: ShowCard[] = [
 
 type Props = {
   episodes?: Episode[];
+  reels?: {
+    _id: string;
+    title: string;
+    thumbnail?: string;
+    link?: string;
+  }[];
   /** slug of the show, used to open the in-site player */
   showSlug?: string;
 };
 
-type CSSWithVars = React.CSSProperties & {
-  ["--slide-w"]?: string;
-};
-
-export default function FeaturedShows({ episodes, showSlug }: Props) {
+export default function FeaturedShows({ episodes, reels = [], showSlug }: Props) {
   const cards: ShowCard[] = useMemo(() => {
-    if (episodes?.length) {
-      // Show ALL featured episodes (matching the cinematic variant); only
-      // fall back to the first few episodes if none are flagged featured.
-      const featured = episodes.filter((ep) => ep.featured);
-      const source = featured.length ? featured : episodes.slice(0, 6);
-      return source.map((ep) => ({
-        id: ep._id,
-        title: ep.title,
-        subtitle: "Episode",
-        img: resolveMediaUrl(ep.thumbnail, "/assets/exp2.png"),
-        href:
-          ep.link && showSlug
-            ? `/shows/${encodeURIComponent(showSlug)}?ep=${encodeURIComponent(ep._id)}`
-            : "#",
-      }));
-    }
-    return STATIC_SHOWS;
-  }, [episodes, showSlug]);
+    const featuredEpisodes = episodes?.filter((ep) => ep.featured) ?? [];
+    const episodeSource = featuredEpisodes.length
+      ? featuredEpisodes
+      : episodes?.length
+        ? episodes
+        : [];
 
-  // hydration-safe viewport detect
+    const episodeCards = episodeSource.slice(0, 6).map((ep) => ({
+      id: ep._id,
+      title: ep.title,
+      subtitle: "Episode",
+      img: resolveMediaUrl(ep.thumbnail, "/assets/exp2.jpg"),
+      href:
+        ep.link && showSlug
+          ? `/shows/${encodeURIComponent(showSlug)}?ep=${encodeURIComponent(ep._id)}`
+          : "#",
+    }));
+
+    if (episodeCards.length) return episodeCards;
+
+    const reelCards = reels.slice(0, 6).map((reel) => ({
+      id: reel._id,
+      title: reel.title,
+      subtitle: "Vlog",
+      img: resolveMediaUrl(reel.thumbnail, "/assets/exp2.jpg"),
+      href: reel.link
+        ? reel.link.startsWith("http")
+          ? reel.link
+          : showSlug
+            ? `/shows/${encodeURIComponent(showSlug)}`
+            : "#"
+        : "#",
+    }));
+
+    return reelCards.length ? reelCards : STATIC_SHOWS;
+  }, [episodes, reels, showSlug]);
+
+  const railRef = useRef<HTMLDivElement | null>(null);
+  const [index, setIndex] = useState(0);
+  const maxIndex = Math.max(0, cards.length - 1);
   const [isMobile, setIsMobile] = useState(false);
+
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 768);
     onResize();
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
-
-  const perView = isMobile ? 1 : 2;
-  const [index, setIndex] = useState(0);
-  const maxIndex = Math.max(0, cards.length - perView);
-
-  const gapPx = 20;
-
-  const slideRef = useRef<HTMLDivElement | null>(null);
-    // --- swipe/drag (snap 1 card per gesture) ---
-  const startXRef = useRef<number | null>(null);
-  const draggingRef = useRef(false);
-
-  const swipeByOne = (dx: number) => {
-    // threshold: 12% of card width or minimum 40px
-    const THRESH = Math.max(40, slidePx * 0.12);
-
-    if (dx > THRESH) {
-      prev(); // swipe right -> previous
-    } else if (dx < -THRESH) {
-      next(); // swipe left -> next
-    }
-  };
-
-  const onTouchStart: React.TouchEventHandler<HTMLDivElement> = (e) => {
-    stop();
-    startXRef.current = e.touches[0].clientX;
-  };
-
-  const onTouchEnd: React.TouchEventHandler<HTMLDivElement> = (e) => {
-    const sx = startXRef.current;
-    startXRef.current = null;
-    if (sx == null) return start();
-    const dx = e.changedTouches[0].clientX - sx;
-    swipeByOne(dx);
-    start();
-  };
-
-  const onMouseDown: React.MouseEventHandler<HTMLDivElement> = (e) => {
-    stop();
-    draggingRef.current = true;
-    startXRef.current = e.clientX;
-  };
-
-  const onMouseUp: React.MouseEventHandler<HTMLDivElement> = (e) => {
-    if (!draggingRef.current) return;
-    draggingRef.current = false;
-
-    const sx = startXRef.current;
-    startXRef.current = null;
-
-    if (sx == null) return start();
-    const dx = e.clientX - sx;
-    swipeByOne(dx);
-    start();
-  };
-
-  const onMouseLeave: React.MouseEventHandler<HTMLDivElement> = () => {
-    if (!draggingRef.current) return;
-    draggingRef.current = false;
-    startXRef.current = null;
-    start();
-  };
-
-  const [slidePx, setSlidePx] = useState(0);
-
-  useEffect(() => {
-    const measure = () => {
-      if (slideRef.current) setSlidePx(slideRef.current.getBoundingClientRect().width);
-    };
-    measure();
-
-    const onResize = () => measure();
-    window.addEventListener("resize", onResize);
-
-    const ro =
-      typeof ResizeObserver !== "undefined"
-        ? new ResizeObserver(() => measure())
-        : null;
-
-    if (slideRef.current && ro) ro.observe(slideRef.current);
-
-    return () => {
-      window.removeEventListener("resize", onResize);
-      if (ro) ro.disconnect();
-    };
-  }, []);
-
-  // autoplay (mobile only)
-  const timerRef = useRef<number | null>(null);
 
   const stop = () => {
     if (timerRef.current != null) {
@@ -164,9 +98,35 @@ export default function FeaturedShows({ episodes, showSlug }: Props) {
     }
   };
 
+  const scrollToIndex = (nextIndex: number) => {
+    const el = railRef.current;
+    if (!el || !cards.length) return;
+    const target = Math.max(0, Math.min(nextIndex, cards.length - 1));
+    const card = el.querySelector<HTMLElement>("[data-featured-card]");
+    if (!card) return;
+    const gap = 20;
+    const step = card.getBoundingClientRect().width + gap;
+    el.scrollTo({ left: target * step, behavior: "smooth" });
+    setIndex(target);
+  };
+
+  const onScroll = () => {
+    const el = railRef.current;
+    if (!el) return;
+    const card = el.querySelector<HTMLElement>("[data-featured-card]");
+    if (!card) return;
+    const gap = 20;
+    const step = card.getBoundingClientRect().width + gap;
+    if (!step) return;
+    const next = Math.round(el.scrollLeft / step);
+    setIndex(Math.max(0, Math.min(next, maxIndex)));
+  };
+
+  const timerRef = useRef<number | null>(null);
+
   const start = () => {
     stop();
-    if (cards.length > perView && isMobile) {
+    if (cards.length > 1 && isMobile) {
       timerRef.current = window.setInterval(() => {
         setIndex((i) => (i >= maxIndex ? 0 : i + 1));
       }, 2600);
@@ -179,81 +139,53 @@ export default function FeaturedShows({ episodes, showSlug }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMobile, maxIndex, cards.length]);
 
-  const next = () => setIndex((i) => (i >= maxIndex ? maxIndex : i + 1));
-  const prev = () => setIndex((i) => (i <= 0 ? 0 : i - 1));
-
-  const progress = useMemo(
-    () => (maxIndex === 0 ? 1 : (index + 1) / (maxIndex + 1)),
-    [index, maxIndex]
-  );
-
-  const dots = isMobile ? [0, Math.max(0, Math.floor(maxIndex / 2)), maxIndex] : [];
-  const activeDot = isMobile
-    ? index <= Math.floor(dots[1] / 2)
-      ? 0
-      : index >= Math.ceil((dots[1] + dots[2]) / 2)
-      ? 2
-      : 1
-    : -1;
-
-  const slideWMobile = "88%";
-  const slideWDesktop = `calc((100% - ${gapPx}px) / 2)`;
-
-  const translateX = isMobile
-    ? `-${index * (slidePx + gapPx)}px`
-    : `calc(${-index} * (var(--slide-w) + ${gapPx}px))`;
-
   if (!cards.length) return null;
 
   return (
     <>
       <section
-        className="relative mx-auto max-w-6xl px-6 lg:px-0 text-white"
+        className="relative mx-auto max-w-6xl px-6 text-white lg:px-0"
         onMouseEnter={stop}
         onMouseLeave={start}
-        style={{ ["--slide-w"]: isMobile ? slideWMobile : slideWDesktop } as CSSWithVars}
       >
         {/* header */}
         <div className="mb-3 mt-[60px] flex items-center justify-between">
           <h2 className="recoleta font-bold text-2xl sm:text-[28px]">Featured Episodes</h2>
 
           <div className="flex gap-2">
-            <button
-              aria-label="Previous"
-              onClick={prev}
-              className="rounded-md bg-white/10 p-1 ring-1 ring-white/10 hover:bg-white/20 transition"
-            >
-              <FiChevronLeft className="h-4 w-4 text-white/70" />
-            </button>
+          <button
+            aria-label="Previous"
+            onClick={() => scrollToIndex(index - 1)}
+            className="rounded-md bg-white/10 p-1 ring-1 ring-white/10 hover:bg-white/20 transition"
+          >
+            <FiChevronLeft className="h-4 w-4 text-white/70" />
+          </button>
 
-            <button
-              aria-label="Next"
-              onClick={next}
-              className="rounded-md bg-white/10 p-1 ring-1 ring-white/10 hover:bg-white/20 transition"
-            >
-              <FiChevronRight className="h-4 w-4 text-white/70" />
-            </button>
+          <button
+            aria-label="Next"
+            onClick={() => scrollToIndex(index + 1)}
+            className="rounded-md bg-white/10 p-1 ring-1 ring-white/10 hover:bg-white/20 transition"
+          >
+            <FiChevronRight className="h-4 w-4 text-white/70" />
+          </button>
           </div>
         </div>
 
         {/* carousel */}
         <div
-          className="overflow-hidden select-none cursor-grab active:cursor-grabbing touch-pan-y"
-          onTouchStart={onTouchStart}
-          onTouchEnd={onTouchEnd}
-          onMouseDown={onMouseDown}
-          onMouseUp={onMouseUp}
-          onMouseLeave={onMouseLeave}
+          ref={railRef}
+          onScroll={onScroll}
+          className="
+            overflow-x-auto overflow-y-hidden select-none cursor-grab active:cursor-grabbing touch-pan-x
+            [scrollbar-width:none] [&::-webkit-scrollbar]:hidden
+          "
         >
-          <div
-            className="flex gap-5 transition-transform duration-500 will-change-transform"
-            style={{ transform: `translateX(${translateX})` }}
-          >
-            {cards.map((s, idx) => (
+          <div className="flex gap-5 pr-1">
+            {cards.map((s) => (
               <div
                 key={s.id}
-                ref={idx === 0 ? slideRef : undefined}
-                className="min-w-[var(--slide-w)]"
+                data-featured-card
+                className="shrink-0 basis-[84%] sm:basis-[58%] lg:basis-[31%]"
               >
                 <FeaturedCard show={s} />
               </div>
@@ -265,14 +197,14 @@ export default function FeaturedShows({ episodes, showSlug }: Props) {
         {isMobile && cards.length > 1 && (
           <div className="mt-3 flex flex-col items-center">
             <div className="flex justify-center gap-2">
-              {dots.map((d, i) => (
+              {cards.map((_, d) => (
                 <button
-                  key={i}
-                  onClick={() => setIndex(d)}
-                  aria-label={["First", "Middle", "Last"][i]}
+                  key={d}
+                  onClick={() => scrollToIndex(d)}
+                  aria-label={`Go to slide ${d + 1}`}
                   className={[
                     "h-2 w-2 rounded-full transition",
-                    i === activeDot ? "bg-white" : "bg-white/40",
+                    d === index ? "bg-white" : "bg-white/40",
                   ].join(" ")}
                 />
               ))}
@@ -289,7 +221,7 @@ export default function FeaturedShows({ episodes, showSlug }: Props) {
         <div className="mx-auto mt-10 w-full max-w-[1020px] px-6 lg:px-0 flex justify-center">
           <div
             className="h-0.5 rounded-full bg-linear-to-r from-transparent via-[#00D8FF]/80 to-transparent"
-            style={{ width: `${Math.max(12, progress * 100)}%` }}
+            style={{ width: `${Math.max(12, ((index + 1) / cards.length) * 100)}%` }}
           />
         </div>
       )}
@@ -310,13 +242,13 @@ function FeaturedCard({ show }: { show: ShowCard }) {
         bg-black/20
       "
     >
-      <Image
-        src={show.img}
-        alt={show.title}
-        fill
-        className="object-cover object-center transition-transform duration-700 group-hover:scale-110"
-        sizes="(max-width:768px) 88vw, 560px"
-      />
+        <Image
+          src={show.img}
+          alt={show.title}
+          fill
+          className="object-cover object-center transition-transform duration-700 group-hover:scale-110"
+          sizes="(max-width:768px) 88vw, 560px"
+        />
 
       {/* Softer overlays (your banner vibe) */}
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,.08)_0%,rgba(0,0,0,.18)_45%,rgba(0,0,0,.78)_100%)]" />
@@ -326,7 +258,7 @@ function FeaturedCard({ show }: { show: ShowCard }) {
       <div className="absolute inset-x-0 bottom-0 p-4">
         {/* safe zone for play button */}
         <div className="relative pr-[56px]">
-          <p className="elza text-[13px] sm:text-[13px]  leading-[1.1] drop-shadow-sm truncate">
+          <p className="elza text-[13px] sm:text-[13px] leading-[1.1] drop-shadow-sm truncate">
             {show.title}
           </p>
           <p className="elza mt-1 text-[12px] sm:text-[13px] text-white/80 leading-[1.15]">

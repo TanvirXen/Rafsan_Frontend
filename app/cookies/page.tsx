@@ -1,11 +1,20 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { SITE_DESCRIPTION, SITE_KEYWORDS, SITE_NAME } from "../lib/siteSeo";
 
 export const metadata: Metadata = {
   title: "Cookies Policy | Rafsan Sabab",
-  description:
-    "Cookies policy for the Rafsan Sabab portfolio website, covering embedded media, analytics, and browser controls.",
+  description: SITE_DESCRIPTION,
+  keywords: [...SITE_KEYWORDS, "cookies policy", "browser controls", "analytics"],
+  alternates: { canonical: "/cookies" },
+  openGraph: {
+    title: "Cookies Policy | Rafsan Sabab",
+    description: SITE_DESCRIPTION,
+    url: "/cookies",
+    siteName: SITE_NAME,
+    images: [{ url: "/logo.png", width: 512, height: 512, alt: SITE_NAME }],
+  },
 };
 
 const updatedOn = "August 28, 2026";

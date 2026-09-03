@@ -21,9 +21,17 @@ type Episode = {
   featured?: boolean;
 };
 
+type Reel = {
+  _id: string;
+  title: string;
+  thumbnail?: string;
+  link?: string;
+};
+
 type ShowFeaturedEpProps = {
   seasons: Season[];
   episodes: Episode[];
+  reels?: Reel[];
   showSlug: string;
 };
 
@@ -41,6 +49,7 @@ const GAP = 24;
 export default function ShowFeaturedEp({
   seasons,
   episodes,
+  reels = [],
   showSlug,
 }: ShowFeaturedEpProps) {
   const seasonMap = useMemo(() => {
@@ -50,22 +59,44 @@ export default function ShowFeaturedEp({
   }, [seasons]);
 
   const cards: CardData[] = useMemo(() => {
-    if (!episodes?.length) return [];
-
     const featured = episodes.filter((episode) => episode.featured);
-    const source = featured.length ? featured : episodes.slice(0, 6);
+    const source = featured.length
+      ? featured.map((episode) => ({
+          id: episode._id,
+          season: seasonMap.get(episode.seasonId)?.title ?? "Season",
+          episode: episode.title,
+          img: resolveMediaUrl(episode.thumbnail, "/assets/exp1.jpg"),
+          href: episode.link
+            ? `/shows/${encodeURIComponent(showSlug)}?ep=${encodeURIComponent(episode._id)}`
+            : "#",
+          disabled: !episode.link,
+        }))
+      : episodes.length
+        ? episodes.slice(0, 6).map((episode) => ({
+            id: episode._id,
+            season: seasonMap.get(episode.seasonId)?.title ?? "Season",
+            episode: episode.title,
+            img: resolveMediaUrl(episode.thumbnail, "/assets/exp1.jpg"),
+            href: episode.link
+              ? `/shows/${encodeURIComponent(showSlug)}?ep=${encodeURIComponent(episode._id)}`
+              : "#",
+            disabled: !episode.link,
+          }))
+        : reels.slice(0, 6).map((reel) => ({
+            id: reel._id,
+            season: "Vlogs",
+            episode: reel.title,
+            img: resolveMediaUrl(reel.thumbnail, "/assets/exp1.jpg"),
+            href: reel.link
+              ? reel.link.startsWith("http")
+                ? reel.link
+                : `/shows/${encodeURIComponent(showSlug)}`
+              : "#",
+            disabled: !reel.link,
+          }));
 
-    return source.map((episode) => ({
-      id: episode._id,
-      season: seasonMap.get(episode.seasonId)?.title ?? "Season",
-      episode: episode.title,
-      img: resolveMediaUrl(episode.thumbnail, "/assets/exp1.jpg"),
-      href: episode.link
-        ? `/shows/${encodeURIComponent(showSlug)}?ep=${encodeURIComponent(episode._id)}`
-        : "#",
-      disabled: !episode.link,
-    }));
-  }, [episodes, seasonMap, showSlug]);
+    return source;
+  }, [episodes, reels, seasonMap, showSlug]);
 
   const [perView, setPerView] = useState(4);
   useEffect(() => {

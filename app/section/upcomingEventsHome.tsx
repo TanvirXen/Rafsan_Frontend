@@ -155,6 +155,7 @@ function hrefFor(ev: ApiEvent, iso: string, tz = TZ) {
 
 export default function UpcomingEventsHome() {
   const [apiItems, setApiItems] = useState<Workshop[]>([]);
+  const [eventsLoaded, setEventsLoaded] = useState(false);
 
   // Fetch next three upcoming occurrences from API
   useEffect(() => {
@@ -233,7 +234,10 @@ export default function UpcomingEventsHome() {
           })
           .slice(0, 3);
 
-        if (!cancelled) setApiItems(flattened);
+        if (!cancelled) {
+          setApiItems(flattened);
+          setEventsLoaded(true);
+        }
       } catch {
         if (!cancelled) {
           setApiItems(
@@ -243,6 +247,7 @@ export default function UpcomingEventsHome() {
               ended: false,
             }))
           );
+          setEventsLoaded(true);
         }
       }
     })();
@@ -254,11 +259,14 @@ export default function UpcomingEventsHome() {
   // Use API data when present, else fall back to your static list
   const DATA: Workshop[] = apiItems.length
     ? apiItems
-    : WORKSHOPS.map((w, idx) => ({
+    : eventsLoaded
+      ? []
+      : WORKSHOPS.map((w, idx) => ({
         ...w,
         dateISO: `2099-01-0${idx + 1}T00:00:00.000Z`,
         ended: false,
       }));
+  const hasEvents = DATA.length > 0;
 
   /** ---------- responsive dims (SSR-safe) ---------- */
   const [dims, setDims] = useState<Dims>(() => getDims(1440));
@@ -339,22 +347,16 @@ export default function UpcomingEventsHome() {
           <h2 className='recoleta text-center text-[28px] font-bold leading-[30px] sm:text-[40px] sm:leading-[48px]'>
             Events
           </h2>
-          <p className='elza mt-2 mb-7 text-center text-[13px] leading-5 text-[#00D8FF] sm:text-[16px] sm:leading-6'>
+          <p className='elza mt-2 mb-4 text-center text-[13px] leading-5 text-[#00D8FF] sm:mb-5 sm:text-[16px] sm:leading-6'>
             Grab the chance to join my events!
           </p>
 
           {/* Carousel */}
           <div
-            className='
-              relative mx-auto
-              w-full max-w-[22rem] sm:max-w-[1100px]
-              flex items-center justify-center
-              perspective-[1400px] [transform-style:preserve-3d]
-              overflow-hidden sm:overflow-visible
-              h-[375px] sm:h-[450px] md:h-[500px]
-              select-none
-            '
-            style={{ height: CONTAINER_H }}
+            className={hasEvents
+              ? "relative mx-auto flex h-[375px] w-full max-w-[22rem] items-center justify-center select-none overflow-hidden perspective-[1400px] [transform-style:preserve-3d] sm:h-[450px] sm:max-w-[1100px] sm:overflow-visible md:h-[500px]"
+              : "relative mx-auto flex min-h-[148px] w-full max-w-[32rem] items-center justify-center select-none sm:min-h-[132px]"}
+            style={hasEvents ? { height: CONTAINER_H } : undefined}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
@@ -367,7 +369,26 @@ export default function UpcomingEventsHome() {
             {/* 🔦 Mobile-only left shadow to emphasize card change */}
             <div className='pointer-events-none absolute inset-y-6 left-0 w-14 bg-gradient-to-r from-black/45 via-black/15 to-transparent rounded-l-[20px] sm:hidden' />
 
-            {DATA.map((w, idx) => {
+            {!hasEvents ? (
+              <div className='relative flex w-full max-w-[34rem] items-center gap-4 overflow-hidden rounded-2xl border border-[#00D8FF]/25 bg-[#00D8FF]/[0.06] px-5 py-4 text-left shadow-[0_14px_40px_rgba(0,216,255,.08)] sm:px-6'>
+                <div className='pointer-events-none absolute -right-8 -top-10 h-28 w-28 rounded-full border border-[#00D8FF]/15 animate-[spin_10s_linear_infinite]' />
+                <div className='relative grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-[#00D8FF]/40 bg-[#00D8FF]/10 text-[#00D8FF] shadow-[0_0_22px_rgba(0,216,255,.16)] animate-[pulse_2.8s_ease-in-out_infinite]'>
+                  <svg width='25' height='25' viewBox='0 0 24 24' fill='none' aria-hidden='true'>
+                    <rect x='3' y='5' width='18' height='16' rx='3' stroke='currentColor' strokeWidth='1.5' />
+                    <path d='M7 3V7M17 3V7M3 10H21' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' />
+                    <path d='M8 14H8.01M12 14H12.01M16 14H16.01M8 17H8.01M12 17H12.01' stroke='currentColor' strokeWidth='2' strokeLinecap='round' />
+                  </svg>
+                </div>
+                <div className='relative min-w-0'>
+                  <p className='elza text-[10px] font-bold uppercase tracking-[0.2em] text-[#00D8FF]/75'>
+                    Calendar status: suspiciously peaceful
+                  </p>
+                  <p className='recoleta mt-1 text-base font-bold leading-tight text-white sm:text-lg'>
+                    No upcoming events. The calendar is committed to doing absolutely nothing.
+                  </p>
+                </div>
+              </div>
+            ) : DATA.map((w, idx) => {
               let d = idx - i;
               if (d > n / 2) d -= n;
               if (d < -n / 2) d += n;
@@ -478,7 +499,7 @@ export default function UpcomingEventsHome() {
           </div>
 
           {/* Dots */}
-          <div
+          {n > 0 && <div
             className='mt-4 sm:mt-5 flex justify-center gap-2'
             role='tablist'
             aria-label='Slides'
@@ -496,12 +517,12 @@ export default function UpcomingEventsHome() {
                 ].join(" ")}
               />
             ))}
-          </div>
+          </div>}
 
           {/* CTA */}
-          <div className='mt-3 sm:mt-6 flex justify-center'>
+          <div className='mt-4 flex justify-center sm:mt-5'>
             <Link
-              href='/portfolio'
+              href='/events'
               className='elza inline-flex h-11 items-center justify-center rounded-full border border-[#40D7FF] px-6 text-sm font-semibold text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,.06)] transition hover:bg-white/10 sm:h-12 sm:text-base'
             >
               Explore more

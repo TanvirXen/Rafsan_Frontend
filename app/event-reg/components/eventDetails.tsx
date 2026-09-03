@@ -210,7 +210,8 @@ export default function EventDetailsSection({
       if (failed.length > 0) {
         if (failed.length === validDates.length) {
           throw new Error(
-            `Registration failed: ${(failed[0] as PromiseRejectedResult).reason.message}`
+            (failed[0] as PromiseRejectedResult).reason?.message ||
+              "We could not complete your registration. Please try again."
           );
         } else {
           throw new Error(

@@ -1,12 +1,28 @@
 // app/about/page.tsx
+import type { Metadata } from "next";
 import React from "react";
 import AboutBanner from "./components/aboutBanner";
 import Newsletter from "../section/newsletter";
 import SetbackSection from "./components/setbackSection";
 import JourneySection from "./components/journeySection";
 import apiList from "@/apiList";
+import { SITE_DESCRIPTION, SITE_KEYWORDS, SITE_NAME } from "../lib/siteSeo";
 
 export const revalidate = 60;
+export const metadata: Metadata = {
+  title: "About Rafsan Sabab",
+  description:
+    "Learn how Rafsan Sabab became a live event host, emcee, podcaster, storyteller, and creator through stages, shows, and audience-driven projects.",
+  keywords: [...SITE_KEYWORDS, "about Rafsan Sabab", "Rafsan Sabab biography"],
+  alternates: { canonical: "/about" },
+  openGraph: {
+    title: "About Rafsan Sabab | Event Host, Podcaster & Vlogger",
+    description: SITE_DESCRIPTION,
+    url: "/about",
+    siteName: SITE_NAME,
+    images: [{ url: "/logo.png", width: 512, height: 512, alt: SITE_NAME }],
+  },
+};
 
 export type BannerApi = {
   type: "about" | "gallery";

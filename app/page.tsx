@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Help from "./section/help";
 import Hero from "./section/hero";
 import Newsletter, { NewsletterSettings } from "./section/newsletter";
@@ -6,9 +7,29 @@ import StoryTeaser from "./section/story-teaser";
 import WatchShows from "./section/WatchShows";
 import UpcomingEventsHome from "./section/upcomingEventsHome";
 import apiList from "@/apiList";
+import { SITE_DESCRIPTION, SITE_KEYWORDS, SITE_NAME } from "./lib/siteSeo";
 
 // ISR: rebuild at most once every 60 seconds
 export const revalidate = 60;
+export const metadata: Metadata = {
+  title: "Event Host, Podcaster & Vlogger",
+  description:
+    "Rafsan Sabab is an event host, emcee, podcaster, and vlogger known for live shows, What a Show, stage hosting, and audience-first entertainment.",
+  keywords: [
+    ...SITE_KEYWORDS,
+    "best event host in Bangladesh",
+    "best emcee in Bangladesh",
+    "corporate event host in Bangladesh",
+  ],
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "Rafsan Sabab | Event Host, Podcaster & Vlogger",
+    description: SITE_DESCRIPTION,
+    url: "/",
+    siteName: SITE_NAME,
+    images: [{ url: "/logo.png", width: 512, height: 512, alt: SITE_NAME }],
+  },
+};
 
 /* ---------- Types ---------- */
 
@@ -193,14 +214,14 @@ export default async function Home() {
         image={about?.image}
       />
 
+      <UpcomingEventsHome />
+
       {/* 3D carousel (must be hydration-safe internally) */}
       <WatchShows />
 
       <NotableEvents events={notableEvents} />
 
       <div className='pb-10'>{/* <WorkShop /> */}</div>
-
-      <UpcomingEventsHome />
 
       {/* Newsletter section now fully driven by CMS settings + ISR 60 */}
       <Newsletter settings={newsletterSettings} />

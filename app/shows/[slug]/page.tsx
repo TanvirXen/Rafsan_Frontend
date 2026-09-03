@@ -192,7 +192,7 @@ export default async function ShowPage(props: {
   const data = await fetchShowData(match._id);
   if (!data) notFound();
 
-  const { show, seasons, episodes } = data;
+  const { show, seasons, episodes, reels } = data;
 
   // Fetch and filter upcoming events for this show
   let matchedEvents: EventItem[] = [];
@@ -266,7 +266,7 @@ export default async function ShowPage(props: {
           {variant === "podcast" ? (
             <>
               <PodcastBanner show={show} />
-              <FeaturedShows episodes={episodes} showSlug={slug} />
+              <FeaturedShows episodes={episodes} reels={reels} showSlug={slug} />
               {matchedEvents.length > 0 && (
                 <EventsSection title="Upcoming Events" events={matchedEvents} divider={true} variant="small" />
               )}
@@ -275,7 +275,12 @@ export default async function ShowPage(props: {
           ) : (
             <>
               <ShowBanner show={show} />
-              <ShowFeaturedEp seasons={seasons} episodes={episodes} showSlug={slug} />
+              <ShowFeaturedEp
+                seasons={seasons}
+                episodes={episodes}
+                reels={reels}
+                showSlug={slug}
+              />
               {matchedEvents.length > 0 && (
                 <EventsSection title="Upcoming Events" events={matchedEvents} divider={true} variant="small" />
               )}
