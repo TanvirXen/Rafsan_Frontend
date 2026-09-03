@@ -44,6 +44,7 @@ type EventDoc = {
   cardImage?: string;
   imageLinkBg?: string;
   imageLinkOverlay?: string;
+  backgroundImage?: string;
   shortBlurb?: string;
   longBlurb?: string;
   brands?: BrandDoc[];
@@ -51,7 +52,7 @@ type EventDoc = {
     id?: string;
     name: string;
     label: string;
-    type: "text" | "email" | "phone" | "number" | "select" | "textarea";
+    type: "text" | "email" | "phone" | "number" | "select" | "textarea" | "image";
     required?: boolean;
     options?: string[];
   }>;

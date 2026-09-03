@@ -4,6 +4,7 @@ type EventImageShape = {
   category?: string;
   imageLinkBg?: string;
   imageLinkOverlay?: string;
+  backgroundImage?: string;
   bannerImage?: string;
   cardImage?: string;
 };
@@ -70,7 +71,7 @@ export function pickEventBannerAssets(
   const occImage = occ?.image ? occ.image.trim() : "";
 
   if (category === "what_a_show") {
-    const bannerSrc =
+    const posterSrc =
       pickFirstImage(
         occImage,
         event.imageLinkBg,
@@ -78,10 +79,12 @@ export function pickEventBannerAssets(
         event.imageLinkOverlay,
         event.cardImage
       ) || fallback;
+    const bgSrc =
+      pickFirstImage(event.backgroundImage) || posterSrc;
 
     return {
-      posterSrc: resolveMediaUrl(bannerSrc),
-      bgSrc: resolveMediaUrl(bannerSrc),
+      posterSrc: resolveMediaUrl(posterSrc),
+      bgSrc: resolveMediaUrl(bgSrc),
     };
   }
 

@@ -14,6 +14,7 @@ export type ApiEvent = {
   description?: string;
   imageLinkBg?: string;
   imageLinkOverlay?: string;
+  backgroundImage?: string;
   bannerImage?: string;
   cardImage?: string;
   category?: string;

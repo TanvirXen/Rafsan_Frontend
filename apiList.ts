@@ -106,6 +106,10 @@ contact: {
     get: (id: string) => path("registrations", id),
   },
 
+  registrationImages: {
+    upload: path("registration-images"),
+  },
+
   // ----- Payments (GET) -----
   payments: {
     list: path("payments"),

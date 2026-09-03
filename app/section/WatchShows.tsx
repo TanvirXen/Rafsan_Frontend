@@ -10,7 +10,7 @@ import React, {
 } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import apiList from "../../apiList";
+import apiList, { withQuery } from "../../apiList";
 import { slugifyTitle } from "../lib/slugifyTitle";
 import { resolveMediaUrl } from "@/app/lib/mediaUrl";
 
@@ -23,6 +23,14 @@ type ShowFromApi = {
   seasons?: number;
   reels?: number;
   featured?: boolean;
+};
+
+type EventForBooking = {
+  slug?: string;
+  title?: string;
+  showKey?: string;
+  date?: string[];
+  occurrences?: Array<{ date?: string }>;
 };
 
 type ShowItem = {
@@ -81,6 +89,9 @@ function getDims(w: number): Dims {
 export default function WatchShows() {
   /** ------- data from API ------- */
   const [items, setItems] = useState<ShowItem[]>([]);
+  const [upcomingEventHrefByShow, setUpcomingEventHrefByShow] = useState<
+    Record<string, string>
+  >({});
   const [loading, setLoading] = useState(true);
 
   /** ------- autoplay helpers (declared early so we can use in effects) ------- */
@@ -100,13 +111,17 @@ export default function WatchShows() {
 
     async function fetchShows() {
       try {
-        const res = await fetch(apiList.shows.list);
-        if (!res.ok) {
-          console.error("Failed to fetch shows", res.status);
+        const [showsRes, eventsRes] = await Promise.all([
+          fetch(apiList.shows.list),
+          fetch(withQuery(apiList.events.list, { limit: 100 })),
+        ]);
+
+        if (!showsRes.ok) {
+          console.error("Failed to fetch shows", showsRes.status);
           return;
         }
 
-        const json = (await res.json()) as
+        const json = (await showsRes.json()) as
           | ShowFromApi[]
           | { shows?: ShowFromApi[] };
         const arr: ShowFromApi[] = Array.isArray(json)
@@ -135,6 +150,43 @@ export default function WatchShows() {
 
         if (!cancelled) {
           setItems(mapped);
+        }
+
+        if (eventsRes.ok && !cancelled) {
+          const eventJson = (await eventsRes.json()) as
+            | EventForBooking[]
+            | { events?: EventForBooking[] };
+          const events: EventForBooking[] = Array.isArray(eventJson)
+            ? eventJson
+            : eventJson.events ?? [];
+          const now = Date.now();
+          const bookingByShow: Record<string, string> = {};
+
+          for (const event of events) {
+            const dates = [
+              ...(event.occurrences || [])
+                .map((occurrence) => occurrence.date)
+                .filter((date): date is string => Boolean(date)),
+              ...(event.date || []),
+            ]
+              .map((date) => ({ value: date, time: new Date(date).getTime() }))
+              .filter((date) => Number.isFinite(date.time) && date.time >= now)
+              .sort((a, b) => a.time - b.time);
+
+            const firstUpcoming = dates[0];
+            if (!firstUpcoming || !event.slug) continue;
+
+            const showKey = event.showKey || slugifyTitle(event.title || "");
+            const eventHref = `/event-reg/${encodeURIComponent(
+              `${event.slug}--${firstUpcoming.value.slice(0, 10)}`
+            )}`;
+
+            if (!bookingByShow[showKey]) {
+              bookingByShow[showKey] = eventHref;
+            }
+          }
+
+          setUpcomingEventHrefByShow(bookingByShow);
         }
       } catch (e) {
         console.error("Error fetching watch-shows carousel", e);
@@ -322,6 +374,13 @@ export default function WatchShows() {
                   const ry = d * -SWIVEL;
                   const sc = 1 - Math.min(Math.abs(d) * SCALE_DROP, 0.24);
                   const href = `/shows/${item.slug}`;
+                  const isWhatAShow =
+                    item.slug === "what-a-show" ||
+                    item.title.trim().toLowerCase() === "what a show";
+                  const bookingHref = isWhatAShow
+                    ? upcomingEventHrefByShow["what-a-show"]
+                    : undefined;
+                  const ctaLabel = bookingHref ? "Get Tickets" : "Watch Now";
 
                   const w = isCenter ? CENTER_W : SIDE_W;
                   const h = isCenter ? CENTER_H : SIDE_H;
@@ -375,7 +434,7 @@ export default function WatchShows() {
                         {isCenter && (
                           <div className='absolute inset-x-0 bottom-0 flex items-end justify-between px-4 sm:px-5 pb-3 sm:pb-4'>
                             <Link
-                              href={href}
+                              href={bookingHref || href}
                               className='flex items-center gap-2 sm:gap-3 hover:-translate-y-px transition-transform duration-200'
                             >
                               <span className='w-1 h-6 bg-[#00D8FF] rounded-full shadow-[0_0_12px_rgba(0,216,255,.7)]' />
@@ -394,7 +453,7 @@ export default function WatchShows() {
                                 transition-transform duration-200 hover:-translate-y-px
                               '
                             >
-                              Watch Now
+                              {ctaLabel}
                             </Link>
                           </div>
                         )}

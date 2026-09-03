@@ -16,6 +16,7 @@ type ApiEvent = {
   cardImage?: string;
   imageLinkBg?: string;
   imageLinkOverlay?: string;
+  backgroundImage?: string;
   shortBlurb?: string;
   longBlurb?: string;
   venue?: string;

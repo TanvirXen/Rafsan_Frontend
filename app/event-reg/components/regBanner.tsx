@@ -63,7 +63,7 @@ export default function RegBanner({
 
       {/* === Left: image card === */}
       <div className="site-shell mx-auto grid w-full max-w-[1100px] items-center gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:gap-8">
-        <div className="relative mx-auto aspect-[4/3] w-full max-w-[520px] overflow-hidden rounded-2xl shadow-[0_18px_40px_rgba(0,0,0,.45)] ring-1 ring-white/10">
+        <div className="relative mx-auto aspect-[9/16] w-full max-w-[360px] overflow-hidden rounded-2xl shadow-[0_18px_40px_rgba(0,0,0,.45)] ring-1 ring-white/10">
           <Image
             src={posterSrc}
             alt={`${title} poster`}

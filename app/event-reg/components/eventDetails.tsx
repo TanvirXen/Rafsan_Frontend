@@ -17,7 +17,7 @@ type CustomField = {
   id?: string;
   name: string;
   label: string;
-  type: "text" | "email" | "phone" | "number" | "select" | "textarea";
+  type: "text" | "email" | "phone" | "number" | "select" | "textarea" | "image";
   required?: boolean;
   options?: string[];
 };
@@ -93,6 +93,7 @@ export default function EventDetailsSection({
   });
 
   const [submitting, setSubmitting] = React.useState(false);
+  const [uploadingField, setUploadingField] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState(false);
   const [selectedDates, setSelectedDates] = React.useState<string[]>([]);
@@ -143,6 +144,37 @@ export default function EventDetailsSection({
       }
     }
     return null;
+  }
+
+  async function uploadRegistrationImage(fieldName: string, file: File) {
+    if (!file.type.startsWith("image/")) {
+      setError("Please select a valid image file.");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setError("Image must be 10MB or smaller.");
+      return;
+    }
+
+    try {
+      setUploadingField(fieldName);
+      setError(null);
+      const data = new FormData();
+      data.append("image", file);
+      const response = await fetch(apiList.registrationImages.upload, {
+        method: "POST",
+        body: data,
+      });
+      const result = await response.json().catch(() => null);
+      if (!response.ok || !result?.imageId) {
+        throw new Error(result?.error || "Image upload failed.");
+      }
+      setForm((prev) => ({ ...prev, [fieldName]: String(result.imageId) }));
+    } catch (uploadError: any) {
+      setError(uploadError?.message || "Image upload failed.");
+    } finally {
+      setUploadingField(null);
+    }
   }
 
   async function onSubmit(e: React.FormEvent) {
@@ -377,7 +409,29 @@ export default function EventDetailsSection({
                       ) : null}
                     </label>
 
-                    {f.type === "textarea" ? (
+                    {f.type === "image" ? (
+                      <div className='rounded-md border border-dashed border-white/30 bg-black/20 p-4'>
+                        <input
+                          id={f.id}
+                          type='file'
+                          accept='image/jpeg,image/png,image/webp,image/avif'
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) void uploadRegistrationImage(f.name, file);
+                          }}
+                          className='w-full text-sm text-white file:mr-3 file:rounded-md file:border-0 file:bg-[#00D8FF] file:px-3 file:py-2 file:font-semibold file:text-black'
+                          required={f.required && !val}
+                          disabled={submitting || hasEnded || uploadingField === f.name}
+                        />
+                        <p className='mt-2 text-xs text-white/65'>
+                          {uploadingField === f.name
+                            ? "Uploading securely..."
+                            : val
+                              ? "Image uploaded securely."
+                              : "JPG, PNG, WebP, or AVIF up to 10MB."}
+                        </p>
+                      </div>
+                    ) : f.type === "textarea" ? (
                       <textarea
                         id={f.id}
                         placeholder={f.label}
