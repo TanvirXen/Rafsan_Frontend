@@ -13,6 +13,7 @@ import {
   SITE_META_IMAGE,
   WHAT_A_SHOW_DESCRIPTION,
   WHAT_A_SHOW_META_IMAGE,
+  buildBreadcrumbJsonLd,
 } from "@/app/lib/siteSeo";
 
 export const dynamic = "force-dynamic";
@@ -281,6 +282,31 @@ export default async function Page(props: {
       }`
     : undefined;
 
+  const eventJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    name: title,
+    description: blurb,
+    url: `https://www.rafsansabab.com/event-reg/${encodeURIComponent(raw)}`,
+    image: [bgSrc, posterSrc].filter(Boolean),
+    startDate: selectedISO,
+    eventStatus: "https://schema.org/EventScheduled",
+    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+    location: {
+      "@type": "Place",
+      name: venueLine || "Bangladesh",
+      address: venueLine || "Bangladesh",
+    },
+    performer: { "@type": "Person", name: "Rafsan Sabab" },
+    organizer: { "@type": "Person", name: "Rafsan Sabab" },
+    ...(ctaHref ? { offers: { "@type": "Offer", url: ctaHref, availability: "https://schema.org/InStock" } } : {}),
+  };
+  const breadcrumbJsonLd = buildBreadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Events", path: "/events" },
+    { name: title, path: `/event-reg/${raw}` },
+  ]);
+
   const nowMs = new Date().getTime();
   const availableDates = (normalizeOccurrences(ev) || []).map((o) => {
     let ended = false;
@@ -296,6 +322,8 @@ export default async function Page(props: {
 
   return (
     <div className='bg-[#121212]'>
+      <script type='application/ld+json' dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd) }} />
+      <script type='application/ld+json' dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       <h1 className='sr-only'>{title} Event Registration</h1>
       <RegBanner
         title={title}

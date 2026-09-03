@@ -80,6 +80,7 @@ const apiList = {
   shows: {
     list: path("shows"),
     get: (id: string) => path("shows", id),
+    searchEpisodes: (query: string) => withQuery(path("shows", "episodes"), { q: query }),
     seasonsByShow: (showId: string) => path("shows", showId, "seasons"),
     episodesBySeason: (showId: string, seasonId: string) =>
       path("shows", showId, "seasons", seasonId, "episodes"),

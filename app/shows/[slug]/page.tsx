@@ -21,6 +21,7 @@ import {
   SITE_META_IMAGE,
   WHAT_A_SHOW_DESCRIPTION,
   WHAT_A_SHOW_META_IMAGE,
+  buildBreadcrumbJsonLd,
 } from "@/app/lib/siteSeo";
 
 export const revalidate = 15;
@@ -245,9 +246,15 @@ export default async function ShowPage(props: {
 
   const variant: "cinematic" | "podcast" =
     show.designVariant === "podcast" ? "podcast" : "cinematic";
+  const breadcrumbJsonLd = buildBreadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Shows", path: "/explore-shows" },
+    { name: show.title, path: `/shows/${slug}` },
+  ]);
 
   return (
     <div>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       {playerMode && (
         <>
           {videoJsonLd && (

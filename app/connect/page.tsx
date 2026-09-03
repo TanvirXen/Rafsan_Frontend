@@ -40,6 +40,9 @@ export default function ConnectPage() {
 
     if (!form.name.trim() || !form.email.trim() || !form.message.trim()) {
       setErrorMsg("Name, email, and message are required.");
+      requestAnimationFrame(() => {
+        e.currentTarget.querySelector<HTMLElement>("[aria-invalid='true']")?.focus();
+      });
       return;
     }
 
@@ -132,8 +135,13 @@ export default function ConnectPage() {
               }}
             >
               <form className='space-y-4 md:space-y-6' onSubmit={handleSubmit}>
-                <Field label='Name'>
+                <Field label='Name' id='contact-name' errorId='contact-name-error'>
                   <Input
+                    id='contact-name'
+                    name='name'
+                    autoComplete='name'
+                    aria-invalid={!form.name.trim() && !!errorMsg}
+                    aria-describedby='contact-name-error'
                     placeholder='Enter Your Name'
                     value={form.name}
                     onChange={handleChange("name")}
@@ -141,8 +149,13 @@ export default function ConnectPage() {
                   />
                 </Field>
 
-                <Field label='Email'>
+                <Field label='Email' id='contact-email' errorId='contact-email-error'>
                   <Input
+                    id='contact-email'
+                    name='email'
+                    autoComplete='email'
+                    aria-invalid={!!errorMsg && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())}
+                    aria-describedby='contact-email-error'
                     type='email'
                     placeholder='Enter Your Email'
                     value={form.email}
@@ -151,24 +164,36 @@ export default function ConnectPage() {
                   />
                 </Field>
 
-                <Field label='Phone Number'>
+                <Field label='Phone Number' id='contact-phone' errorId='contact-phone-error'>
                   <Input
+                    id='contact-phone'
+                    name='phone'
+                    autoComplete='tel'
+                    aria-describedby='contact-phone-error'
                     placeholder='Enter Your Phone Number'
                     value={form.phone}
                     onChange={handleChange("phone")}
                   />
                 </Field>
 
-                <Field label='Subject'>
+                <Field label='Subject' id='contact-subject' errorId='contact-subject-error'>
                   <Input
+                    id='contact-subject'
+                    name='subject'
+                    autoComplete='off'
+                    aria-describedby='contact-subject-error'
                     placeholder='Enter Subject'
                     value={form.subject}
                     onChange={handleChange("subject")}
                   />
                 </Field>
 
-                <Field label='Message'>
+                <Field label='Message' id='contact-message' errorId='contact-message-error'>
                   <Textarea
+                    id='contact-message'
+                    name='message'
+                    aria-invalid={!form.message.trim() && !!errorMsg}
+                    aria-describedby='contact-message-error'
                     placeholder='Your Message'
                     className='min-h-[96px]'
                     value={form.message}
@@ -231,18 +256,23 @@ export default function ConnectPage() {
 
 function Field({
   label,
+  id,
+  errorId,
   children,
 }: {
   label: string;
+  id: string;
+  errorId: string;
   children: React.ReactNode;
 }) {
   return (
-    <label className='block'>
-      <span className='mb-1.5 block text-[12px] leading-[17px] text-[#A2AEC0] md:text-[13px]'>
+    <div className='block'>
+      <label htmlFor={id} className='mb-1.5 block text-[12px] leading-[17px] text-[#A2AEC0] md:text-[13px]'>
         {label}
-      </span>
+      </label>
       {children}
-    </label>
+      <span id={errorId} className='sr-only'>{label} is required.</span>
+    </div>
   );
 }
 

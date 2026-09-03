@@ -80,14 +80,14 @@ function Card({
             />
           </div>
 
-          <h4
+          <h3
             className={[
               "recoleta text-center text-[18px] font-bold leading-[22px] sm:text-[22px] sm:leading-[26px] xl:text-[28px] xl:leading-[30px]",
               titleClass || "text-inherit",
             ].join(" ")}
           >
             {title}
-          </h4>
+          </h3>
         </div>
 
         <p
@@ -130,14 +130,14 @@ function CtaCard() {
       </div>
 
       <div className='flex w-full max-w-[434px] flex-col items-center gap-3 xl:gap-5'>
-        <h5 className='recoleta text-center text-[18px] font-bold leading-[22px] text-[#121212] sm:text-[22px] sm:leading-[26px] xl:text-[28px] xl:leading-[30px]'>
+        <h3 className='recoleta text-center text-[18px] font-bold leading-[22px] text-[#121212] sm:text-[22px] sm:leading-[26px] xl:text-[28px] xl:leading-[30px]'>
           <span className='hidden xl:inline'>
             Want to share something
             <br />
             exciting?
           </span>
           <span className='xl:hidden'>Want to share something exciting?</span>
-        </h5>
+        </h3>
 
         <Link
           href='/connect'
@@ -169,7 +169,7 @@ export default function Help() {
 
   const corporateTitle = "Corporate Shows";
   const corporateBody =
-    "Turn your workplace into a stage of laughter and energy ! Fun,interactive corporate sows that boost smiles ,spirit and teamwork.";
+    "Turn your workplace into a stage of laughter and energy. Fun, interactive corporate shows that boost morale, spirit, and teamwork.";
 
   return (
     <section className='site-shell relative isolate z-[2] overflow-x-hidden py-10 sm:py-12 lg:py-16'>

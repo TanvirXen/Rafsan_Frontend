@@ -12,6 +12,7 @@ import {
 } from "@/app/lib/portfolioNotableEvents";
 import {
   createPageMetadata,
+  buildBreadcrumbJsonLd,
 } from "@/app/lib/siteSeo";
 
 export const revalidate = 15;
@@ -210,9 +211,15 @@ export default async function CategoryPage(props: {
   const copy = CATEGORY_COPY[type];
   const groupedEvents = await fetchPortfolioNotableEvents();
   const events = groupedEvents[type];
+  const breadcrumbJsonLd = buildBreadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Portfolio", path: "/portfolio" },
+    { name: copy.title, path: `/categories/${slug}` },
+  ]);
 
   return (
     <div className="overflow-x-hidden">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       <section className="site-shell-wide py-12 lg:py-16">
         <div className="mx-auto flex max-w-[56rem] flex-col items-center gap-5 text-center">
           <Link
@@ -237,18 +244,18 @@ export default async function CategoryPage(props: {
         <section className="site-shell pb-14 lg:pb-18">
           <div className="mx-auto max-w-[42rem] rounded-[28px] border border-white/10 bg-white/[0.03] p-8 text-center shadow-[0_20px_50px_rgba(0,0,0,.25)]">
             <h2 className="recoleta text-[28px] font-bold text-white">
-              No events published yet for this category.
+              No public events are published in this category yet.
             </h2>
             <p className="elza mt-3 text-[15px] leading-7 text-white/72">
-              Check back soon or return to the portfolio overview to browse the
-              other categories.
+              Check back soon, or contact the team to discuss a tailored event,
+              workshop, brand collaboration, or corporate program.
             </p>
             <div className="mt-6 flex justify-center">
               <Link
                 href="/portfolio"
                 className="elza inline-flex h-11 items-center justify-center rounded-full border border-[#00D8FF] px-5 text-sm font-bold text-white transition hover:bg-white/6"
               >
-                Return to Portfolio
+                Browse Portfolio
               </Link>
             </div>
           </div>

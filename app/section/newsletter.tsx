@@ -20,6 +20,9 @@ type NewsletterProps = {
   settings?: NewsletterSettings | null;
 };
 
+const DEFAULT_LONG_TEXT =
+  "I share practical lessons from hosting, stories from behind the shows, and occasional notes on communication, creativity, and entertainment. You will hear from me when there is something useful or worth sharing.";
+
 export default function Newsletter({ settings }: NewsletterProps) {
   const [phase, setPhase] = useState<Phase>("idle");
   const [email, setEmail] = useState("");
@@ -31,6 +34,8 @@ export default function Newsletter({ settings }: NewsletterProps) {
     e.preventDefault();
 
     if (!isValid) {
+      const input = e.currentTarget.elements.namedItem("newsletter-email");
+      if (input instanceof HTMLInputElement) input.focus();
       toast.error("Please enter a valid email.", { theme: "dark" });
       return;
     }
@@ -79,7 +84,7 @@ export default function Newsletter({ settings }: NewsletterProps) {
     "Stay updated on my latest shows and events.";
   const longText =
     settings?.longText ||
-    "I share practical lessons from hosting, stories from behind the shows, and occasional notes on communication, creativity, and entertainment. You will hear from me when there is something useful or worth sharing.";
+    DEFAULT_LONG_TEXT;
   const buttonLabel = settings?.buttonLabel || "Subscribe";
 
   return (
@@ -122,6 +127,8 @@ export default function Newsletter({ settings }: NewsletterProps) {
                   type='email'
                   required
                   autoComplete='email'
+                  aria-invalid={email.length > 0 && !isValid}
+                  aria-describedby='newsletter-email-error'
                   placeholder='Your email'
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -133,6 +140,9 @@ export default function Newsletter({ settings }: NewsletterProps) {
                   '
                   disabled={phase === "loading"}
                 />
+                <p id='newsletter-email-error' className='sr-only' aria-live='polite'>
+                  {email.length > 0 && !isValid ? "Enter a valid email address." : ""}
+                </p>
 
                 <div className='flex justify-center lg:block lg:justify-start'>
                   <button

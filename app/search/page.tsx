@@ -40,8 +40,8 @@ async function fetchShowsList(): Promise<Show[]> {
   return Array.isArray(json) ? json : json.shows ?? [];
 }
 
-async function fetchShowEpisodes(showId: string): Promise<Episode[]> {
-  const res = await fetch(apiList.shows.get(showId), { next: { revalidate: 15 } });
+async function fetchMatchingEpisodes(query: string): Promise<Episode[]> {
+  const res = await fetch(apiList.shows.searchEpisodes(query), { next: { revalidate: 15 } });
   if (!res.ok) return [];
   const json = (await res.json()) as { episodes?: Episode[] };
   return json.episodes ?? [];
@@ -83,21 +83,12 @@ export default async function SearchPage(props: {
     s.title.toLowerCase().includes(qLower)
   );
 
-  // 2) match episodes by title (pull episodes from each show)
-  //    If you have many shows, later we can add a real backend search endpoint.
-  const episodesByShow = await Promise.all(
-    shows.map(async (s) => ({
-      show: s,
-      episodes: await fetchShowEpisodes(s._id),
-    }))
-  );
-
-  const matchedEpisodes = episodesByShow
-    .flatMap(({ show, episodes }) =>
-      episodes
-        .filter((e) => e.title.toLowerCase().includes(qLower))
-        .map((e) => ({ episode: e, show }))
-    )
+  // Search episodes once instead of issuing one request per show.
+  const episodes = await fetchMatchingEpisodes(query);
+  const showById = new Map(shows.map((show) => [show._id, show]));
+  const matchedEpisodes = episodes
+    .map((episode) => ({ episode, show: showById.get(episode.showId) }))
+    .filter((item): item is { episode: Episode; show: Show } => Boolean(item.show))
     .slice(0, 50); // safety limit
 
   return (

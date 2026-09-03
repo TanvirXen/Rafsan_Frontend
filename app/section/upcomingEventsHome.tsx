@@ -384,7 +384,7 @@ export default function UpcomingEventsHome() {
                     Calendar status: suspiciously peaceful
                   </p>
                   <p className='recoleta mt-1 text-base font-bold leading-tight text-white sm:text-lg'>
-                    No upcoming events. The calendar is committed to doing absolutely nothing.
+                    No upcoming events are published right now. Contact the team to discuss a private booking or upcoming program.
                   </p>
                 </div>
               </div>
