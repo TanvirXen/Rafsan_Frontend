@@ -1,9 +1,8 @@
-import { SITE_KEYWORDS, SITE_NAME, getSiteUrl } from "../lib/siteSeo";
+import { SITE_KEYWORDS, SITE_META_IMAGE, SITE_NAME, SITE_TITLE, SITE_DESCRIPTION, getSiteUrl } from "../lib/siteSeo";
 
 export default function Head() {
-  const title = "Connect | Rafsan Sabab";
-  const description =
-    "Contact Rafsan Sabab for event hosting, emcee bookings, live shows, podcast collaborations, brand partnerships, and media inquiries.";
+  const title = SITE_TITLE;
+  const description = SITE_DESCRIPTION;
   const canonical = getSiteUrl("/connect");
 
   return (
@@ -28,11 +27,11 @@ export default function Head() {
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
       <meta property="og:url" content={canonical} />
-      <meta property="og:image" content={getSiteUrl("/logo.png")} />
+      <meta property="og:image" content={getSiteUrl(SITE_META_IMAGE)} />
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={getSiteUrl("/logo.png")} />
+      <meta name="twitter:image" content={getSiteUrl(SITE_META_IMAGE)} />
     </>
   );
 }

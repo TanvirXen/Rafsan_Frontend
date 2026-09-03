@@ -4,7 +4,7 @@ import EventRegClient from "./components/EventRegClient";
 import apiList from "@/apiList";
 import { pickEventCardImage } from "@/app/lib/eventImages";
 
-export const revalidate = 60;
+export const revalidate = 15;
 
 type ApiEvent = {
   _id: string;

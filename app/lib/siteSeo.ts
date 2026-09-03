@@ -1,4 +1,7 @@
 export const SITE_NAME = "Rafsan Sabab";
+export const SITE_TITLE = "Rafsan Sabab — Host • Comedian • Creator";
+export const SITE_META_IMAGE = "/rafsanmeta.jpeg";
+export const WHAT_A_SHOW_META_IMAGE = "/whatashowmeta.jpeg";
 
 const DEFAULT_SITE_URL = "https://rafsan-sabab-frontend.vercel.app";
 
@@ -23,7 +26,10 @@ export const SITE_URL = normalizeSiteUrl(
 );
 
 export const SITE_DESCRIPTION =
-  "Official website of Rafsan Sabab, an event host, emcee, podcaster, and vlogger known for live shows, stage hosting, brand collaborations, and What a Show.";
+  "I’m Rafsan Sabab — a Bangladeshi host, comedian, and content creator passionate about entertainment, storytelling, and connecting with people. Explore my shows, projects, latest work, and journey across television, digital media, and the world of entertainment.";
+
+export const WHAT_A_SHOW_DESCRIPTION =
+  "Welcome to What a Show! — my space for unforgettable conversations, comedy, games, and stories with some of Bangladesh’s most exciting personalities. Hosted by me, Rafsan Sabab, What a Show! brings together entertainment, laughter, and real conversations for audiences across Bangladesh.";
 
 export const SITE_KEYWORDS = [
   "Rafsan Sabab",

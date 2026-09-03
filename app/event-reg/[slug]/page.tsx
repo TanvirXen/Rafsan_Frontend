@@ -1,16 +1,43 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // app/event-reg/[slug]/page.tsx
+import type { Metadata } from "next";
 import apiList, { withQuery } from "@/apiList";
 import { pickEventBannerAssets } from "@/app/lib/eventImages";
 import RegBanner from "../components/regBanner";
 import EventDetailsSection from "../components/eventDetails";
 import Collaboration from "../components/collaboration";
 import Newsletter from "@/app/section/newsletter";
+import {
+  SITE_DESCRIPTION,
+  SITE_META_IMAGE,
+  SITE_TITLE,
+  WHAT_A_SHOW_DESCRIPTION,
+  WHAT_A_SHOW_META_IMAGE,
+} from "@/app/lib/siteSeo";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 export const revalidate = 0;
 export const dynamicParams = true;
+
+export async function generateMetadata(props: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await props.params;
+  try {
+    const event = await fetchEventBySlugOrId(slug);
+    const isWhatAShow = /what\s*a\s*show/i.test(event?.title || event?.category || "");
+    const image = isWhatAShow ? WHAT_A_SHOW_META_IMAGE : SITE_META_IMAGE;
+    return {
+      title: { absolute: SITE_TITLE },
+      description: isWhatAShow ? WHAT_A_SHOW_DESCRIPTION : SITE_DESCRIPTION,
+      openGraph: { title: SITE_TITLE, description: isWhatAShow ? WHAT_A_SHOW_DESCRIPTION : SITE_DESCRIPTION, images: [{ url: image }] },
+      twitter: { card: "summary_large_image", title: SITE_TITLE, description: isWhatAShow ? WHAT_A_SHOW_DESCRIPTION : SITE_DESCRIPTION, images: [image] },
+    };
+  } catch {
+    return { title: { absolute: SITE_TITLE }, description: SITE_DESCRIPTION };
+  }
+}
 
 /* ---------------- types ---------------- */
 type BrandDoc = {

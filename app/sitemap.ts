@@ -20,7 +20,7 @@ type EventDoc = {
 async function fetchShowSlugs() {
   try {
     const res = await fetch(apiList.shows.list, {
-      next: { revalidate: 60 },
+      next: { revalidate: 15 },
     });
 
     if (!res.ok) return [];
@@ -39,7 +39,7 @@ async function fetchShowSlugs() {
 async function fetchEventRegSlugs() {
   try {
     const res = await fetch(apiList.events.list, {
-      next: { revalidate: 60 },
+      next: { revalidate: 15 },
     });
 
     if (!res.ok) return [];

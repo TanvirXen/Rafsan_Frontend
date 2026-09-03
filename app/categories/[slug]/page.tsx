@@ -10,8 +10,13 @@ import {
   type PortfolioNotableEvent,
   type PortfolioType,
 } from "@/app/lib/portfolioNotableEvents";
+import {
+  SITE_DESCRIPTION,
+  SITE_META_IMAGE,
+  SITE_TITLE,
+} from "@/app/lib/siteSeo";
 
-export const revalidate = 60;
+export const revalidate = 15;
 
 type CardTone = "yellow" | "cyan";
 
@@ -184,15 +189,18 @@ export async function generateMetadata(props: {
 
   if (!type) {
     return {
-      title: "Portfolio Category | Rafsan Sabab",
+      title: { absolute: SITE_TITLE },
+      description: SITE_DESCRIPTION,
+      openGraph: { title: SITE_TITLE, description: SITE_DESCRIPTION, images: [{ url: SITE_META_IMAGE }] },
     };
   }
 
   const copy = CATEGORY_COPY[type];
 
   return {
-    title: `${copy.title} | Portfolio | Rafsan Sabab`,
-    description: copy.description,
+    title: { absolute: SITE_TITLE },
+    description: SITE_DESCRIPTION,
+    openGraph: { title: SITE_TITLE, description: SITE_DESCRIPTION, images: [{ url: SITE_META_IMAGE }] },
   };
 }
 

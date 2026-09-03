@@ -7,14 +7,14 @@ import StoryTeaser from "./section/story-teaser";
 import WatchShows from "./section/WatchShows";
 import UpcomingEventsHome from "./section/upcomingEventsHome";
 import apiList from "@/apiList";
-import { SITE_DESCRIPTION, SITE_KEYWORDS, SITE_NAME } from "./lib/siteSeo";
+import { resolveMediaUrl } from "./lib/mediaUrl";
+import { SITE_DESCRIPTION, SITE_KEYWORDS, SITE_META_IMAGE, SITE_NAME, SITE_TITLE } from "./lib/siteSeo";
 
 // ISR: rebuild at most once every 60 seconds
-export const revalidate = 60;
+export const revalidate = 15;
 export const metadata: Metadata = {
-  title: "Event Host, Podcaster & Vlogger",
-  description:
-    "Rafsan Sabab is an event host, emcee, podcaster, and vlogger known for live shows, What a Show, stage hosting, and audience-first entertainment.",
+  title: { absolute: SITE_TITLE },
+  description: SITE_DESCRIPTION,
   keywords: [
     ...SITE_KEYWORDS,
     "best event host in Bangladesh",
@@ -23,11 +23,11 @@ export const metadata: Metadata = {
   ],
   alternates: { canonical: "/" },
   openGraph: {
-    title: "Rafsan Sabab | Event Host, Podcaster & Vlogger",
+    title: SITE_TITLE,
     description: SITE_DESCRIPTION,
     url: "/",
     siteName: SITE_NAME,
-    images: [{ url: "/logo.png", width: 512, height: 512, alt: SITE_NAME }],
+    images: [{ url: SITE_META_IMAGE, alt: SITE_NAME }],
   },
 };
 
@@ -89,7 +89,7 @@ type NotableEventApi = {
 async function fetchNotableEventsHome(): Promise<NotableEventCard[]> {
   try {
     const res = await fetch(apiList.notableEvents.list, {
-      next: { revalidate: 60 },
+      next: { revalidate: 15 },
     });
 
     if (!res.ok) {
@@ -131,7 +131,7 @@ async function fetchNotableEventsHome(): Promise<NotableEventCard[]> {
       }),
       title: e.title,
       blurb: e.description,
-      img: e.imageLink,
+      img: resolveMediaUrl(e.imageLink),
       alt: e.title,
     }));
 
@@ -147,7 +147,7 @@ async function fetchNotableEventsHome(): Promise<NotableEventCard[]> {
 async function fetchSettings(): Promise<SettingsDto | null> {
   try {
     const res = await fetch(apiList.settings.get, {
-      next: { revalidate: 60 },
+      next: { revalidate: 15 },
     });
 
     if (!res.ok) {
@@ -169,7 +169,7 @@ async function fetchSettings(): Promise<SettingsDto | null> {
 async function fetchNewsletterSettings(): Promise<NewsletterSettings | null> {
   try {
     const res = await fetch(apiList.newsletter.settingsGet, {
-      next: { revalidate: 60 },
+      next: { revalidate: 15 },
     });
 
     if (!res.ok) {

@@ -16,8 +16,15 @@ import EnhancedPlayer from "./components/EnhancedPlayer";
 import EventsSection from "@/app/allEvents/components/EventsSection";
 import { buildUpcoming, fetchAllEvents } from "@/app/lib/events";
 import type { EventItem } from "@/app/lib/events";
+import {
+  SITE_DESCRIPTION,
+  SITE_META_IMAGE,
+  SITE_TITLE,
+  WHAT_A_SHOW_DESCRIPTION,
+  WHAT_A_SHOW_META_IMAGE,
+} from "@/app/lib/siteSeo";
 
-export const revalidate = 60;
+export const revalidate = 15;
 
 type Show = {
   _id: string;
@@ -59,7 +66,7 @@ type Reel = {
 
 async function fetchShowsList(): Promise<Show[]> {
   try {
-    const res = await fetch(apiList.shows.list, { next: { revalidate: 60 } });
+    const res = await fetch(apiList.shows.list, { next: { revalidate: 15 } });
     if (!res.ok) return [];
     const json = (await res.json()) as Show[] | { shows?: Show[] };
     return Array.isArray(json) ? json : json.shows ?? [];
@@ -72,7 +79,7 @@ async function fetchShowsList(): Promise<Show[]> {
 async function fetchShowData(showId: string) {
   try {
     const url = apiList.shows.get(showId);
-    const res = await fetch(url, { next: { revalidate: 60 } });
+    const res = await fetch(url, { next: { revalidate: 15 } });
 
     if (!res.ok) {
       if (res.status === 404) return null;
@@ -130,24 +137,21 @@ export async function generateMetadata(props: {
 
   const shows = await fetchShowsList();
   const match = shows.find((s) => slugifyTitle(s.title) === slug);
-  if (!match) return { title: "Show" };
+  if (!match) return { title: { absolute: SITE_TITLE } };
 
   const data = await fetchShowData(match._id);
-  if (!data) return { title: match.title };
+  if (!data) return { title: { absolute: SITE_TITLE } };
 
   const { show, episodes } = data;
   const ep = epId ? episodes.find((e) => e._id === epId) : null;
 
-  const title = ep ? `${ep.title} | ${show.title}` : show.title;
-  const description =
-    show.description ||
-    (ep ? `Watch "${ep.title}" from ${show.title}.` : `Watch ${show.title}.`);
+  const isWhatAShow = /what\s*a\s*show/i.test(show.title);
+  const title = SITE_TITLE;
+  const description = isWhatAShow
+    ? WHAT_A_SHOW_DESCRIPTION
+    : SITE_DESCRIPTION;
 
-  const img =
-    (ep?.thumbnail && ep.thumbnail.trim()) ||
-    (show.heroImage && show.heroImage.trim()) ||
-    (show.thumbnail && show.thumbnail.trim()) ||
-    undefined;
+  const img = isWhatAShow ? WHAT_A_SHOW_META_IMAGE : SITE_META_IMAGE;
 
   const canonical = epId
     ? `/shows/${encodeURIComponent(slug)}?ep=${encodeURIComponent(epId)}`
@@ -161,14 +165,14 @@ export async function generateMetadata(props: {
       title,
       description,
       url: canonical,
-      images: img ? [{ url: img }] : undefined,
+      images: [{ url: img }],
       type: "video.other",
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: img ? [img] : undefined,
+      images: [img],
     },
   };
 }

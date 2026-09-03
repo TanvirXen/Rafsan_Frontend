@@ -5,7 +5,7 @@ import apiList from "@/apiList";
 import { slugifyTitle } from "@/app/lib/slugifyTitle";
 import { resolveMediaUrl } from "@/app/lib/mediaUrl";
 
-export const revalidate = 60;
+export const revalidate = 15;
 
 type Show = {
   _id: string;
@@ -25,14 +25,14 @@ type Episode = {
 };
 
 async function fetchShowsList(): Promise<Show[]> {
-  const res = await fetch(apiList.shows.list, { next: { revalidate: 60 } });
+  const res = await fetch(apiList.shows.list, { next: { revalidate: 15 } });
   if (!res.ok) return [];
   const json = (await res.json()) as Show[] | { shows?: Show[] };
   return Array.isArray(json) ? json : json.shows ?? [];
 }
 
 async function fetchShowEpisodes(showId: string): Promise<Episode[]> {
-  const res = await fetch(apiList.shows.get(showId), { next: { revalidate: 60 } });
+  const res = await fetch(apiList.shows.get(showId), { next: { revalidate: 15 } });
   if (!res.ok) return [];
   const json = (await res.json()) as { episodes?: Episode[] };
   return json.episodes ?? [];

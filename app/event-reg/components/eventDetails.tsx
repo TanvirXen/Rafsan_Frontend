@@ -179,6 +179,7 @@ export default function EventDetailsSection({
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (success) return;
 
     // Verify at least one date is valid
     const validDates = selectedDates.filter((iso) => {
@@ -322,12 +323,7 @@ export default function EventDetailsSection({
             Fill Up this Form
           </p>
 
-          {/* success/error banners */}
-          {success && (
-            <div className='mb-4 rounded-md bg-green-600/15 px-3 py-2 text-sm text-green-300 ring-1 ring-green-600/30'>
-              {successMsg}
-            </div>
-          )}
+          {/* Keep validation and server errors near the form heading. */}
           {error && (
             <div className='mb-4 rounded-md bg-red-600/15 px-3 py-2 text-sm text-red-300 ring-1 ring-red-600/30'>
               {error}
@@ -538,16 +534,27 @@ export default function EventDetailsSection({
             <div className='pt-1'>
               <button
                 type='submit'
-                disabled={submitting || hasEnded}
+                disabled={submitting || success || hasEnded}
                 className={`mx-auto block rounded-full px-[26px] py-3 text-[16px] font-bold shadow-[0_10px_24px_rgba(0,0,0,.25)] transition ${
-                  hasEnded
+                  hasEnded || success
                     ? 'bg-white/20 text-white/50 border border-white/10 cursor-not-allowed'
                     : 'bg-[#FFD928] text-black hover:brightness-95 disabled:opacity-60'
                 }`}
               >
-                {submitting ? "Submitting..." : hasEnded ? "Ended" : "Submit"}
+                {submitting
+                  ? "Submitting..."
+                  : success
+                    ? "Submitted"
+                    : hasEnded
+                      ? "Ended"
+                      : "Submit"}
               </button>
             </div>
+            {success && (
+              <div className='rounded-md bg-green-600/15 px-3 py-2 text-sm text-green-300 ring-1 ring-green-600/30'>
+                {successMsg}
+              </div>
+            )}
           </form>
         </div>
       </div>

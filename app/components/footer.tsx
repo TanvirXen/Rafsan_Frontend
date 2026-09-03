@@ -59,7 +59,7 @@ export default async function Footer() {
   let apiLinks: SocialLinks | undefined;
   try {
     const res = await fetch(apiList.settings.get, {
-      next: { revalidate: 60 },
+      next: { revalidate: 15 },
     });
 
     if (res.ok) {
@@ -78,7 +78,7 @@ export default async function Footer() {
   let footerShows: { title: string; slug: string }[] = [];
   try {
     const res = await fetch(apiList.shows.list, {
-      next: { revalidate: 60 },
+      next: { revalidate: 15 },
     });
 
     if (res.ok) {

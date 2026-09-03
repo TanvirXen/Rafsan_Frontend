@@ -2,7 +2,7 @@
 import EventsSection from "./EventsSection";
 import { buildUpcoming, fetchAllEvents } from "@/app/lib/events";
 
-export const revalidate = 60;
+export const revalidate = 15;
 
 type UpcomingProps = {
   showFilter?: string;

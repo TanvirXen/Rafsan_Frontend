@@ -49,7 +49,7 @@ export function formatDate(d: Date) {
 
 async function fetchEventsPage(page = 1, limit = 50): Promise<EventsResponse> {
   const url = withQuery(apiList.events.list, { page, limit });
-  const res = await fetch(url, { next: { revalidate: 60 } });
+  const res = await fetch(url, { next: { revalidate: 15 } });
   if (!res.ok) throw new Error(`Events fetch failed: HTTP ${res.status}`);
   return (await res.json()) as EventsResponse;
 }

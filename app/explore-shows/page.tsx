@@ -4,7 +4,7 @@ import Newsletter from "../section/newsletter";
 import apiList from "../../apiList";
 import { slugifyTitle } from "../lib/slugifyTitle";
 
-export const revalidate = 60;
+export const revalidate = 15;
 
 type ShowFromApi = {
   _id: string;
@@ -22,7 +22,7 @@ type ShowCard = { id: string; title: string; src: string; alt: string };
 async function fetchShows(): Promise<ShowCard[]> {
   try {
     const res = await fetch(apiList.shows.list, {
-      next: { revalidate: 60 },
+      next: { revalidate: 15 },
     });
 
     if (!res.ok) {

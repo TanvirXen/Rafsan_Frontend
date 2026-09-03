@@ -97,7 +97,7 @@ export default function ConnectPage() {
               <p>A brand collaboration?</p>
               <p>Or a speaking engagement?</p>
               <p>Let's talk.</p>
-              <p>I'm always ready to create something awesome together.</p>
+              <p>We're always ready to create something awesome together.</p>
             </div>
 
             <div className='mt-4 flex w-full max-w-[24rem] items-center gap-4 pt-2 md:mt-6 md:gap-5'>
@@ -114,9 +114,8 @@ export default function ConnectPage() {
               <div className='leading-[1.2] [&>p]:m-0 [&>p+p]:mt-1'>
                 <p className='elza text-sm text-white/90'>For any kind of query</p>
                 <p className='elza text-[15px] font-semibold text-white sm:text-lg md:text-2xl'>
-                  Kabir
+                  Team Rafsan Sabab
                 </p>
-                <p className='elza text-sm text-white/80 sm:text-[15px]'>Manager</p>
                 <p className='elza text-sm font-bold text-white sm:text-[15px]'>
                   info@rafsansabab.com
                 </p>

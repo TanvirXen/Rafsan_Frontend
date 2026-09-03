@@ -6,21 +6,20 @@ import Newsletter from "../section/newsletter";
 import SetbackSection from "./components/setbackSection";
 import JourneySection from "./components/journeySection";
 import apiList from "@/apiList";
-import { SITE_DESCRIPTION, SITE_KEYWORDS, SITE_NAME } from "../lib/siteSeo";
+import { SITE_DESCRIPTION, SITE_KEYWORDS, SITE_META_IMAGE, SITE_NAME, SITE_TITLE } from "../lib/siteSeo";
 
-export const revalidate = 60;
+export const revalidate = 15;
 export const metadata: Metadata = {
-  title: "About Rafsan Sabab",
-  description:
-    "Learn how Rafsan Sabab became a live event host, emcee, podcaster, storyteller, and creator through stages, shows, and audience-driven projects.",
+  title: { absolute: SITE_TITLE },
+  description: SITE_DESCRIPTION,
   keywords: [...SITE_KEYWORDS, "about Rafsan Sabab", "Rafsan Sabab biography"],
   alternates: { canonical: "/about" },
   openGraph: {
-    title: "About Rafsan Sabab | Event Host, Podcaster & Vlogger",
+    title: SITE_TITLE,
     description: SITE_DESCRIPTION,
     url: "/about",
     siteName: SITE_NAME,
-    images: [{ url: "/logo.png", width: 512, height: 512, alt: SITE_NAME }],
+    images: [{ url: SITE_META_IMAGE, alt: SITE_NAME }],
   },
 };
 
@@ -40,7 +39,7 @@ export type BannerApi = {
 async function fetchAboutBanner(): Promise<BannerApi | null> {
   try {
     const res = await fetch(apiList.banners.get("about"), {
-      next: { revalidate: 60 },
+      next: { revalidate: 15 },
     });
     if (!res.ok) {
       console.error("Failed to fetch about banner", await res.text());

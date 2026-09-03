@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { SITE_DESCRIPTION, SITE_KEYWORDS, SITE_NAME } from "../lib/siteSeo";
+import { SITE_DESCRIPTION, SITE_KEYWORDS, SITE_META_IMAGE, SITE_NAME, SITE_TITLE } from "../lib/siteSeo";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Rafsan Sabab",
+  title: { absolute: SITE_TITLE },
   description: SITE_DESCRIPTION,
   keywords: [...SITE_KEYWORDS, "privacy policy", "data policy", "contact forms"],
   alternates: { canonical: "/privacy" },
   openGraph: {
-    title: "Privacy Policy | Rafsan Sabab",
     description: SITE_DESCRIPTION,
     url: "/privacy",
     siteName: SITE_NAME,
-    images: [{ url: "/logo.png", width: 512, height: 512, alt: SITE_NAME }],
+    title: SITE_TITLE,
+    images: [{ url: SITE_META_IMAGE, alt: SITE_NAME }],
   },
 };
 

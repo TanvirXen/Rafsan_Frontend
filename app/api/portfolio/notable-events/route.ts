@@ -6,9 +6,9 @@ import {
   type PortfolioNotableEventsByType,
 } from "@/app/lib/portfolioNotableEvents";
 
-export const revalidate = 60;
+export const revalidate = 15;
 
-const CACHE_CONTROL = "public, s-maxage=60, stale-while-revalidate=300";
+const CACHE_CONTROL = "public, s-maxage=15, stale-while-revalidate=30";
 
 function parseLimit(value: string | null) {
   if (!value) return undefined;

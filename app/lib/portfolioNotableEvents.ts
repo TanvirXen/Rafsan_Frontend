@@ -109,7 +109,7 @@ export async function fetchPortfolioNotableEvents(): Promise<PortfolioNotableEve
 
   try {
     const res = await fetch(apiList.notableEvents.list, {
-      next: { revalidate: 60 },
+      next: { revalidate: 15 },
     });
 
     if (!res.ok) {

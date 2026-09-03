@@ -1,10 +1,9 @@
 import { FAQ_ITEMS, buildFaqJsonLd } from "./faqData";
-import { SITE_KEYWORDS, SITE_NAME, getSiteUrl } from "../lib/siteSeo";
+import { SITE_KEYWORDS, SITE_META_IMAGE, SITE_NAME, SITE_TITLE, SITE_DESCRIPTION, getSiteUrl } from "../lib/siteSeo";
 
 export default function Head() {
-  const title = "FAQ | Rafsan Sabab";
-  const description =
-    "Frequently asked questions about Rafsan Sabab, including event hosting, emcee work, podcasts, live shows, booking, and collaborations.";
+  const title = SITE_TITLE;
+  const description = SITE_DESCRIPTION;
   const canonical = getSiteUrl("/faqs");
   const jsonLd = buildFaqJsonLd(FAQ_ITEMS);
 
@@ -30,11 +29,11 @@ export default function Head() {
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
       <meta property="og:url" content={canonical} />
-      <meta property="og:image" content={getSiteUrl("/logo.png")} />
+      <meta property="og:image" content={getSiteUrl(SITE_META_IMAGE)} />
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={getSiteUrl("/logo.png")} />
+      <meta name="twitter:image" content={getSiteUrl(SITE_META_IMAGE)} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

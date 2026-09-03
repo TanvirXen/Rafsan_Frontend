@@ -2,7 +2,7 @@
 import EventsSection from "./EventsSection";
 import { buildPast, fetchAllEvents } from "@/app/lib/events";
 
-export const revalidate = 60; // segment-level fallback
+export const revalidate = 15; // short ISR window keeps CMS edits timely
 
 type PastProps = {
   showFilter?: string;

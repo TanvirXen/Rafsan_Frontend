@@ -4,7 +4,7 @@ import UpcomingEvents from "./components/upcomingEvents";
 import PastEvents from "./components/pastEvents";
 import Newsletter from "../section/newsletter";
 
-export const revalidate = 60;
+export const revalidate = 15;
 
 type PageProps = {
   searchParams?: Promise<{

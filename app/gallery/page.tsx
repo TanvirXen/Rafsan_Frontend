@@ -3,8 +3,9 @@ import GalleryBanner from "./components/galleryBanner";
 import GalleryNotableEvents from "./components/galleryNotableEvents";
 import ShotsSection from "./components/shotSection.tsx/page";
 import apiList from "@/apiList";
+import { resolveMediaUrl } from "../lib/mediaUrl";
 
-export const revalidate = 60;
+export const revalidate = 15;
 
 type Shot = {
   _id: string;
@@ -44,7 +45,7 @@ export type BannerApi = {
 
 async function fetchShots(): Promise<Shot[]> {
   const res = await fetch(apiList.shots.list, {
-    next: { revalidate: 60 },
+    next: { revalidate: 15 },
   });
 
   if (!res.ok) {
@@ -62,7 +63,7 @@ async function fetchNotableEvents(): Promise<{
   events: FeaturedEvent[];
 }> {
   const res = await fetch(apiList.notableEvents.list, {
-    next: { revalidate: 60 },
+    next: { revalidate: 15 },
   });
 
   if (!res.ok) {
@@ -85,7 +86,7 @@ async function fetchNotableEvents(): Promise<{
     }),
     title: e.title,
     blurb: e.description,
-    img: e.imageLink,
+    img: resolveMediaUrl(e.imageLink),
     alt: e.title,
   }));
 
@@ -101,7 +102,7 @@ async function fetchNotableEvents(): Promise<{
 async function fetchGalleryBanner(): Promise<BannerApi | null> {
   try {
     const res = await fetch(apiList.banners.get("gallery"), {
-      next: { revalidate: 60 },
+      next: { revalidate: 15 },
     });
     if (!res.ok) {
       console.error("Failed to fetch gallery banner", await res.text());

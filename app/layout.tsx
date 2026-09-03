@@ -7,12 +7,14 @@ import {
   buildPersonJsonLd,
   buildWebSiteJsonLd,
   getSiteUrl,
+  SITE_TITLE,
+  SITE_META_IMAGE,
   SITE_DESCRIPTION,
   SITE_KEYWORDS,
   SITE_NAME,
 } from "./lib/siteSeo";
 
-export const revalidate = 60;
+export const revalidate = 15;
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,7 +29,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
-    default: "Rafsan Sabab | Event Host, Podcaster & Vlogger",
+    default: SITE_TITLE,
     template: "%s | Rafsan Sabab",
   },
   description: SITE_DESCRIPTION,
@@ -43,22 +45,20 @@ export const metadata: Metadata = {
     type: "website",
     url: "/",
     siteName: SITE_NAME,
-    title: "Rafsan Sabab | Event Host, Podcaster & Vlogger",
+    title: SITE_TITLE,
     description: SITE_DESCRIPTION,
     images: [
       {
-        url: "/logo.png",
-        width: 512,
-        height: 512,
+        url: SITE_META_IMAGE,
         alt: SITE_NAME,
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Rafsan Sabab | Event Host, Podcaster & Vlogger",
+    title: SITE_TITLE,
     description: SITE_DESCRIPTION,
-    images: ["/logo.png"],
+    images: [SITE_META_IMAGE],
   },
   robots: {
     index: true,
