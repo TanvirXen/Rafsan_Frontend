@@ -279,6 +279,7 @@ export default function UpcomingEventsHome() {
 
   const n = DATA.length;
   const [i, setI] = useState(0);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const wrap = (x: number) => ((x % (n || 1)) + (n || 1)) % (n || 1);
 
   /** ---------- drag / swipe (no autoplay; same anim everywhere) ---------- */
@@ -406,23 +407,33 @@ export default function UpcomingEventsHome() {
 
               const wpx = isCenter ? CW : SW;
               const hpx = isCenter ? CH : SH;
+              const isHovered = hoveredIndex === idx && !isCenter;
 
               return (
                 <article
                   key={`${w.src}|${w.dateISO}|${w.href ?? ""}`}
-                  className='absolute overflow-hidden transition-[transform,opacity,filter,visibility] duration-500 rounded-[16px] before:pointer-events-none before:absolute before:inset-0 before:rounded-inherit before:[box-shadow:inset_0_0_0_1px_rgba(255,255,255,0.04)]'
+                  className={`absolute overflow-hidden rounded-[16px] transition-[transform,opacity,filter,visibility] duration-500 ${!isCenter ? "cursor-pointer" : ""} before:pointer-events-none before:absolute before:inset-0 before:rounded-inherit before:[box-shadow:inset_0_0_0_1px_rgba(255,255,255,0.04)]`}
                   onMouseEnter={() => {
                     // Move the right preview into focus before its CTA is used.
-                    if (isSide && d > 0) setI(idx);
+                    if (isCenter) return;
+                    if (d > 0) {
+                      setHoveredIndex(null);
+                      setI(idx);
+                      return;
+                    }
+                    setHoveredIndex(idx);
                   }}
+                  onMouseLeave={() => setHoveredIndex(null)}
                   style={{
                     width: wpx,
                     height: hpx,
-                    transform: `translate3d(${x}px,0,${z}px) rotateY(${ry}deg) scale(${sc})`,
-                    zIndex: 100 - Math.abs(d),
+                    transform: `translate3d(${x}px,0,${isHovered ? 55 : z}px) rotateY(${ry}deg) scale(${isHovered ? 1 : sc})`,
+                    zIndex: isHovered ? 220 : 100 - Math.abs(d),
                     opacity:
                       isCenter || isSide
-                        ? 1 - Math.min(Math.abs(d) * 0.3, 0.55)
+                        ? isHovered
+                          ? 1
+                          : 1 - Math.min(Math.abs(d) * 0.3, 0.55)
                         : 0,
                     visibility: isCenter || isSide ? "visible" : "hidden",
                     pointerEvents:
@@ -430,6 +441,8 @@ export default function UpcomingEventsHome() {
                         ? ("auto" as const)
                         : ("none" as const),
                     willChange: "transform",
+                    transitionTimingFunction: "cubic-bezier(.2,.7,.2,1)",
+                    transitionDuration: "600ms",
                   }}
                   aria-hidden={!isCenter}
                 >
