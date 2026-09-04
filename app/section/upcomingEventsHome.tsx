@@ -411,6 +411,10 @@ export default function UpcomingEventsHome() {
                 <article
                   key={`${w.src}|${w.dateISO}|${w.href ?? ""}`}
                   className='absolute overflow-hidden transition-[transform,opacity,filter,visibility] duration-500 rounded-[16px] before:pointer-events-none before:absolute before:inset-0 before:rounded-inherit before:[box-shadow:inset_0_0_0_1px_rgba(255,255,255,0.04)]'
+                  onMouseEnter={() => {
+                    // Move the right preview into focus before its CTA is used.
+                    if (isSide && d > 0) setI(idx);
+                  }}
                   style={{
                     width: wpx,
                     height: hpx,
