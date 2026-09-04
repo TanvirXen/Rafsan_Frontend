@@ -405,30 +405,21 @@ export default function UpcomingEventsHome() {
               const ry = d * -SWIVEL;
               const sc = 1 - Math.min(Math.abs(d) * SCALE_DROP, 0.24);
 
-              const wpx = isCenter ? CW : SW;
-              const hpx = isCenter ? CH : SH;
               const isHovered = hoveredIndex === idx && !isCenter;
-              const focusRightCard = () => {
-                if (isSide && d > 0 && i !== idx) {
-                  setHoveredIndex(null);
-                  setI(idx);
-                }
-              };
+              const wpx = isCenter || isHovered ? CW : SW;
+              const hpx = isCenter || isHovered ? CH : SH;
 
               return (
                 <article
                   key={`${w.src}|${w.dateISO}|${w.href ?? ""}`}
-                  className={`absolute overflow-hidden rounded-[16px] transition-[transform,opacity,filter,visibility] duration-500 ${!isCenter ? "cursor-pointer" : ""} before:pointer-events-none before:absolute before:inset-0 before:rounded-inherit before:[box-shadow:inset_0_0_0_1px_rgba(255,255,255,0.04)]`}
+                  className={`absolute overflow-hidden rounded-[16px] transition-[transform,width,height,opacity,filter,visibility] duration-500 ${!isCenter ? "cursor-pointer" : ""} before:pointer-events-none before:absolute before:inset-0 before:rounded-inherit before:[box-shadow:inset_0_0_0_1px_rgba(255,255,255,0.04)]`}
                   onMouseEnter={() => {
-                    // Move the right preview into focus before its CTA is used.
                     if (isCenter) return;
-                    if (d > 0) {
-                      focusRightCard();
-                      return;
-                    }
                     setHoveredIndex(idx);
                   }}
-                  onPointerMove={focusRightCard}
+                  onPointerEnter={() => {
+                    if (!isCenter) setHoveredIndex(idx);
+                  }}
                   onMouseLeave={() => setHoveredIndex(null)}
                   style={{
                     width: wpx,
@@ -463,7 +454,7 @@ export default function UpcomingEventsHome() {
                     />
 
                     {/* Dim sides on larger screens; center gets gradient */}
-                    {!isCenter && !hideSides && (
+                    {!isCenter && !isHovered && !hideSides && (
                       <div className='absolute inset-0 bg-black/45' />
                     )}
                     {/*
@@ -474,7 +465,7 @@ export default function UpcomingEventsHome() {
                       wide, which is not enough for the title and the button
                       side by side, so they stack.
                     */}
-                    {isCenter && (
+                    {(isCenter || isHovered) && (
                       <div className='absolute inset-x-0 bottom-0 flex flex-col gap-2 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,.4)_22%,rgba(0,0,0,.82)_52%,rgba(0,0,0,.96)_100%)] p-3 pt-16 sm:flex-row sm:items-end sm:justify-between sm:gap-3 sm:p-4 sm:pt-16'>
                         <div className='min-w-0 leading-none'>
                           <p className='text-[14px] sm:text-[16px] font-bold recoleta text-white line-clamp-2 break-words'>
