@@ -413,6 +413,11 @@ export default function UpcomingEventsHome() {
                 <article
                   key={`${w.src}|${w.dateISO}|${w.href ?? ""}`}
                   className={`absolute overflow-hidden rounded-[16px] transition-[transform,width,height,opacity,filter,visibility] duration-500 ${!isCenter ? "cursor-pointer" : ""} before:pointer-events-none before:absolute before:inset-0 before:rounded-inherit before:[box-shadow:inset_0_0_0_1px_rgba(255,255,255,0.04)]`}
+                  onMouseOver={() => {
+                    // Bubbling mouseover also catches the image target inside
+                    // the card on browsers with inconsistent pointer events.
+                    if (!isCenter) setHoveredIndex(idx);
+                  }}
                   onMouseEnter={() => {
                     if (isCenter) return;
                     setHoveredIndex(idx);
