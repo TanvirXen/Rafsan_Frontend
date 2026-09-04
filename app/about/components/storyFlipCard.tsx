@@ -3,6 +3,58 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
+type MobileCardEntry = {
+  element: HTMLDivElement;
+  setCentered: (centered: boolean) => void;
+};
+
+const mobileCards = new Map<string, MobileCardEntry>();
+let centerUpdateFrame: number | null = null;
+let centeredCardId: string | null = null;
+
+function updateCenteredCard() {
+  centerUpdateFrame = null;
+  if (typeof window === "undefined" || !window.matchMedia("(max-width: 768px)").matches) {
+    centeredCardId = null;
+    mobileCards.forEach(({ setCentered }) => setCentered(false));
+    return;
+  }
+
+  const viewportCenter = window.innerHeight / 2;
+  let nearestId: string | null = null;
+  let nearestDistance = Number.POSITIVE_INFINITY;
+
+  mobileCards.forEach(({ element }, id) => {
+    const rect = element.getBoundingClientRect();
+    if (rect.bottom <= 0 || rect.top >= window.innerHeight) return;
+    const distance = Math.abs((rect.top + rect.bottom) / 2 - viewportCenter);
+    if (distance < nearestDistance) {
+      nearestDistance = distance;
+      nearestId = id;
+    }
+  });
+
+  if (nearestId === centeredCardId) return;
+  centeredCardId = nearestId;
+  mobileCards.forEach(({ setCentered }, id) => setCentered(id === nearestId));
+}
+
+function scheduleCenterUpdate() {
+  if (centerUpdateFrame !== null || typeof window === "undefined") return;
+  centerUpdateFrame = window.requestAnimationFrame(updateCenteredCard);
+}
+
+function registerMobileCard(id: string, entry: MobileCardEntry) {
+  mobileCards.set(id, entry);
+  scheduleCenterUpdate();
+}
+
+function unregisterMobileCard(id: string) {
+  mobileCards.delete(id);
+  if (centeredCardId === id) centeredCardId = null;
+  scheduleCenterUpdate();
+}
+
 type StoryFlipCardProps = {
   img: string;
   alt?: string;
@@ -27,9 +79,11 @@ export default function StoryFlipCard({
   className = "",
 }: StoryFlipCardProps) {
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const cardId = useRef(`story-card-${Math.random().toString(36).slice(2)}`).current;
   // Starts false so the server and the first client render agree; the effect
   // below corrects it immediately after mount.
   const [isMobile, setIsMobile] = useState(false);
+  const [isCentered, setIsCentered] = useState(false);
   const [mobileFlipped, setMobileFlipped] = useState(false);
   const flipTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -44,6 +98,23 @@ export default function StoryFlipCard({
     return () => media.removeEventListener("change", update);
   }, []);
 
+  useEffect(() => {
+    if (!isMobile || !rootRef.current) return;
+
+    registerMobileCard(cardId, {
+      element: rootRef.current,
+      setCentered: setIsCentered,
+    });
+    window.addEventListener("scroll", scheduleCenterUpdate, { passive: true });
+    window.addEventListener("resize", scheduleCenterUpdate);
+
+    return () => {
+      unregisterMobileCard(cardId);
+      window.removeEventListener("scroll", scheduleCenterUpdate);
+      window.removeEventListener("resize", scheduleCenterUpdate);
+    };
+  }, [cardId, isMobile]);
+
   /**
    * Set once the reader taps a card, so scrolling does not immediately undo
    * their choice. Cleared when the card leaves the viewport, which lets the
@@ -54,45 +125,26 @@ export default function StoryFlipCard({
   useEffect(() => {
     if (!isMobile) return;
 
-    const el = rootRef.current;
-    if (!el) return;
+    if (flipTimer.current) clearTimeout(flipTimer.current);
+    tapped.current = false;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        const inView = entry.intersectionRatio >= 0.55;
-        if (!inView) {
-          tapped.current = false;
-          if (flipTimer.current) {
-            clearTimeout(flipTimer.current);
-            flipTimer.current = null;
-          }
-          setMobileFlipped(false);
-          return;
-        }
+    if (!isCentered) {
+      setMobileFlipped(false);
+      return;
+    }
 
-        if (tapped.current) return;
+    flipTimer.current = setTimeout(() => {
+      if (!tapped.current) setMobileFlipped(true);
+      flipTimer.current = null;
+    }, 1500);
 
-        if (flipTimer.current) clearTimeout(flipTimer.current);
-        flipTimer.current = setTimeout(() => {
-          if (!tapped.current) setMobileFlipped(true);
-          flipTimer.current = null;
-        }, 1500);
-      },
-      {
-        threshold: [0, 0.55, 1],
-        rootMargin: "0px 0px -12% 0px",
-      }
-    );
-
-    observer.observe(el);
     return () => {
-      observer.disconnect();
       if (flipTimer.current) {
         clearTimeout(flipTimer.current);
         flipTimer.current = null;
       }
     };
-  }, [isMobile]);
+  }, [isCentered, isMobile]);
 
   const toggleFlip = () => {
     if (!isMobile) return;
