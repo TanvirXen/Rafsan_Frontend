@@ -8,6 +8,7 @@ import WatchShows from "./section/WatchShows";
 import UpcomingEventsHome from "./section/upcomingEventsHome";
 import apiList from "@/apiList";
 import { resolveMediaUrl } from "./lib/mediaUrl";
+import { buildUpcoming, fetchAllEvents } from "./lib/events";
 import { SITE_DESCRIPTION, SITE_KEYWORDS, SITE_META_IMAGE, SITE_NAME, SITE_TITLE } from "./lib/siteSeo";
 
 // ISR: rebuild at most once every 60 seconds
@@ -187,10 +188,11 @@ async function fetchNewsletterSettings(): Promise<NewsletterSettings | null> {
 }
 
 export default async function Home() {
-  const [notableEvents, settings, newsletterSettings] = await Promise.all([
+  const [notableEvents, settings, newsletterSettings, upcomingEvents] = await Promise.all([
     fetchNotableEventsHome(),
     fetchSettings(),
     fetchNewsletterSettings(),
+    fetchAllEvents().then((events) => buildUpcoming(events)).catch(() => []),
   ]);
 
   const hero = settings?.heroSection;
@@ -204,6 +206,7 @@ export default async function Home() {
         subtitle={hero?.subtitle}
         description={hero?.description}
         image={hero?.image}
+        hasUpcomingEvent={upcomingEvents.length > 0}
       />
 
       <Help />

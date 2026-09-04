@@ -7,6 +7,7 @@ type HeroProps = {
   subtitle?: string | null;
   description?: string | null;
   image?: string | null;
+  hasUpcomingEvent?: boolean;
 };
 
 export default function Hero(props: HeroProps) {
@@ -62,10 +63,10 @@ show, "What a Show." Enough talk, let's get to work.`;
             </Link>
 
             <Link
-              href='/explore-shows'
+              href={props.hasUpcomingEvent ? '/events' : '/explore-shows'}
               className='elza inline-flex h-11 items-center justify-center rounded-full bg-[#00D8FF] px-6 text-sm font-bold text-[#121212] shadow-[0_12px_32px_rgba(0,216,255,.24)] transition hover:brightness-95 sm:h-12 sm:flex-1 sm:text-base'
             >
-              Watch Shows
+              {props.hasUpcomingEvent ? 'View Events' : 'Watch Shows'}
             </Link>
           </div>
         </div>
