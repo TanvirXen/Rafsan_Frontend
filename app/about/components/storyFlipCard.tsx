@@ -252,7 +252,7 @@ export default function StoryFlipCard({
             className="object-cover scale-110 blur-md brightness-[0.45]"
           />
           <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(0,0,0,.78),rgba(0,0,0,.42))] backdrop-blur-[4px]" />
-          <div className="relative z-10 flex h-full items-end p-5 md:p-6">
+          <div className="relative z-10 flex h-full items-end p-5 md:items-start md:p-6">
             <div className="w-full max-h-[11rem] overflow-y-auto pr-1 [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,.35)_transparent]">
               {fullText}
             </div>
