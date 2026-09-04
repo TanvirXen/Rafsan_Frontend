@@ -229,7 +229,7 @@ export default function GalleryNotableEvents({ featured, events = [] }: Props) {
               <button
                 type='button'
                 onClick={closeModal}
-                className='absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-white/90 hover:bg-white/5'
+                className='absolute right-3 top-3 z-30 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-white/90 hover:bg-white/5'
                 aria-label='Close'
               >
                 ×

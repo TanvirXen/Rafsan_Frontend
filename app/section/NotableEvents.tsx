@@ -3,7 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import React, { useState, type ReactNode } from "react";
+import React, { useState } from "react";
+import Section1 from "../gallery/components/section1";
 
 export type NotableEventCard = {
   date: string;
@@ -12,39 +13,6 @@ export type NotableEventCard = {
   img: string;
   alt?: string;
 };
-
-const railInner = "mx-auto w-full max-w-[1100px]";
-
-function Zig({
-  from,
-  delay = 0,
-  hover = true,
-  children,
-}: {
-  from: "left" | "right";
-  delay?: number;
-  hover?: boolean;
-  children: ReactNode;
-}) {
-  const x0 = from === "left" ? -20 : 20;
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: x0, y: 16 }}
-      whileInView={{ opacity: 1, x: 0, y: 0 }}
-      viewport={{ once: true, amount: 0.35, margin: "-10% 0px -10% 0px" }}
-      transition={{
-        type: "spring",
-        stiffness: 120,
-        damping: 16,
-        mass: 0.6,
-        delay,
-      }}
-      {...(hover ? { whileHover: { y: -4, scale: 1.01 } } : {})}
-    >
-      {children}
-    </motion.div>
-  );
-}
 
 const DEFAULT_EVENTS: NotableEventCard[] = [
   {
@@ -65,70 +33,9 @@ const DEFAULT_EVENTS: NotableEventCard[] = [
   },
 ];
 
-function Figure({ src, alt }: { src: string; alt: string }) {
-  return (
-    <figure className='relative min-h-[20rem] overflow-hidden rounded-[28px] bg-black/20 md:min-h-[22rem] lg:min-h-[28rem] xl:min-h-[33.75rem]'>
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        priority
-        className='object-cover'
-        sizes='(max-width: 1279px) calc(100vw - 2rem), 728px'
-      />
-    </figure>
-  );
-}
-
-function EventCard({
-  tone,
-  date,
-  title,
-  body,
-  onReadMore,
-}: {
-  tone: "yellow" | "cyan";
-  date: string;
-  title: string;
-  body: string;
-  onReadMore: () => void;
-}) {
-  const bg =
-    tone === "yellow"
-      ? "bg-[#FFD928] text-[#121212]"
-      : "bg-[#00D8FF] text-[#121212]";
-
-  return (
-    <article
-      className={[
-        "flex h-full items-center rounded-[18px] p-4 md:rounded-[28px] md:p-8 lg:p-10",
-        "min-h-[15.5rem] md:min-h-[22rem] lg:min-h-[28rem] xl:min-h-[33.75rem]",
-        bg,
-      ].join(" ")}
-    >
-      <div className='max-w-[16rem] space-y-2 md:space-y-3'>
-        <p className='elza text-[11px] leading-4 md:text-[15px] md:leading-6'>{date}</p>
-        <h3 className='recoleta text-[15px] font-bold leading-5 md:text-[24px] md:leading-[1.15]'>{title}</h3>
-        <p className='elza text-[11px] leading-4 md:text-[16px] md:leading-7'>{body}</p>
-        {body.trim().length > 140 && (
-          <button
-            type='button'
-            onClick={onReadMore}
-            className='elza text-[11px] font-bold underline underline-offset-2 md:text-[13px]'
-          >
-            Read more
-          </button>
-        )}
-      </div>
-    </article>
-  );
-}
-
 export default function NotableEvents({ events }: { events?: NotableEventCard[] }) {
   const listRaw = events && events.length ? events : DEFAULT_EVENTS;
   const list = listRaw.slice(0, 2);
-  const first = list[0] ?? DEFAULT_EVENTS[0];
-  const second = list[1] ?? list[0] ?? DEFAULT_EVENTS[1];
 
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<NotableEventCard | null>(null);
@@ -156,48 +63,22 @@ export default function NotableEvents({ events }: { events?: NotableEventCard[] 
   return (
     <section className='relative isolate overflow-x-hidden'>
       <div className='site-shell-wide py-8 md:py-12 lg:py-14'>
-        <header className={`${railInner} mb-10 flex flex-col items-center gap-4`}>
-          <h2 className='recoleta text-center text-[34px] font-bold leading-[40px] text-[#FFD928] lg:text-[40px] lg:leading-[48px]'>
+        <header className='relative mb-8 flex items-center justify-center lg:mb-10'>
+          <h2 className='recoleta mx-auto w-fit px-4 text-center text-[30px] text-white lg:text-[40px]'>
             Notable Events
           </h2>
-          <p className='elza text-center text-[16px] leading-6 text-[#00D8FF]'>
-            I have had the privilege to host some fantastic events:
-          </p>
+          <span aria-hidden className='pointer-events-none absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded bg-[#FFD928] lg:h-8' />
+          <span aria-hidden className='pointer-events-none absolute right-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded bg-[#FFD928] lg:h-8' />
         </header>
 
-        <div className={`${railInner} space-y-10`}>
-          <div className='grid gap-6 md:grid-cols-[minmax(0,1fr)_16rem] md:items-stretch lg:gap-8 lg:grid-cols-[minmax(0,1fr)_18rem] xl:grid-cols-[minmax(0,1fr)_20rem]'>
-            <Zig from='left' delay={0.05}>
-              <Figure src={first.img} alt={first.alt || first.title} />
-            </Zig>
-            <Zig from='right' delay={0.12}>
-              <EventCard
-                tone='yellow'
-                date={first.date}
-                title={first.title}
-                body={first.blurb}
-                onReadMore={() => openModal(first)}
-              />
-            </Zig>
-          </div>
+        <Section1
+          events={list}
+          onReadMore={openModal}
+          previewLimit={140}
+          startWithPanelRight
+        />
 
-          <div className='grid gap-6 md:grid-cols-[16rem_minmax(0,1fr)] md:items-stretch lg:gap-8 lg:grid-cols-[18rem_minmax(0,1fr)] xl:grid-cols-[20rem_minmax(0,1fr)]'>
-            <Zig from='left' delay={0.05}>
-              <EventCard
-                tone='cyan'
-                date={second.date}
-                title={second.title}
-                body={second.blurb}
-                onReadMore={() => openModal(second)}
-              />
-            </Zig>
-            <Zig from='right' delay={0.12}>
-              <Figure src={second.img} alt={second.alt || second.title} />
-            </Zig>
-          </div>
-        </div>
-
-        <div className={`${railInner} mt-10 flex justify-center`}>
+        <div className='mt-10 flex justify-center'>
           <Link
             href='/portfolio'
             className='elza inline-flex h-12 items-center justify-center rounded-full border border-[#00D8FF] px-6 text-[16px] font-bold text-white transition hover:bg-white/6'
@@ -233,7 +114,7 @@ export default function NotableEvents({ events }: { events?: NotableEventCard[] 
               <button
                 type='button'
                 onClick={closeModal}
-                className='absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-white/90 hover:bg-white/5'
+                className='absolute right-3 top-3 z-30 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-white/90 hover:bg-white/5'
                 aria-label='Close'
               >
                 ×

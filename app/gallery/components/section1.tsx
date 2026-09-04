@@ -28,6 +28,8 @@ type Props = {
   onReadMore?: (ev: FeaturedEvent) => void;
   /** optional: show read more only after this many chars */
   previewLimit?: number;
+  /** start the zig-zag with the panel on the right */
+  startWithPanelRight?: boolean;
 };
 
 function needsReadMore(text: string, limit: number) {
@@ -46,6 +48,7 @@ export default function Section1({
   events = [],
   onReadMore,
   previewLimit = 140,
+  startWithPanelRight = false,
 }: Props) {
   const list = events.length ? events : [DEFAULT_EVENT];
 
@@ -54,10 +57,10 @@ export default function Section1({
       {list.map((event, index) => {
         const [firstWord, ...restWords] = (event.title || "").split(" ");
         const restTitle = restWords.join(" ");
-        const isEven = index % 2 === 0;
+        const panelOnLeft = startWithPanelRight ? index % 2 !== 0 : index % 2 === 0;
 
         // alternate cyan / yellow
-        const panelBg = isEven ? "#00D8FF" : "#FFD928";
+        const panelBg = panelOnLeft ? "#00D8FF" : "#FFD928";
 
         // ✅ mobile read more logic
         const long = needsReadMore(event.blurb || "", previewLimit);
@@ -223,7 +226,7 @@ export default function Section1({
 
             {/* ----------------------- DESKTOP / LG ----------------------- */}
             <div className="hidden lg:block">
-              {isEven ? (
+              {panelOnLeft ? (
                 <div className="grid grid-cols-1 gap-10 md:grid-cols-[380px_minmax(0,1fr)]">
                   {/* panel LEFT */}
                   <motion.aside

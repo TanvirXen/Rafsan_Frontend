@@ -31,6 +31,7 @@ export default function StoryFlipCard({
   // below corrects it immediately after mount.
   const [isMobile, setIsMobile] = useState(false);
   const [mobileFlipped, setMobileFlipped] = useState(false);
+  const flipTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const media = window.matchMedia("(max-width: 768px)");
@@ -59,9 +60,23 @@ export default function StoryFlipCard({
     const observer = new IntersectionObserver(
       ([entry]) => {
         const inView = entry.intersectionRatio >= 0.55;
-        if (!inView) tapped.current = false;
+        if (!inView) {
+          tapped.current = false;
+          if (flipTimer.current) {
+            clearTimeout(flipTimer.current);
+            flipTimer.current = null;
+          }
+          setMobileFlipped(false);
+          return;
+        }
+
         if (tapped.current) return;
-        setMobileFlipped(inView);
+
+        if (flipTimer.current) clearTimeout(flipTimer.current);
+        flipTimer.current = setTimeout(() => {
+          if (!tapped.current) setMobileFlipped(true);
+          flipTimer.current = null;
+        }, 1500);
       },
       {
         threshold: [0, 0.55, 1],
@@ -70,7 +85,13 @@ export default function StoryFlipCard({
     );
 
     observer.observe(el);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (flipTimer.current) {
+        clearTimeout(flipTimer.current);
+        flipTimer.current = null;
+      }
+    };
   }, [isMobile]);
 
   const toggleFlip = () => {
@@ -81,7 +102,7 @@ export default function StoryFlipCard({
 
   const dateBlock = (
     <div
-      className={`recoleta w-[8.5rem] shrink-0 leading-[1.05] text-white ${
+      className={`recoleta w-auto max-w-full shrink-0 leading-[1.05] text-white md:w-[8.5rem] ${
         reverse ? "text-left" : "text-right"
       }`}
     >
