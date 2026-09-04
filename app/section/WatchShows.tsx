@@ -465,7 +465,13 @@ export default function WatchShows() {
                         "before:pointer-events-none before:absolute before:inset-0 before:rounded-inherit before:[box-shadow:inset_0_0_0_1px_rgba(255,255,255,0.04)]",
                       ].join(" ")}
                       onMouseEnter={() => {
-                        if (!isCenter) setHoveredIndex(i);
+                        if (isCenter) return;
+                        if (d > 0) {
+                          setHoveredIndex(null);
+                          setActive(i);
+                          return;
+                        }
+                        setHoveredIndex(i);
                       }}
                       onMouseLeave={() => setHoveredIndex(null)}
                       style={{
