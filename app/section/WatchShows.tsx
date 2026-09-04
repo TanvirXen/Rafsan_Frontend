@@ -229,6 +229,31 @@ export default function WatchShows() {
 
   const [active, setActive] = useState(0);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [flipDirections, setFlipDirections] = useState<
+    Record<number, "in" | "out">
+  >({});
+  const previousActiveRef = useRef<number | null>(null);
+
+  const isMobile = CENTER_H === 220;
+
+  // Flip only the card that enters the centre and the one that leaves it.
+  // The initial mobile render is deliberately left still.
+  useEffect(() => {
+    if (!isMobile || items.length <= 1) {
+      previousActiveRef.current = active;
+      setFlipDirections({});
+      return;
+    }
+
+    const previousActive = previousActiveRef.current;
+    previousActiveRef.current = active;
+
+    if (previousActive === null || previousActive === active) return;
+
+    setFlipDirections({ [active]: "in", [previousActive]: "out" });
+    const timeout = window.setTimeout(() => setFlipDirections({}), 700);
+    return () => window.clearTimeout(timeout);
+  }, [active, isMobile, items.length]);
 
   // if items length shrinks below active index, clamp
   useEffect(() => {
@@ -428,6 +453,7 @@ export default function WatchShows() {
                   const w = isCenter ? CENTER_W : SIDE_W;
                   const h = isCenter ? CENTER_H : SIDE_H;
                   const isHovered = hoveredIndex === i && !isCenter;
+                  const flipDirection = isMobile ? flipDirections[i] : undefined;
 
                   return (
                     <article
@@ -461,7 +487,13 @@ export default function WatchShows() {
                       }}
                       aria-hidden={!isCenter}
                     >
-                      <div className='relative w-full h-full'>
+                      <div
+                        className={[
+                          "relative w-full h-full [transform-style:preserve-3d]",
+                          flipDirection === "in" ? "mobile-card-flip-in" : "",
+                          flipDirection === "out" ? "mobile-card-flip-out" : "",
+                        ].join(" ")}
+                      >
                         <Image
                           src={item.src}
                           alt={item.alt}
@@ -489,7 +521,10 @@ export default function WatchShows() {
                           <div
                             className='absolute inset-x-0 bottom-0 pointer-events-none'
                             style={{
-                              height: Math.max(80, Math.round(h * 0.28)),
+                              height: Math.max(
+                                isMobile ? 112 : 80,
+                                Math.round(h * (isMobile ? 0.5 : 0.28))
+                              ),
                               background:
                                 "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.55) 60%, rgba(0,0,0,.85) 100%)",
                             }}
@@ -497,13 +532,13 @@ export default function WatchShows() {
                         )}
 
                         {isCenter && (
-                          <div className='absolute inset-x-0 bottom-0 flex items-end justify-between px-4 sm:px-5 pb-3 sm:pb-4'>
+                          <div className='absolute inset-x-0 bottom-0 flex flex-col items-stretch gap-2 px-3 pb-3 sm:flex-row sm:items-end sm:justify-between sm:gap-0 sm:px-5 sm:pb-4'>
                             <Link
                               href={bookingHref || href}
-                              className='flex items-center gap-2 sm:gap-3 hover:-translate-y-px transition-transform duration-200'
+                              className='flex min-w-0 items-center gap-2 transition-transform duration-200 hover:-translate-y-px sm:gap-3'
                             >
                               <span className='w-1 h-6 bg-[#00D8FF] rounded-full shadow-[0_0_12px_rgba(0,216,255,.7)]' />
-                              <span className='text-white font-extrabold text-[16px] sm:text-[20px] md:text-[22px] recoleta'>
+                              <span className='line-clamp-2 min-w-0 text-[15px] font-extrabold leading-tight text-white recoleta sm:text-[20px] md:text-[22px]'>
                                 {item.title}
                               </span>
                             </Link>
@@ -512,6 +547,7 @@ export default function WatchShows() {
                               href={bookingHref || href}
                               aria-label={`Open ${item.title}`}
                               className='
+                                self-start text-[12px] sm:self-auto sm:text-[14px]
                                 font-extrabold elza text-black bg-[#00D8FF]
                                 px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-[10px]
                                 shadow-[0_10px_30px_rgba(0,216,255,.35)]
