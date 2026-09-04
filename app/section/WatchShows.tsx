@@ -228,6 +228,7 @@ export default function WatchShows() {
   const CENTER_TO_SIDE = CENTER_W / 2 + GAP + SIDE_W / 2;
 
   const [active, setActive] = useState(0);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   // if items length shrinks below active index, clamp
   useEffect(() => {
@@ -426,6 +427,7 @@ export default function WatchShows() {
 
                   const w = isCenter ? CENTER_W : SIDE_W;
                   const h = isCenter ? CENTER_H : SIDE_H;
+                  const isHovered = hoveredIndex === i && !isCenter;
 
                   return (
                     <article
@@ -436,13 +438,19 @@ export default function WatchShows() {
                         "transition-[transform,opacity,filter,visibility] ease-linear",
                         "before:pointer-events-none before:absolute before:inset-0 before:rounded-inherit before:[box-shadow:inset_0_0_0_1px_rgba(255,255,255,0.04)]",
                       ].join(" ")}
+                      onMouseEnter={() => {
+                        if (!isCenter) setHoveredIndex(i);
+                      }}
+                      onMouseLeave={() => setHoveredIndex(null)}
                       style={{
                         width: w,
                         height: h,
-                        transform: `translate3d(${x}px,0,${z}px) rotateY(${ry}deg) scale(${sc})`,
-                        zIndex: 100 - Math.abs(d),
+                        transform: `translate3d(${x}px,0,${isHovered ? 55 : z}px) rotateY(${ry}deg) scale(${isHovered ? 1 : sc})`,
+                        zIndex: isHovered ? 220 : 100 - Math.abs(d),
                         opacity: visible
-                          ? 1 - Math.min(Math.abs(d) * 0.25, 0.5)
+                          ? isHovered
+                            ? 1
+                            : 1 - Math.min(Math.abs(d) * 0.25, 0.5)
                           : 0,
                         pointerEvents: visible
                           ? ("auto" as const)
