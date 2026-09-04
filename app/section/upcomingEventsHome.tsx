@@ -408,6 +408,12 @@ export default function UpcomingEventsHome() {
               const wpx = isCenter ? CW : SW;
               const hpx = isCenter ? CH : SH;
               const isHovered = hoveredIndex === idx && !isCenter;
+              const focusRightCard = () => {
+                if (isSide && d > 0 && i !== idx) {
+                  setHoveredIndex(null);
+                  setI(idx);
+                }
+              };
 
               return (
                 <article
@@ -417,12 +423,12 @@ export default function UpcomingEventsHome() {
                     // Move the right preview into focus before its CTA is used.
                     if (isCenter) return;
                     if (d > 0) {
-                      setHoveredIndex(null);
-                      setI(idx);
+                      focusRightCard();
                       return;
                     }
                     setHoveredIndex(idx);
                   }}
+                  onPointerMove={focusRightCard}
                   onMouseLeave={() => setHoveredIndex(null)}
                   style={{
                     width: wpx,
