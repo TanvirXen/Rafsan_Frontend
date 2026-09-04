@@ -72,7 +72,7 @@ export default function Section1({
             <div className="lg:hidden">
               <div className="mx-auto w-full max-w-[28rem]">
                 <div className="relative flex h-[244px] overflow-hidden rounded-[16px] shadow-[0_14px_28px_rgba(0,0,0,.35)] ring-1 ring-white/10">
-                  {isEven ? (
+                  {panelOnLeft ? (
                     <>
                       {/* ✅ PANEL LEFT (on top + clickable) */}
                       <motion.aside

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
+import { Analytics } from "@vercel/analytics/next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "./components/navbar";
@@ -116,6 +117,7 @@ export default function RootLayout({
           <main className="flex-1 overflow-x-hidden">{children}</main>
           <Footer />
         </div>
+        <Analytics />
       </body>
     </html>
   );
