@@ -37,6 +37,7 @@ export type EventItem = {
   venue?: string;
   img: string;
   href: string;   // /event-reg/<slugOrId>--YYYY-MM-DD
+  ended?: boolean;
 };
 
 export function formatDate(d: Date) {
@@ -193,7 +194,7 @@ export function buildPast(events: ApiEvent[], now = new Date()): EventItem[] {
       }
 
       rows.push({
-        item: { id: `${ev._id}:${occ.date}`, title: ev.title, date: label, timeText, venue: ev.venue, img, href },
+        item: { id: `${ev._id}:${occ.date}`, title: ev.title, date: label, timeText, venue: ev.venue, img, href, ended: true },
         t: d.getTime(),
       });
     }
