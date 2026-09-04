@@ -100,7 +100,14 @@ export default function EventDetailsSection({
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState(false);
   const [selectedDates, setSelectedDates] = React.useState<string[]>([]);
+  const [imagePreviews, setImagePreviews] = React.useState<Record<string, string>>({});
   const [successMsg, setSuccessMsg] = React.useState("Registration received! We’ll email you with updates.");
+
+  React.useEffect(() => {
+    return () => {
+      Object.values(imagePreviews).forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [imagePreviews]);
 
   React.useEffect(() => {
     if (eventDateISO) {
@@ -187,6 +194,10 @@ export default function EventDetailsSection({
         throw new Error(result?.error || "Image upload failed.");
       }
       setForm((prev) => ({ ...prev, [fieldName]: String(result.imageId) }));
+      setImagePreviews((prev) => {
+        if (prev[fieldName]) URL.revokeObjectURL(prev[fieldName]);
+        return { ...prev, [fieldName]: URL.createObjectURL(compressedFile) };
+      });
     } catch (uploadError: any) {
       setError(uploadError?.message || "Image upload failed.");
     } finally {
@@ -443,6 +454,16 @@ export default function EventDetailsSection({
                               ? "Image uploaded securely."
                               : "Images are compressed automatically and must be 2MB or smaller."}
                         </p>
+                        {imagePreviews[f.name] && (
+                          <Image
+                            src={imagePreviews[f.name]}
+                            alt={`${f.label} preview`}
+                            width={240}
+                            height={160}
+                            unoptimized
+                            className='mt-3 max-h-40 w-auto rounded-lg border border-white/20 object-contain'
+                          />
+                        )}
                       </div>
                     ) : f.type === "textarea" ? (
                       <textarea
