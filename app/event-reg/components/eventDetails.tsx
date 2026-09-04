@@ -3,7 +3,10 @@
 
 import Image from "next/image";
 import React from "react";
+import imageCompression from "browser-image-compression";
 import apiList from "@/apiList";
+
+const MAX_REGISTRATION_IMAGE_BYTES = 2 * 1024 * 1024;
 
 function IconBadge({ src, alt }: { src: string; alt: string }) {
   return (
@@ -151,16 +154,30 @@ export default function EventDetailsSection({
       setError("Please select a valid image file.");
       return;
     }
-    if (file.size > 10 * 1024 * 1024) {
-      setError("Image must be 10MB or smaller.");
-      return;
-    }
 
     try {
       setUploadingField(fieldName);
       setError(null);
+
+      const compressedFile = await imageCompression(file, {
+        maxSizeMB: 2,
+        maxWidthOrHeight: 1920,
+        useWebWorker: true,
+        initialQuality: 0.8,
+        fileType: "image/jpeg",
+      });
+
+      if (compressedFile.size > MAX_REGISTRATION_IMAGE_BYTES) {
+        throw new Error("Image must be 2MB or smaller after compression.");
+      }
+
       const data = new FormData();
-      data.append("image", file);
+      data.append(
+        "image",
+        new File([compressedFile], "registration-image.jpg", {
+          type: "image/jpeg",
+        })
+      );
       const response = await fetch(apiList.registrationImages.upload, {
         method: "POST",
         body: data,
@@ -424,7 +441,7 @@ export default function EventDetailsSection({
                             ? "Uploading securely..."
                             : val
                               ? "Image uploaded securely."
-                              : "JPG, PNG, WebP, or AVIF up to 10MB."}
+                              : "Images are compressed automatically and must be 2MB or smaller."}
                         </p>
                       </div>
                     ) : f.type === "textarea" ? (
