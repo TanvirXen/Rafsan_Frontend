@@ -28,7 +28,7 @@ export default function StoryTeaser({
   return (
     <section className='site-shell-wide mt-3 pb-8 sm:mt-4 sm:pb-10'>
       <div className='w-full'>
-        <div className='grid items-center gap-8 rounded-[28px] border-2 border-[#00D8FF] p-6 text-center sm:p-8 md:grid-cols-[minmax(0,240px)_1fr] lg:grid-cols-[minmax(0,300px)_1fr] lg:p-12'>
+        <div className='flex flex-col items-center gap-8 rounded-[28px] border-2 border-[#00D8FF] p-6 text-center sm:p-8 lg:p-12'>
           <div className='justify-self-center'>
             <div className='relative h-36 w-36 overflow-hidden rounded-full ring-2 ring-white/40 shadow-[0_16px_36px_rgba(0,0,0,.45)] sm:h-44 sm:w-44 md:h-[240px] md:w-[240px] lg:h-[300px] lg:w-[300px]'>
               <Image
