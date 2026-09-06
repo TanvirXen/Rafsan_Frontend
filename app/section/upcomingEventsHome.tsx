@@ -398,7 +398,7 @@ export default function UpcomingEventsHome() {
           '
         >
           {/* Header */}
-          <h2 className='recoleta text-center text-[28px] font-bold leading-[30px] sm:text-[40px] sm:leading-[48px]'>
+          <h2 className='recoleta text-center text-[28px] font-normal leading-[30px] sm:text-[48px] sm:leading-[56px]'>
             Events
           </h2>
           <p className='elza mt-2 mb-4 text-center text-[13px] leading-5 text-[#00D8FF] sm:mb-5 sm:text-[16px] sm:leading-6'>

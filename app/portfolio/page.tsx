@@ -308,7 +308,7 @@ export default async function PortfolioPage() {
 
   return (
     <div className="overflow-x-hidden">
-      <section className="site-shell-wide py-12 lg:py-16">
+      <section className="site-shell-wide pt-24 pb-12 sm:pt-28 lg:pt-32 lg:pb-16">
         <div className="mx-auto flex max-w-[56rem] flex-col items-center gap-5 text-center">
           <span className="elza inline-flex rounded-full border border-[#00D8FF]/30 bg-[#00D8FF]/10 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.22em] text-[#00D8FF]">
             Portfolio

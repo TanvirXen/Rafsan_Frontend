@@ -88,7 +88,7 @@ export default function ConnectPage() {
 
   return (
     <main className='min-h-screen text-white'>
-      <section className='site-shell py-10 md:py-14 lg:py-16'>
+      <section className='site-shell pt-24 pb-10 md:pt-28 md:pb-14 lg:pt-32 lg:pb-16'>
         <div className='grid gap-10 lg:grid-cols-12 lg:gap-12'>
           <div className='lg:col-span-5'>
             <h1 className='recoleta mb-4 text-[clamp(2.25rem,6vw,3rem)] font-extrabold leading-[0.95] text-white md:mb-6'>

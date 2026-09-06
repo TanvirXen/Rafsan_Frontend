@@ -26,7 +26,7 @@ export default function StoryTeaser({
   const imgSrc = image || "/assets/story.jpg";
 
   return (
-    <section className='site-shell-wide mt-3 scroll-mt-20 pt-12 pb-8 sm:mt-4 sm:pt-16 sm:pb-10'>
+    <section className='site-shell-wide mt-0 scroll-mt-20 pt-2 pb-8 sm:mt-0 sm:pt-4 sm:pb-10'>
       <div className='w-full'>
         <div className='flex flex-col items-center gap-8 rounded-[28px] p-6 text-center sm:p-8 lg:p-12'>
           <div className='justify-self-center'>

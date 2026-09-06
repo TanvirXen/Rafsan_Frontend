@@ -64,7 +64,7 @@ export default function NotableEvents({ events }: { events?: NotableEventCard[] 
     <section className='relative isolate overflow-x-hidden'>
       <div className='site-shell-wide py-8 md:py-12 lg:py-14'>
         <header className='relative mb-8 flex items-center justify-center lg:mb-10'>
-          <h2 className='recoleta mx-auto w-fit px-4 text-center text-[30px] text-white lg:text-[40px]'>
+          <h2 className='recoleta mx-auto w-fit px-4 text-center text-[30px] font-normal text-white lg:text-[48px]'>
             Notable Events
           </h2>
           <span aria-hidden className='pointer-events-none absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded bg-[#FFD928] lg:h-8' />

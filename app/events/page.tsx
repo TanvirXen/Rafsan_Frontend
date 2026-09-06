@@ -14,7 +14,9 @@ export default async function EventsPage() {
   return (
     <div className="min-h-screen bg-[#121212]">
       <h1 className="sr-only">Rafsan Sabab Events</h1>
-      <UpcomingEvents />
+      <div className="pt-20 md:pt-24 lg:pt-28">
+        <UpcomingEvents />
+      </div>
       <PastEvents />
     </div>
   );

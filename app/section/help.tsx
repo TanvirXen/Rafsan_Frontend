@@ -141,7 +141,7 @@ export default function Help() {
       <div className='mx-auto flex w-full max-w-none flex-col items-center gap-3 sm:gap-4 lg:gap-6'>
         <ZigWrap from='left' delay={0.05}>
           <div className='w-full'>
-            <h2 className='recoleta text-center text-[30px] leading-[34px] text-[#FFD928] sm:text-[34px] sm:leading-[38px] lg:text-[40px] lg:leading-[46px]'>
+            <h2 className='recoleta text-center text-[30px] leading-[34px] text-[#FFD928] sm:text-[34px] sm:leading-[38px] lg:text-[48px] lg:leading-[54px]'>
               How Can I Help You?
             </h2>
           </div>

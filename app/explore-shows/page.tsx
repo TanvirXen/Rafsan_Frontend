@@ -76,7 +76,7 @@ export default async function ExploreShowsPage() {
           }}
         />
 
-        <div className='site-shell relative z-20 py-10 sm:py-12 lg:py-16'>
+        <div className='site-shell relative z-20 pt-24 pb-10 sm:pt-28 sm:pb-12 lg:pt-32 lg:pb-16'>
           <div className='mx-auto w-full max-w-[1100px]'>
             <div className='mb-6 flex items-center gap-3 border-l-4 border-[#00D8FF] pl-5'>
               <h1 className='recoleta text-[28px] font-bold leading-none text-white drop-shadow-[0_2px_6px_rgba(0,0,0,.7)] sm:text-[34px] lg:text-[40px]'>

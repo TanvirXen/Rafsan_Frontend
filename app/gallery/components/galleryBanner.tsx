@@ -31,16 +31,15 @@ export default function GalleryBanner({
       <div className='absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(0,0,0,.12)_0%,rgba(0,0,0,.10)_35%,rgba(0,0,0,.55)_75%,rgba(0,0,0,.92)_100%)]' />
       <div className="pointer-events-none absolute inset-0 -z-10 bg-repeat opacity-[0.14] mix-blend-overlay [background-image:url('/assets/grain.png')]" />
 
-      <div className='site-shell relative flex min-h-[calc(100svh-64px)] items-end py-12 lg:min-h-[calc(100svh-72px)] lg:items-center lg:py-16'>
-        <div className='max-w-[42rem]'>
-          <div className='mb-3 flex items-center gap-3'>
-            <span className='h-8 w-1 rounded bg-cyan-400 shadow-[0_0_12px_rgba(34,211,238,.55)]' />
-            <h1 className='recoleta text-[clamp(2rem,6vw,4rem)] font-bold leading-tight text-white drop-shadow-[0_10px_30px_rgba(0,0,0,.55)]'>
+      <div className='site-shell-wide relative flex min-h-[100svh] items-end justify-center py-12 lg:items-end lg:pb-16 lg:pt-24'>
+        <div className='max-w-[36rem] space-y-4 text-center sm:space-y-5 lg:space-y-6'>
+          <div className='mb-3 flex items-center justify-center'>
+            <h1 className='recoleta text-[clamp(2.1rem,5vw,3rem)] leading-[0.95] text-white drop-shadow-[0_10px_30px_rgba(0,0,0,.55)]'>
               {title}
             </h1>
           </div>
 
-          <p className='elza max-w-[34rem] text-sm leading-6 text-white/85 drop-shadow-[0_10px_28px_rgba(0,0,0,.55)] sm:text-base lg:text-xl lg:leading-8'>
+          <p className='elza max-w-[34rem] text-[14px] leading-6 text-white/85 drop-shadow-[0_10px_28px_rgba(0,0,0,.55)] sm:text-[15px] lg:text-base lg:leading-6'>
             {subtitle}
           </p>
         </div>

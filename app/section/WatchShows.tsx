@@ -385,10 +385,16 @@ export default function WatchShows() {
   );
 
   // simple tab labels from show titles (fallback to static text if none yet)
-  const tabLabels =
+  const tabLinks =
     items.length > 0
-      ? items.map((i) => i.title.toUpperCase())
-      : ["WHAT A SHOW", "PODCAST", "VLOG", "STANDUP COMEDY"];
+      ? items.map((item) => ({
+          label: item.title.toUpperCase(),
+          href: `/shows/${item.slug}`,
+        }))
+      : ["WHAT A SHOW", "PODCAST", "VLOG", "STANDUP COMEDY"].map((label) => ({
+          label,
+          href: `/shows/${slugifyTitle(label)}`,
+        }));
 
   return (
     <section className='relative mt-8 overflow-x-hidden pb-14 sm:pb-16'>
@@ -410,8 +416,8 @@ export default function WatchShows() {
       <div className='site-shell-wide relative z-10'>
         {/* INNER content rail is exactly 1100 on md+; fluid on small */}
         <div className='mx-auto w-full max-w-[1100px]'>
-          <h2 className='recoleta mt-9 mb-3 text-center text-[32px] font-bold leading-tight text-white sm:text-[36px] md:mt-[52px] md:text-[40px]'>
-            Watch Shows
+          <h2 className='recoleta mt-9 mb-3 text-center text-[32px] font-normal leading-tight text-white sm:text-[36px] md:mt-[52px] md:text-[48px]'>
+            Watch My Contents
           </h2>
 
           {/* tabs (labels from API titles if present, else fallback) */}
@@ -420,13 +426,18 @@ export default function WatchShows() {
             aria-label='Show categories'
           >
             <div className='text-[11px] sm:text-[12px] text-center elza'>
-              {tabLabels.map((t, i) => (
-                <span key={`${t}-${i}`}>
-                  {t}
-                  {i < tabLabels.length - 1 && (
+              {tabLinks.map((tab, i) => (
+                <React.Fragment key={`${tab.label}-${i}`}>
+                  <Link
+                    href={tab.href}
+                    className='transition-colors hover:text-white hover:underline hover:underline-offset-4'
+                  >
+                    {tab.label}
+                  </Link>
+                  {i < tabLinks.length - 1 && (
                     <span className='opacity-60 px-1.5 '> | </span>
                   )}
-                </span>
+                </React.Fragment>
               ))}
             </div>
           </nav>
