@@ -201,8 +201,8 @@ export default function Navbar() {
   const handleShowClick = () => setShowsOpen((s) => !s);
 
   return (
-    <header className='sticky top-0 z-50'>
-      <div className='border-b border-white/10 bg-[#121212]/45 shadow-[0_8px_30px_rgba(0,0,0,.18)] backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-[#121212]/30'>
+    <header className='fixed inset-x-0 top-0 z-50'>
+      <div className='border-b border-white/10 bg-[#121212]/25 shadow-[0_8px_30px_rgba(0,0,0,.18)] backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-[#121212]/20'>
         <div className='site-shell-wide'>
           <nav className='flex h-16 items-center justify-between gap-4 sm:h-[72px]'>
             {/* Brand */}
@@ -392,7 +392,8 @@ export default function Navbar() {
             aria-modal='true'
             className='
               fixed inset-0 z-[60] md:hidden
-              bg-[#0b0b0b]/95 backdrop-blur
+              bg-[#0b0b0b]/35 backdrop-blur-2xl backdrop-saturate-150
+              supports-[backdrop-filter]:bg-[#0b0b0b]/20
               text-white w-full min-h-screen
               supports-[height:100dvh]:min-h-[100dvh]
               flex flex-col
@@ -400,7 +401,7 @@ export default function Navbar() {
           >
             {/* Top bar (safe-area aware) */}
             <div
-              className='flex h-16 items-center justify-between border-b border-zinc-800'
+              className='flex h-16 items-center justify-between border-b border-white/10 bg-black/15 backdrop-blur-xl'
               style={{
                 paddingLeft: "max(1rem, env(safe-area-inset-left))",
                 paddingRight: "max(1rem, env(safe-area-inset-right))",
@@ -459,8 +460,8 @@ export default function Navbar() {
                         href={l.href}
                         onClick={() => handleMobileLinkClick(l.href)}
                         className={[
-                          "group block rounded-2xl border border-zinc-800/80 bg-zinc-900/60 px-5 py-4 text-center shadow-[inset_0_0_0_1px_rgba(255,255,255,0.02)]",
-                          "hover:bg-zinc-900 hover:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)] transition-colors",
+                          "group block rounded-2xl border border-white/15 bg-white/[0.06] px-5 py-4 text-center shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)] backdrop-blur-xl",
+                          "hover:bg-white/[0.12] hover:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.10)] transition-colors",
                           active
                             ? "ring-1 ring-pink-400/40 text-pink-300"
                             : "text-zinc-200",
@@ -483,7 +484,7 @@ export default function Navbar() {
                   href='https://www.youtube.com/@RafsanSabab'
                   target='_blank'
                   rel='noreferrer'
-                  className='group inline-flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-900/60'
+                  className='group inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-white/[0.06] backdrop-blur-xl'
                   aria-label='YouTube'
                   title='YouTube'
                 >

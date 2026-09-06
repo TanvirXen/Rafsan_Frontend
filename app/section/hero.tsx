@@ -28,7 +28,7 @@ show, "What a Show." Enough talk, let's get to work.`;
   return (
     <section className='relative isolate overflow-hidden'>
       <div
-        className='absolute inset-0 -z-10 bg-[#2D1B59] bg-cover bg-no-repeat [background-position:60%_top] md:[background-position:60%_18%] lg:[background-position:60%_35%]'
+        className='absolute inset-0 -z-10 bg-[#2D1B59] bg-cover bg-no-repeat [background-position:60%_top] md:[background-position:60%_0%] lg:[background-position:60%_0%]'
         style={{
           backgroundImage: `
             linear-gradient(180deg, rgba(45,27,89,0.08) 0%, rgba(18,18,18,0.42) 58%, #121212 100%),
@@ -38,9 +38,9 @@ show, "What a Show." Enough talk, let's get to work.`;
       />
       <div className='absolute inset-0 -z-10 bg-[radial-gradient(45%_55%_at_22%_22%,rgba(0,216,255,.12)_0%,rgba(0,0,0,0)_70%)]' />
 
-      <div className='site-shell-wide relative flex min-h-[calc(100svh-64px)] items-end py-10 sm:py-14 lg:min-h-[calc(100svh-72px)] lg:items-center lg:py-20'>
+      <div className='site-shell-wide relative flex min-h-[100svh] items-end py-10 sm:py-14 lg:items-center lg:py-20'>
         <div className='max-w-[36rem] space-y-4 sm:space-y-5 lg:space-y-6'>
-          <h1 className='recoleta text-[clamp(2.25rem,6vw,3.5rem)] leading-[0.95] text-white'>
+          <h1 className='recoleta text-[clamp(2.1rem,5vw,3rem)] leading-[0.95] text-white'>
             {title}
           </h1>
 
@@ -50,7 +50,7 @@ show, "What a Show." Enough talk, let's get to work.`;
             </p>
           )}
 
-          <p className='elza max-w-[34rem] text-[15px] leading-6 text-white/92 sm:text-base lg:text-lg lg:leading-7'>
+          <p className='elza max-w-[34rem] text-[14px] leading-6 text-white/92 sm:text-[15px] lg:text-base lg:leading-6'>
             {description}
           </p>
 

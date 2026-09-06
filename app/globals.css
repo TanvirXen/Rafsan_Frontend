@@ -41,6 +41,16 @@ html {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/*
+ * Compact laptop mode: modern systems use an intermediate type scale rather
+ * than forcing tablet or desktop sizing into a short 1280x800 viewport.
+ */
+@media (min-width: 1024px) and (max-width: 1365px) {
+  html {
+    font-size: 88%;
+  }
+}
+
 body {
   min-height: 100%;
   width: 100%;

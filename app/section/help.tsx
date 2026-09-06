@@ -44,6 +44,7 @@ function Card({
   titleClass = "",
   bodyClass = "",
   ctaClassName = "",
+  iconClassName = "",
   iconSrc,
   title,
   body,
@@ -55,6 +56,7 @@ function Card({
   titleClass?: string;
   bodyClass?: string;
   ctaClassName?: string;
+  iconClassName?: string;
   iconSrc: string;
   title: string;
   body: string;
@@ -79,7 +81,7 @@ function Card({
               alt=''
               fill
               sizes='(max-width: 640px) 24px, (max-width: 1280px) 32px, 48px'
-              className='object-contain'
+              className={['object-contain', iconClassName].filter(Boolean).join(' ')}
             />
           </div>
 
@@ -162,11 +164,12 @@ export default function Help() {
 
           <ZigWrap from='right' delay={0.16} className='max-md:w-[min(78vw,300px)] max-md:shrink-0 max-md:snap-center'>
             <Card
-              className='border-2 border-[#FFD928] bg-[rgba(255,217,40,0.20)] text-[#FFD928] shadow-none'
-              titleClass='text-[#FFD928]'
-              bodyClass='text-[#FFD928]'
-              ctaClassName='border-2 border-[#FFD928] text-[#FFD928] hover:bg-[#FFD928]/10'
+              className='border-2 border-black/10 bg-[#FFD928] text-[#121212] shadow-none'
+              titleClass='text-[#121212]'
+              bodyClass='text-[#121212]'
+              ctaClassName='border-2 border-[#121212] text-[#121212] hover:bg-black/5'
               iconSrc='/assets/Icon (1).png'
+              iconClassName='brightness-0'
               title={sessionsTitle}
               body={sessionsBody}
               ctaLabel='Plan Workshop'
@@ -176,11 +179,12 @@ export default function Help() {
 
           <ZigWrap from='left' delay={0.2} className='max-md:w-[min(78vw,300px)] max-md:shrink-0 max-md:snap-center'>
             <Card
-              className='border-2 border-[#00D8FF] bg-[rgba(0,216,255,0.20)] text-[#00D8FF]'
-              titleClass='text-[#00D8FF]'
-              bodyClass='text-[#00D8FF]'
-              ctaClassName='border-2 border-[#00D8FF] text-[#00D8FF] hover:bg-[#00D8FF]/10'
+              className='border-2 border-black/10 bg-[#00D8FF] text-[#121212]'
+              titleClass='text-[#121212]'
+              bodyClass='text-[#121212]'
+              ctaClassName='border-2 border-[#121212] text-[#121212] hover:bg-black/5'
               iconSrc='/assets/Star.png'
+              iconClassName='brightness-0'
               title={brandTitle}
               body={brandBody}
               ctaLabel='Start Collaboration'

@@ -29,7 +29,7 @@ export default function AboutBanner({ banner }: Props) {
       : "/assets/aboutBannerD.png";
 
   return (
-    <section className='relative isolate overflow-hidden'>
+    <section className='relative isolate min-h-[100svh] overflow-hidden'>
       <div
         className='absolute inset-0 -z-10 bg-[#121212] bg-cover bg-no-repeat lg:hidden [background-position:60%_top] md:[background-position:60%_15%]'
         style={{
@@ -50,7 +50,7 @@ export default function AboutBanner({ banner }: Props) {
         }}
       />
 
-      <div className='site-shell-wide relative flex min-h-[calc(100svh-64px)] items-end py-12 text-center sm:py-16 lg:min-h-[calc(100svh-72px)] lg:items-center lg:py-24'>
+      <div className='site-shell-wide relative flex min-h-[100svh] items-end py-12 text-center sm:py-16 lg:items-end lg:pb-8 lg:pt-24'>
         <div className='mx-auto flex max-w-[68rem] flex-col items-center gap-4 sm:gap-6 lg:gap-8'>
           <p className='elza max-w-[50rem] text-sm leading-6 text-white/90 sm:text-base lg:text-xl lg:leading-8'>
             {kicker}

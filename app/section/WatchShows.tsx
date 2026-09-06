@@ -229,15 +229,12 @@ export default function WatchShows() {
   const CENTER_TO_SIDE = CENTER_W / 2 + GAP + SIDE_W / 2;
 
   const [active, setActive] = useState(0);
+  const isMobile = CENTER_H === 220;
   const [flipDirections, setFlipDirections] = useState<
     Record<number, "in" | "out">
   >({});
   const previousActiveRef = useRef<number | null>(null);
 
-  const isMobile = CENTER_H === 220;
-
-  // Flip only the card that enters the centre and the one that leaves it.
-  // The initial mobile render is deliberately left still.
   useEffect(() => {
     if (!isMobile || items.length <= 1) {
       previousActiveRef.current = active;
@@ -483,7 +480,6 @@ export default function WatchShows() {
                   const w = isCenter ? CENTER_W : SIDE_W;
                   const h = isCenter ? CENTER_H : SIDE_H;
                   const flipDirection = isMobile ? flipDirections[i] : undefined;
-
                   return (
                     <article
                       key={item.id}
@@ -525,7 +521,7 @@ export default function WatchShows() {
                       </span>
                       <div
                         className={[
-                          "relative w-full h-full [transform-style:preserve-3d]",
+                          "relative h-full w-full",
                           flipDirection === "in" ? "mobile-card-flip-in" : "",
                           flipDirection === "out" ? "mobile-card-flip-out" : "",
                         ].join(" ")}
