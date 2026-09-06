@@ -202,7 +202,7 @@ export default function Navbar() {
 
   return (
     <header className='sticky top-0 z-50'>
-      <div className='bg-[#121212]/95 backdrop-blur supports-[backdrop-filter]:bg-[#121212]/85'>
+      <div className='border-b border-white/10 bg-[#121212]/45 shadow-[0_8px_30px_rgba(0,0,0,.18)] backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-[#121212]/30'>
         <div className='site-shell-wide'>
           <nav className='flex h-16 items-center justify-between gap-4 sm:h-[72px]'>
             {/* Brand */}
