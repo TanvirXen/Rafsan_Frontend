@@ -112,11 +112,6 @@ export default function RootLayout({
             gtag('config', 'G-21P5L3FESE');
           `}
         </Script>
-        <Script
-          id="youtube-iframe-api"
-          src="https://www.youtube.com/iframe_api"
-          strategy="afterInteractive"
-        />
         <div className="flex min-h-screen flex-col">
           <Navbar />
           <main className="flex-1 overflow-x-hidden">{children}</main>

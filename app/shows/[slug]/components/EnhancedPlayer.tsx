@@ -35,13 +35,6 @@ type Episode = {
   featured?: boolean;
 };
 
-declare global {
-  interface Window {
-    YT?: any;
-    onYouTubeIframeAPIReady?: () => void;
-  }
-}
-
 function cn(...v: Array<string | false | null | undefined>) {
   return v.filter(Boolean).join(" ");
 }
@@ -116,106 +109,32 @@ function resolveVideoSource(link?: string | null): VideoSource {
 type YTMountProps = {
   youtubeId: string | null;
   onReady?: () => void;
-  onEnded?: () => void;
 };
 
-const YTMount = memo(function YTMount({ youtubeId, onReady, onEnded }: YTMountProps) {
-  const mountRef = useRef<HTMLDivElement | null>(null);
-  const playerRef = useRef<any>(null);
+const YTMount = memo(function YTMount({ youtubeId, onReady }: YTMountProps) {
+  if (!youtubeId) return null;
 
-  const onReadyRef = useRef(onReady);
-  const onEndedRef = useRef(onEnded);
-  useEffect(() => {
-    onReadyRef.current = onReady;
-    onEndedRef.current = onEnded;
-  }, [onReady, onEnded]);
+  const params = new URLSearchParams({
+    autoplay: "1",
+    enablejsapi: "1",
+    modestbranding: "1",
+    origin: typeof window === "undefined" ? "" : window.location.origin,
+    playsinline: "1",
+    rel: "0",
+  });
 
-  const destroy = () => {
-    try {
-      if (playerRef.current?.destroy) playerRef.current.destroy();
-    } catch {}
-    playerRef.current = null;
-
-    try {
-      mountRef.current?.replaceChildren();
-    } catch {}
-  };
-
-  const ensureYT = () =>
-    new Promise<void>((resolve) => {
-      if (window.YT?.Player) return resolve();
-
-      let done = false;
-      const prev = window.onYouTubeIframeAPIReady;
-      window.onYouTubeIframeAPIReady = () => {
-        try {
-          prev?.();
-        } catch {}
-        if (done) return;
-        done = true;
-        resolve();
-      };
-
-      const start = Date.now();
-      const tick = () => {
-        if (window.YT?.Player) {
-          if (!done) {
-            done = true;
-            resolve();
-          }
-          return;
-        }
-        if (Date.now() - start > 8000) {
-          if (!done) {
-            done = true;
-            resolve();
-          }
-          return;
-        }
-        setTimeout(tick, 60);
-      };
-      tick();
-    });
-
-  const create = async (id: string) => {
-    if (!mountRef.current) return;
-
-    try {
-      await ensureYT();
-      if (!window.YT?.Player || !mountRef.current) return;
-
-      destroy();
-
-      playerRef.current = new window.YT.Player(mountRef.current, {
-        host: "https://www.youtube.com",
-        videoId: id,
-        playerVars: {
-          autoplay: 1,
-          rel: 0,
-          modestbranding: 1,
-          origin: window.location.origin,
-          enablejsapi: 1,
-        },
-        events: {
-          onReady: () => onReadyRef.current?.(),
-          onStateChange: (ev: any) => {
-            if (ev?.data === 0) onEndedRef.current?.();
-          },
-        },
-      });
-    } catch (err) {
-      console.error("YT create failed:", err);
-    }
-  };
-
-  useEffect(() => {
-    if (!youtubeId) return;
-    create(youtubeId);
-    return () => destroy();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [youtubeId]);
-
-  return <div ref={mountRef} className="absolute inset-0 h-full w-full" />;
+  return (
+    <iframe
+      key={youtubeId}
+      src={`https://www.youtube-nocookie.com/embed/${youtubeId}?${params.toString()}`}
+      title="YouTube video player"
+      className="absolute inset-0 h-full w-full"
+      style={{ border: 0 }}
+      allow="autoplay; encrypted-media; picture-in-picture; web-share"
+      allowFullScreen
+      onLoad={onReady}
+    />
+  );
 });
 
 type Props = {
@@ -486,7 +405,6 @@ export default function EnhancedPlayer({
                 <YTMount
                   youtubeId={current.youtubeId}
                   onReady={() => setReadyId(current?._id ?? null)}
-                  onEnded={onEnded}
                 />
               ) : current?.fbEmbedUrl ? (
                 <iframe
