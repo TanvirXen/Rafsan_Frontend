@@ -87,7 +87,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.cdnfonts.com" />
         <link rel="preconnect" href="https://api.rafsansabab.com" />
@@ -112,6 +112,11 @@ export default function RootLayout({
             gtag('config', 'G-21P5L3FESE');
           `}
         </Script>
+        <Script
+          id="youtube-iframe-api"
+          src="https://www.youtube.com/iframe_api"
+          strategy="afterInteractive"
+        />
         <div className="flex min-h-screen flex-col">
           <Navbar />
           <main className="flex-1 overflow-x-hidden">{children}</main>

@@ -4,6 +4,7 @@
 import type React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { FiArrowUpRight } from "react-icons/fi";
 import { useEffect, useMemo, useRef, useState } from "react";
 import apiList from "@/apiList";
 import { resolveMediaUrl } from "@/app/lib/mediaUrl";
@@ -17,6 +18,7 @@ type Workshop = {
   timeText?: string;
   venue?: string;
   href?: string; // /event-reg/<slugOrId>--YYYY-MM-DD
+  ticketUrl?: string;
   ended?: boolean;
 };
 
@@ -115,6 +117,7 @@ type ApiEvent = {
   cardImage?: string;
   imageLinkBg?: string;
   imageLinkOverlay?: string;
+  ticketUrl?: string;
 };
 
 const isNE = (v: unknown): v is string =>
@@ -217,6 +220,7 @@ export default function UpcomingEventsHome() {
                   venue: ev.venue,
                   dateISO: o.date,
                   href: hrefFor(ev, o.date),
+                  ticketUrl: isNE(ev.ticketUrl) ? ev.ticketUrl.trim() : undefined,
                   ended: o.date < nowISO,
                 };
               });
@@ -279,14 +283,36 @@ export default function UpcomingEventsHome() {
 
   const n = DATA.length;
   const [i, setI] = useState(0);
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const wrap = (x: number) => ((x % (n || 1)) + (n || 1)) % (n || 1);
+
+  const timerRef = useRef<number | null>(null);
+  const stop = () => {
+    if (timerRef.current !== null) window.clearInterval(timerRef.current);
+    timerRef.current = null;
+  };
+  const start = () => {
+    stop();
+    if (n > 1) {
+      timerRef.current = window.setInterval(() => {
+        setI((value) => wrap(value + 1));
+      }, 3200);
+    }
+  };
+
+  useEffect(() => {
+    start();
+    return stop;
+    // start/stop intentionally close over the current event count.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [n]);
 
   /** ---------- drag / swipe (no autoplay; same anim everywhere) ---------- */
   const dragStartX = useRef<number | null>(null);
   const dragging = useRef(false);
+  const hoveredSideRef = useRef<"left" | "right" | null>(null);
 
   const handleStart = (clientX: number) => {
+    stop();
     dragStartX.current = clientX;
     dragging.current = true;
   };
@@ -304,6 +330,7 @@ export default function UpcomingEventsHome() {
   const handleEnd = () => {
     dragging.current = false;
     dragStartX.current = null;
+    start();
   };
 
   const handleMouseDown = (e: React.MouseEvent) => handleStart(e.clientX);
@@ -314,6 +341,32 @@ export default function UpcomingEventsHome() {
   const handleTouchMove = (e: React.TouchEvent) =>
     handleMove(e.touches[0].clientX);
   const handleTouchEnd = handleEnd;
+
+  // 3D-transformed cards can have inconsistent mouse hit-testing in Chrome.
+  // Track the visible side zones on the rail as a reliable hover fallback.
+  const handleHoverMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (dragging.current) return;
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const offset = e.clientX - (rect.left + rect.width / 2);
+    const sideLimit = centerToSide + SW / 2 + 20;
+
+    if (Math.abs(offset) <= CW / 2 || Math.abs(offset) > sideLimit) {
+      hoveredSideRef.current = null;
+      return;
+    }
+
+    const side = offset < 0 ? "left" : "right";
+    if (hoveredSideRef.current === side) return;
+
+    hoveredSideRef.current = side;
+    setI((value) => wrap(value + (side === "left" ? -1 : 1)));
+  };
+
+  const handleCarouselLeave = () => {
+    hoveredSideRef.current = null;
+    handleEnd();
+  };
 
   const dots = useMemo(() => Array.from({ length: n }, (_, k) => k), [n]);
 
@@ -359,9 +412,13 @@ export default function UpcomingEventsHome() {
               : "relative mx-auto flex min-h-[148px] w-full max-w-[32rem] items-center justify-center select-none sm:min-h-[132px]"}
             style={hasEvents ? { height: CONTAINER_H } : undefined}
             onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
+            onMouseMove={(e) => {
+              handleMouseMove(e);
+              handleHoverMove(e);
+            }}
             onMouseUp={handleMouseUp}
-            onMouseLeave={handleEnd}
+            onMouseEnter={stop}
+            onMouseLeave={handleCarouselLeave}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
@@ -405,38 +462,26 @@ export default function UpcomingEventsHome() {
               const ry = d * -SWIVEL;
               const sc = 1 - Math.min(Math.abs(d) * SCALE_DROP, 0.24);
 
-              const isHovered = hoveredIndex === idx && !isCenter;
-              const wpx = isCenter || isHovered ? CW : SW;
-              const hpx = isCenter || isHovered ? CH : SH;
+              const wpx = isCenter ? CW : SW;
+              const hpx = isCenter ? CH : SH;
 
               return (
                 <article
                   key={`${w.src}|${w.dateISO}|${w.href ?? ""}`}
-                  className={`absolute overflow-hidden rounded-[16px] transition-[transform,width,height,opacity,filter,visibility] duration-500 ${!isCenter ? "cursor-pointer" : ""} before:pointer-events-none before:absolute before:inset-0 before:rounded-inherit before:[box-shadow:inset_0_0_0_1px_rgba(255,255,255,0.04)]`}
-                  onMouseOver={() => {
-                    // Bubbling mouseover also catches the image target inside
-                    // the card on browsers with inconsistent pointer events.
-                    if (!isCenter) setHoveredIndex(idx);
-                  }}
+                  className={`group absolute overflow-hidden rounded-[16px] transition-[transform,width,height,opacity,filter,visibility] duration-500 ${!isCenter ? "cursor-pointer" : ""} before:pointer-events-none before:absolute before:inset-0 before:rounded-inherit before:[box-shadow:inset_0_0_0_1px_rgba(255,255,255,0.04)]`}
                   onMouseEnter={() => {
                     if (isCenter) return;
-                    setHoveredIndex(idx);
+                    hoveredSideRef.current = Math.abs(d) === 1
+                      ? d < 0 ? "left" : "right"
+                      : hoveredSideRef.current;
+                    setI(idx);
                   }}
-                  onPointerEnter={() => {
-                    if (!isCenter) setHoveredIndex(idx);
-                  }}
-                  onMouseLeave={() => setHoveredIndex(null)}
                   style={{
                     width: wpx,
                     height: hpx,
-                    transform: `translate3d(${x}px,0,${isHovered ? 55 : z}px) rotateY(${ry}deg) scale(${isHovered ? 1 : sc})`,
-                    zIndex: isHovered ? 220 : 100 - Math.abs(d),
-                    opacity:
-                      isCenter || isSide
-                        ? isHovered
-                          ? 1
-                          : 1 - Math.min(Math.abs(d) * 0.3, 0.55)
-                        : 0,
+                    transform: `translate3d(${x}px,0,${z}px) rotateY(${ry}deg) scale(${sc})`,
+                    zIndex: 100 - Math.abs(d),
+                    opacity: isCenter || isSide ? 1 - Math.min(Math.abs(d) * 0.25, 0.5) : 0,
                     visibility: isCenter || isSide ? "visible" : "hidden",
                     pointerEvents:
                       isCenter || isSide
@@ -448,6 +493,12 @@ export default function UpcomingEventsHome() {
                   }}
                   aria-hidden={!isCenter}
                 >
+                  <span
+                    aria-hidden
+                    className='pointer-events-none absolute right-3 top-3 z-20 grid h-8 w-8 translate-y-1 place-items-center rounded-full bg-[#00D8FF] text-[#121212] opacity-0 shadow-[0_8px_20px_rgba(0,216,255,.35)] transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100'
+                  >
+                    <FiArrowUpRight className='h-4 w-4' />
+                  </span>
                   <div className='relative h-full w-full'>
                     <Image
                       src={w.src}
@@ -459,7 +510,7 @@ export default function UpcomingEventsHome() {
                     />
 
                     {/* Dim sides on larger screens; center gets gradient */}
-                    {!isCenter && !isHovered && !hideSides && (
+                    {!isCenter && !hideSides && (
                       <div className='absolute inset-0 bg-black/45' />
                     )}
                     {/*
@@ -470,7 +521,7 @@ export default function UpcomingEventsHome() {
                       wide, which is not enough for the title and the button
                       side by side, so they stack.
                     */}
-                    {(isCenter || isHovered) && (
+                    {isCenter && (
                       <div className='absolute inset-x-0 bottom-0 flex flex-col gap-2 bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(0,0,0,.4)_22%,rgba(0,0,0,.82)_52%,rgba(0,0,0,.96)_100%)] p-3 pt-16 sm:flex-row sm:items-end sm:justify-between sm:gap-3 sm:p-4 sm:pt-16'>
                         <div className='min-w-0 leading-none'>
                           <p className='text-[14px] sm:text-[16px] font-bold recoleta text-white line-clamp-2 break-words'>
@@ -505,7 +556,9 @@ export default function UpcomingEventsHome() {
                           </button>
                         ) : (
                           <Link
-                            href={w.href ?? "#"}
+                            href={w.ticketUrl || w.href || "#"}
+                            target={w.ticketUrl ? "_blank" : undefined}
+                            rel={w.ticketUrl ? "noopener noreferrer" : undefined}
                             className='elza grid h-9 w-full shrink-0 place-items-center whitespace-nowrap rounded-full bg-[#00D8FF] px-4 text-sm font-extrabold text-[#121212] shadow-[0_10px_26px_rgba(0,0,0,.35)] transition hover:brightness-105 sm:h-10 sm:w-auto sm:min-w-[7rem]'
                             aria-label='Get tickets'
                           >

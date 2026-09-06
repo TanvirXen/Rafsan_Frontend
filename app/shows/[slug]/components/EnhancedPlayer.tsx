@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import Script from "next/script";
 import Image from "next/image";
 import Link from "next/link";
 import React, { memo, useEffect, useMemo, useRef, useState } from "react";
@@ -303,12 +302,16 @@ export default function EnhancedPlayer({
   const [onlyFeatured, setOnlyFeatured] = useState(false);
   const [autoplay] = useState(true);
   const [panelOpen, setPanelOpen] = useState(true);
-  const [seasonFilter, setSeasonFilter] = useState<string>("all");
   const [seasonMenuOpen, setSeasonMenuOpen] = useState(false);
   const [theater, setTheater] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const seasonMenuRef = useRef<HTMLDivElement | null>(null);
 
+  const initialSeasonId = initialEpisodeId
+    ? normalized.find((episode) => episode._id === initialEpisodeId)?.seasonId
+    : undefined;
+
+  const [seasonFilter, setSeasonFilter] = useState<string>(initialSeasonId || "all");
   const [currentId, setCurrentId] = useState<string>(
     initialEpisodeId || firstPlayable?._id || ""
   );
@@ -434,12 +437,6 @@ export default function EnhancedPlayer({
         "bg-[radial-gradient(circle_at_top,rgba(162,82,255,0.20),transparent_34%),linear-gradient(180deg,#120a1d_0%,#09070f_48%,#050508_100%)]"
       )}
     >
-      <Script
-        id="youtube-iframe-api"
-        src="https://www.youtube.com/iframe_api"
-        strategy="afterInteractive"
-      />
-
       <div
         ref={shellRef}
         className={cn(

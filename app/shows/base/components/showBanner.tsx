@@ -3,6 +3,7 @@
 
 import { PipeText } from "@/app/components/PipeText";
 import { resolveMediaUrl } from "@/app/lib/mediaUrl";
+import { slugifyTitle } from "@/app/lib/slugifyTitle";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -16,9 +17,10 @@ type ShowBannerProps = {
     thumbnail?: string;
     slug?: string;
   };
+  hasUpcomingEvents?: boolean;
 };
 
-export default function ShowBanner({ show }: ShowBannerProps) {
+export default function ShowBanner({ show, hasUpcomingEvents = true }: ShowBannerProps) {
   const title = show?.title || "What a Show!";
   const description = (show?.description || "Adda. Game. Entertainment").trim();
   const heroSrc = resolveMediaUrl(
@@ -27,6 +29,10 @@ export default function ShowBanner({ show }: ShowBannerProps) {
 
   const showKey = show?.slug || title;
   const filterHref = `/allEvents?show=${encodeURIComponent(showKey)}`;
+  const playerHref = `/shows/${encodeURIComponent(show?.slug || slugifyTitle(title))}?play=all`;
+  const applyHref = hasUpcomingEvents
+    ? filterHref
+    : `/audience-register?show=${encodeURIComponent(show?.slug || title)}`;
 
   const [expanded, setExpanded] = React.useState(false);
   const isLong = description.length > 120;
@@ -104,7 +110,7 @@ export default function ShowBanner({ show }: ShowBannerProps) {
 
               <div className="mt-4 flex flex-wrap items-center gap-2">
                 <Link
-                  href="https://www.youtube.com/@WHATASHOW_OFFICIAL"
+                  href={playerHref}
                   className="
                     elza inline-flex h-9 items-center justify-center gap-2 rounded-full
                     border border-white/80 px-4 text-[14px] font-bold text-white
@@ -119,14 +125,14 @@ export default function ShowBanner({ show }: ShowBannerProps) {
                 </Link>
 
                 <Link
-                  href={filterHref}
+                  href={applyHref}
                   className="
                     elza inline-flex h-9 items-center justify-center rounded-full
                     bg-[#00D8FF] px-4 text-[14px] font-bold text-black
                     whitespace-nowrap hover:brightness-95 active:scale-[0.99]
                   "
                 >
-                  GET TICKETS
+                  APPLY NOW
                 </Link>
               </div>
             </div>
@@ -176,7 +182,7 @@ export default function ShowBanner({ show }: ShowBannerProps) {
 
               <div className="flex flex-wrap items-center gap-3">
                 <Link
-                  href="https://www.youtube.com/@WHATASHOW_OFFICIAL"
+                  href={playerHref}
                   className="
                     elza inline-flex items-center justify-center rounded-full
                     border border-white/70 bg-black/20 backdrop-blur-[2px]
@@ -187,13 +193,13 @@ export default function ShowBanner({ show }: ShowBannerProps) {
                 </Link>
 
                 <Link
-                  href={filterHref}
+                  href={applyHref}
                   className="
                     elza rounded-full bg-[#00D8FF]
                     px-6 py-3 text-[16px] font-bold text-black hover:brightness-95
                   "
                 >
-                  Get Tickets
+                  Apply now
                 </Link>
               </div>
             </div>

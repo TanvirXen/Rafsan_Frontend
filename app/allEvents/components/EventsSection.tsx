@@ -12,6 +12,7 @@ type EventItem = {
   img: string;
   slug?: string;
   href?: string; // if provided, this wins
+  ticketUrl?: string;
   ended?: boolean;
 };
 
@@ -225,10 +226,12 @@ function MobileCarousel({ events, variant = "default" }: { events: EventItem[]; 
 function EventCard({ ev, variant = "default" }: { ev: EventItem; variant?: "default" | "small" }) {
   // Build a safe, per-card href:
   const href =
+    ev.ticketUrl ??
     ev.href ??
     (ev.slug
       ? `/event-reg/${encodeURIComponent(ev.slug)}`
       : `/event-reg/${encodeURIComponent(ev.id)}`);
+  const isExternal = Boolean(ev.ticketUrl);
 
   const isSmall = variant === "small";
 
@@ -334,6 +337,8 @@ function EventCard({ ev, variant = "default" }: { ev: EventItem; variant?: "defa
   return (
     <Link
       href={href}
+      target={isExternal ? "_blank" : undefined}
+      rel={isExternal ? "noopener noreferrer" : undefined}
       prefetch={false}
       className={`group relative z-0 w-full overflow-hidden rounded-[16px] ring-1 ring-white/10 shadow-[0_10px_25px_rgba(0,0,0,.45)] block transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.6)] ${
         isSmall ? "aspect-[3/4]" : "aspect-[4/5]"

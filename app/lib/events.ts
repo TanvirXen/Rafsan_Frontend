@@ -14,6 +14,7 @@ export type ApiEvent = {
   description?: string;
   imageLinkBg?: string;
   imageLinkOverlay?: string;
+  ticketUrl?: string;
   backgroundImage?: string;
   bannerImage?: string;
   cardImage?: string;
@@ -37,6 +38,7 @@ export type EventItem = {
   venue?: string;
   img: string;
   href: string;   // /event-reg/<slugOrId>--YYYY-MM-DD
+  ticketUrl?: string;
   ended?: boolean;
 };
 
@@ -135,7 +137,7 @@ export function buildUpcoming(events: ApiEvent[], now = new Date()): EventItem[]
       }
 
       rows.push({
-        item: { id: `${ev._id}:${occ.date}`, title: ev.title, date: label, timeText, venue: ev.venue, img, href },
+        item: { id: `${ev._id}:${occ.date}`, title: ev.title, date: label, timeText, venue: ev.venue, img, href, ticketUrl: ev.ticketUrl?.trim() || undefined },
         t: d.getTime(),
       });
     }
@@ -194,7 +196,7 @@ export function buildPast(events: ApiEvent[], now = new Date()): EventItem[] {
       }
 
       rows.push({
-        item: { id: `${ev._id}:${occ.date}`, title: ev.title, date: label, timeText, venue: ev.venue, img, href, ended: true },
+        item: { id: `${ev._id}:${occ.date}`, title: ev.title, date: label, timeText, venue: ev.venue, img, href, ticketUrl: ev.ticketUrl?.trim() || undefined, ended: true },
         t: d.getTime(),
       });
     }

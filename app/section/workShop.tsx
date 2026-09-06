@@ -219,6 +219,9 @@ export default function WorkshopsSection() {
                   pointerEvents: isCenter || isSide ? "auto" : "none",
                 }}
                 aria-hidden={!isCenter}
+                onMouseEnter={() => {
+                  if (!isCenter) setI(idx);
+                }}
               >
                 <div className='relative h-full w-full'>
                   <Image

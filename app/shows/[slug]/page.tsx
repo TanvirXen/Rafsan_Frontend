@@ -181,13 +181,14 @@ export async function generateMetadata(props: {
 
 export default async function ShowPage(props: {
   params: Promise<{ slug: string }>;
-  searchParams?: Promise<{ ep?: string }>;
+  searchParams?: Promise<{ ep?: string; play?: string }>;
 }) {
   const { slug } = await props.params;
   const sp = props.searchParams ? await props.searchParams : {};
   const selectedEpId = sp.ep?.trim() || null;
+  const playAll = sp.play === "all";
 
-  const playerMode = !!selectedEpId;
+  const playerMode = !!selectedEpId || playAll;
 
   const shows = await fetchShowsList();
   const match = shows.find((s) => slugifyTitle(s.title) === slug);
@@ -284,7 +285,7 @@ export default async function ShowPage(props: {
             </>
           ) : (
             <>
-              <ShowBanner show={show} />
+              <ShowBanner show={show} hasUpcomingEvents={matchedEvents.length > 0} />
               <ShowFeaturedEp
                 seasons={seasons}
                 episodes={episodes}

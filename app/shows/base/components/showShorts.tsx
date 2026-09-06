@@ -272,6 +272,9 @@ export default function ShowShorts() {
                   width: baseW,
                   height: baseH,
                 }}
+                onMouseEnter={() => {
+                  if (!isCenter) setI(idx);
+                }}
                 aria-hidden={!isCenter}
               >
                 <div className="relative h-full w-full overflow-hidden rounded-2xl ring-1 ring-white/12 shadow-[0_24px_60px_rgba(0,0,0,.55)]">

@@ -103,13 +103,13 @@ export default function Newsletter({ settings }: NewsletterProps) {
               <h2 className='recoleta whitespace-pre-line text-[32px] font-bold leading-tight text-[#FFD928] md:text-[36px]'>
                 {title}
               </h2>
-              <p className='elza mt-4 max-w-[250px] text-[12px] leading-6 text-white/90 md:text-[14px]'>
+              <p className='elza mt-4 max-w-[250px] text-[16px] leading-6 text-white/90'>
                 {subtitle}
               </p>
             </div>
 
             <div>
-              <p className='elza max-w-md text-[12px] leading-6 text-white/90 md:text-[14px]'>
+              <p className='elza max-w-md text-[16px] leading-6 text-white/90'>
                 {longText}
               </p>
 

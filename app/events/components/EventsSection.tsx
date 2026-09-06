@@ -11,6 +11,7 @@ type EventItem = {
   date: string;
   img: string;
   href: string;
+  ticketUrl?: string;
 };
 
 type Props = {
@@ -227,7 +228,9 @@ function EventCard({ ev }: { ev: EventItem }) {
 
         {/* CTA pill */}
         <Link
-          href="/event-reg"
+          href={ev.ticketUrl || ev.href || "/event-reg"}
+          target={ev.ticketUrl ? "_blank" : undefined}
+          rel={ev.ticketUrl ? "noopener noreferrer" : undefined}
           className="
             inline-flex items-center justify-center
             rounded-full bg-[#00D8FF] text-[#121212]

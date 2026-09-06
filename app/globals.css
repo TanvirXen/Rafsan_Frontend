@@ -12,7 +12,8 @@
   --background: #121212;
   --foreground: #f5f5f5;
   --page-bg: #121212;
-  --page-gutter: clamp(1rem, 3vw, 2rem);
+  /* Keep content off the viewport edges on laptops while preserving compact mobile gutters. */
+  --page-gutter: clamp(1rem, 4vw, 3rem);
   --content-max: 1100px;
   --content-max-wide: 1600px;
   --font-body: var(--font-geist-sans), system-ui, sans-serif;

@@ -11,6 +11,7 @@ import React, {
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { FiArrowUpRight } from "react-icons/fi";
 import apiList, { withQuery } from "../../apiList";
 import { slugifyTitle } from "../lib/slugifyTitle";
 import { resolveMediaUrl } from "@/app/lib/mediaUrl";
@@ -228,7 +229,6 @@ export default function WatchShows() {
   const CENTER_TO_SIDE = CENTER_W / 2 + GAP + SIDE_W / 2;
 
   const [active, setActive] = useState(0);
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [flipDirections, setFlipDirections] = useState<
     Record<number, "in" | "out">
   >({});
@@ -251,7 +251,7 @@ export default function WatchShows() {
     if (previousActive === null || previousActive === active) return;
 
     setFlipDirections({ [active]: "in", [previousActive]: "out" });
-    const timeout = window.setTimeout(() => setFlipDirections({}), 700);
+    const timeout = window.setTimeout(() => setFlipDirections({}), 520);
     return () => window.clearTimeout(timeout);
   }, [active, isMobile, items.length]);
 
@@ -286,6 +286,7 @@ export default function WatchShows() {
   /** ------- drag / swipe ------- */
   const dragStartX = useRef<number | null>(null);
   const dragging = useRef(false);
+  const hoveredSideRef = useRef<"left" | "right" | null>(null);
   /** Set once a pointer travels far enough to count as a swipe rather than a tap. */
   const moved = useRef(false);
 
@@ -321,6 +322,32 @@ export default function WatchShows() {
   const handleTouchMove = (e: TouchEvent<HTMLDivElement>) =>
     handleMove(e.touches[0].clientX);
   const handleTouchEnd = () => handleEnd();
+
+  // 3D-transformed cards can have inconsistent mouse hit-testing in Chrome.
+  // Track the visible side zones on the rail as a reliable hover fallback.
+  const handleHoverMove = (e: MouseEvent<HTMLDivElement>) => {
+    if (dragging.current) return;
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const offset = e.clientX - (rect.left + rect.width / 2);
+    const sideLimit = CENTER_TO_SIDE + SIDE_W / 2 + 20;
+
+    if (Math.abs(offset) <= CENTER_W / 2 || Math.abs(offset) > sideLimit) {
+      hoveredSideRef.current = null;
+      return;
+    }
+
+    const side = offset < 0 ? "left" : "right";
+    if (hoveredSideRef.current === side) return;
+
+    hoveredSideRef.current = side;
+    setActive((value) => wrap(value + (side === "left" ? -1 : 1)));
+  };
+
+  const handleCarouselLeave = () => {
+    hoveredSideRef.current = null;
+    handleEnd();
+  };
 
   /**
    * Swallow the click that browsers fire after a swipe, so dragging across a
@@ -420,9 +447,12 @@ export default function WatchShows() {
                 className='relative flex items-center justify-center perspective-[1600px] [transform-style:preserve-3d] select-none'
                 style={{ height: CONTAINER_H }}
                 onMouseEnter={stop}
-                onMouseLeave={items.length > 1 ? () => startRef.current() : undefined}
+                onMouseLeave={items.length > 1 ? handleCarouselLeave : undefined}
                 onMouseDown={handleMouseDown}
-                onMouseMove={handleMouseMove}
+                onMouseMove={(e) => {
+                  handleMouseMove(e);
+                  handleHoverMove(e);
+                }}
                 onMouseUp={handleMouseUp}
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
@@ -452,53 +482,54 @@ export default function WatchShows() {
 
                   const w = isCenter ? CENTER_W : SIDE_W;
                   const h = isCenter ? CENTER_H : SIDE_H;
-                  const isHovered = hoveredIndex === i && !isCenter;
                   const flipDirection = isMobile ? flipDirections[i] : undefined;
 
                   return (
                     <article
                       key={item.id}
                       className={[
-                        "absolute overflow-hidden shadow-[0_18px_50px_rgba(0,0,0,.55)] rounded-[18px]",
+                        "absolute group overflow-hidden shadow-[0_18px_50px_rgba(0,0,0,.55)] rounded-[18px]",
                         isCenter ? "" : "cursor-pointer",
                         "transition-[transform,opacity,filter,visibility] ease-linear",
                         "before:pointer-events-none before:absolute before:inset-0 before:rounded-inherit before:[box-shadow:inset_0_0_0_1px_rgba(255,255,255,0.04)]",
                       ].join(" ")}
                       onMouseEnter={() => {
                         if (isCenter) return;
-                        if (d > 0) {
-                          setHoveredIndex(null);
-                          setActive(i);
-                          return;
-                        }
-                        setHoveredIndex(i);
+                        hoveredSideRef.current = Math.abs(d) === 1
+                          ? d < 0 ? "left" : "right"
+                          : hoveredSideRef.current;
+                        setActive(i);
                       }}
-                      onMouseLeave={() => setHoveredIndex(null)}
                       style={{
                         width: w,
                         height: h,
-                        transform: `translate3d(${x}px,0,${isHovered ? 55 : z}px) rotateY(${ry}deg) scale(${isHovered ? 1 : sc})`,
-                        zIndex: isHovered ? 220 : 100 - Math.abs(d),
+                        transform: `translate3d(${x}px,0,${z}px) rotateY(${ry}deg) scale(${sc})`,
+                        zIndex: 100 - Math.abs(d),
                         opacity: visible
-                          ? isHovered
-                            ? 1
-                            : 1 - Math.min(Math.abs(d) * 0.25, 0.5)
+                          ? 1 - Math.min(Math.abs(d) * 0.25, 0.5)
                           : 0,
                         pointerEvents: visible
                           ? ("auto" as const)
                           : ("none" as const),
                         visibility: visible ? "visible" : "hidden",
                         transitionTimingFunction: "cubic-bezier(.2,.7,.2,1)",
-                        transitionDuration: "600ms",
+                        transitionDuration: "420ms",
                       }}
                       aria-hidden={!isCenter}
                     >
+                      <span
+                        aria-hidden
+                        className='pointer-events-none absolute right-3 top-3 z-20 grid h-8 w-8 translate-y-1 place-items-center rounded-full bg-[#00D8FF] text-[#121212] opacity-0 shadow-[0_8px_20px_rgba(0,216,255,.35)] transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100'
+                      >
+                        <FiArrowUpRight className='h-4 w-4' />
+                      </span>
                       <div
                         className={[
                           "relative w-full h-full [transform-style:preserve-3d]",
                           flipDirection === "in" ? "mobile-card-flip-in" : "",
                           flipDirection === "out" ? "mobile-card-flip-out" : "",
                         ].join(" ")}
+                        style={{ animationDuration: "520ms" }}
                       >
                         <Image
                           src={item.src}

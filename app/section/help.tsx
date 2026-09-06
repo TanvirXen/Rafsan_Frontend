@@ -9,10 +9,12 @@ import Link from "next/link";
 function ZigWrap({
   from,
   delay = 0,
+  className = "",
   children,
 }: {
   from: "left" | "right";
   delay?: number;
+  className?: string;
   children: React.ReactNode;
 }) {
   const x0 = from === "left" ? -18 : 18;
@@ -30,6 +32,7 @@ function ZigWrap({
         delay,
       }}
       whileHover={{ y: -4, scale: 1.01 }}
+      className={className}
     >
       {children}
     </motion.div>
@@ -69,7 +72,7 @@ function Card({
       ].join(" ")}
     >
       <div className='flex h-full w-full max-w-[434px] flex-col items-center'>
-        <div className='flex min-h-[5.75rem] w-full flex-col items-center justify-start gap-3 sm:min-h-[7rem] xl:min-h-[8rem]'>
+        <div className='flex min-h-[5rem] w-full flex-col items-center justify-start gap-3 sm:min-h-[5.5rem] xl:min-h-[6rem]'>
           <div className='relative h-6 w-6 shrink-0 sm:h-8 sm:w-8 xl:h-12 xl:w-12'>
             <Image
               src={iconSrc}
@@ -82,7 +85,7 @@ function Card({
 
           <h3
             className={[
-              "recoleta text-center text-[18px] font-bold leading-[22px] sm:text-[22px] sm:leading-[26px] xl:text-[28px] xl:leading-[30px]",
+              "recoleta text-center text-[16px] font-bold leading-[20px] sm:text-[18px] sm:leading-[22px] xl:text-[20px] xl:leading-[24px]",
               titleClass || "text-inherit",
             ].join(" ")}
           >
@@ -92,7 +95,7 @@ function Card({
 
         <p
           className={[
-            "elza flex-1 text-center text-[14px] leading-5 sm:text-[15px] sm:leading-6 xl:text-[24px] xl:leading-8",
+            "elza flex-1 text-center text-[12px] leading-4 sm:text-[13px] sm:leading-5 xl:text-[14px] xl:leading-5",
             bodyClass || "text-inherit",
           ].join(" ")}
         >
@@ -102,52 +105,12 @@ function Card({
         <Link
           href={href}
           className={[
-            "elza mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 text-[13px] font-bold transition sm:min-h-12 sm:px-6 sm:text-[14px]",
+            "elza mt-4 inline-flex min-h-9 items-center justify-center gap-2 rounded-full px-4 text-[11px] font-bold transition sm:min-h-10 sm:px-5 sm:text-[12px]",
             ctaClassName,
           ].join(" ")}
         >
           <span>{ctaLabel}</span>
           <FiArrowUpRight className='h-4 w-4 sm:h-5 sm:w-5' aria-hidden />
-        </Link>
-      </div>
-    </article>
-  );
-}
-
-function CtaCard() {
-  return (
-    <article
-      className='box-border flex w-full flex-col items-center justify-center rounded-[22px] border border-black/10 bg-[#FE80E9] px-4 py-5 text-[#121212] shadow-[0_16px_32px_-4px_rgba(12,12,13,0.10),_0_4px_4px_-4px_rgba(12,12,13,0.05)] sm:px-6 sm:py-7 lg:rounded-[28px] xl:min-h-[288px] xl:px-12'
-    >
-      <div className='relative mb-2 h-6 w-6 shrink-0 sm:h-8 sm:w-8 xl:h-12 xl:w-12'>
-        <Image
-          src='/assets/Icon (3).png'
-          alt=''
-          fill
-          sizes='(max-width: 640px) 24px, (max-width: 1280px) 32px, 48px'
-          className='object-contain'
-        />
-      </div>
-
-      <div className='flex w-full max-w-[434px] flex-col items-center gap-3 xl:gap-5'>
-        <h3 className='recoleta text-center text-[18px] font-bold leading-[22px] text-[#121212] sm:text-[22px] sm:leading-[26px] xl:text-[28px] xl:leading-[30px]'>
-          <span className='hidden xl:inline'>
-            Want to share something
-            <br />
-            exciting?
-          </span>
-          <span className='xl:hidden'>Want to share something exciting?</span>
-        </h3>
-
-        <Link
-          href='/connect'
-          className='inline-flex h-[44px] w-full max-w-[240px] items-center justify-center gap-2 rounded-[28px] border-[3px] border-[#121212] shadow-[0_16px_32px_-4px_rgba(254,128,233,0.10),_0_4px_4px_-4px_rgba(254,128,233,0.05)]'
-          aria-label='Get in touch'
-        >
-          <span className='elza text-[14px] font-bold leading-4 xl:text-[16px] xl:leading-6'>
-            Get in touch
-          </span>
-          <FiArrowUpRight className='h-5 w-5 xl:h-6 xl:w-6' aria-hidden />
         </Link>
       </div>
     </article>
@@ -172,18 +135,18 @@ export default function Help() {
     "Turn your workplace into a stage of laughter and energy. Fun, interactive corporate shows that boost morale, spirit, and teamwork.";
 
   return (
-    <section className='site-shell relative isolate z-[2] overflow-x-hidden py-10 sm:py-12 lg:py-16'>
-      <div className='mx-auto flex w-full max-w-[1100px] flex-col items-center gap-4 sm:gap-6 lg:gap-10'>
+    <section className='site-shell-wide relative isolate z-[2] overflow-x-hidden pt-2 pb-10 sm:pt-4 sm:pb-12 lg:pt-8 lg:pb-16'>
+      <div className='mx-auto flex w-full max-w-none flex-col items-center gap-3 sm:gap-4 lg:gap-6'>
         <ZigWrap from='left' delay={0.05}>
           <div className='w-full'>
-            <h2 className='recoleta text-center text-[28px] leading-[32px] text-[#FFD928] sm:text-[34px] sm:leading-[38px] lg:text-[48px] lg:leading-[52px]'>
+            <h2 className='recoleta text-center text-[30px] leading-[34px] text-[#FFD928] sm:text-[34px] sm:leading-[38px] lg:text-[40px] lg:leading-[46px]'>
               How Can I Help You?
             </h2>
           </div>
         </ZigWrap>
 
-        <div className='grid w-full grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:gap-8'>
-          <ZigWrap from='left' delay={0.12}>
+        <div className='grid w-full grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4 lg:gap-4 max-md:flex max-md:snap-x max-md:snap-mandatory max-md:overflow-x-auto max-md:px-1 max-md:pb-3'>
+          <ZigWrap from='left' delay={0.12} className='max-md:w-[min(78vw,300px)] max-md:shrink-0 max-md:snap-center'>
             <Card
               className='border border-black/10 bg-[#00D8FF] text-[#121212]'
               titleClass='text-[#121212]'
@@ -193,11 +156,11 @@ export default function Help() {
               title={hostingTitle}
               body={hostingBody}
               ctaLabel='Book Hosting'
-              minHeight='min-h-[220px] sm:min-h-[280px] lg:min-h-[420px] xl:min-h-[530px]'
+              minHeight='min-h-[180px] sm:min-h-[220px] lg:min-h-[220px] xl:min-h-[240px]'
             />
           </ZigWrap>
 
-          <ZigWrap from='right' delay={0.16}>
+          <ZigWrap from='right' delay={0.16} className='max-md:w-[min(78vw,300px)] max-md:shrink-0 max-md:snap-center'>
             <Card
               className='border-[3px] border-[#FFD928] bg-[rgba(255,217,40,0.20)] text-[#FFD928] shadow-none'
               titleClass='text-[#FFD928]'
@@ -207,11 +170,11 @@ export default function Help() {
               title={sessionsTitle}
               body={sessionsBody}
               ctaLabel='Plan Workshop'
-              minHeight='min-h-[260px] sm:min-h-[320px] lg:min-h-[420px] xl:min-h-[530px]'
+              minHeight='min-h-[200px] sm:min-h-[240px] lg:min-h-[220px] xl:min-h-[240px]'
             />
           </ZigWrap>
 
-          <ZigWrap from='left' delay={0.2}>
+          <ZigWrap from='left' delay={0.2} className='max-md:w-[min(78vw,300px)] max-md:shrink-0 max-md:snap-center'>
             <Card
               className='border-[3px] border-[#00D8FF] bg-[rgba(0,216,255,0.20)] text-[#00D8FF]'
               titleClass='text-[#00D8FF]'
@@ -221,11 +184,11 @@ export default function Help() {
               title={brandTitle}
               body={brandBody}
               ctaLabel='Start Collaboration'
-              minHeight='min-h-[220px] sm:min-h-[260px] lg:min-h-[420px] xl:min-h-[530px]'
+              minHeight='min-h-[180px] sm:min-h-[220px] lg:min-h-[220px] xl:min-h-[240px]'
             />
           </ZigWrap>
 
-          <ZigWrap from='right' delay={0.24}>
+          <ZigWrap from='right' delay={0.24} className='max-md:w-[min(78vw,300px)] max-md:shrink-0 max-md:snap-center'>
             <Card
               className='border border-black/10 bg-[#FFD928] text-[#121212]'
               titleClass='text-[#121212]'
@@ -235,16 +198,11 @@ export default function Help() {
               title={corporateTitle}
               body={corporateBody}
               ctaLabel='Book Corporate Show'
-              minHeight='min-h-[220px] sm:min-h-[280px] lg:min-h-[420px] xl:min-h-[530px]'
+              minHeight='min-h-[180px] sm:min-h-[220px] lg:min-h-[220px] xl:min-h-[240px]'
             />
           </ZigWrap>
         </div>
 
-        <ZigWrap from='right' delay={0.28}>
-          <div className='w-full max-w-[1100px]'>
-            <CtaCard />
-          </div>
-        </ZigWrap>
       </div>
 
       <div className='pointer-events-none absolute inset-x-0 bottom-0 h-px bg-black/10' />
