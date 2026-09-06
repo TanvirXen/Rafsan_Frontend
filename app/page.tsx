@@ -209,13 +209,13 @@ export default async function Home() {
         hasUpcomingEvent={upcomingEvents.length > 0}
       />
 
-      <Help />
-
       <StoryTeaser
         title={about?.title}
         description={about?.description}
         image={about?.image}
       />
+
+      <Help />
 
       <UpcomingEventsHome />
 
