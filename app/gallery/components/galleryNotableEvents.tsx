@@ -147,7 +147,7 @@ export default function GalleryNotableEvents({ featured, events = [] }: Props) {
 
       <div className='hidden lg:block'>
         <div className='relative mb-[60px]'>
-          <h2 className='recoleta mx-auto w-fit px-4 text-center text-[40px] font-bold text-white'>
+          <h2 className='recoleta mx-auto w-fit px-4 text-center text-[48px] font-normal text-white'>
             Notable Events
           </h2>
           <span className='pointer-events-none absolute left-0 top-1/2 hidden h-8 w-1 -translate-y-1/2 rounded bg-[#FFD928] sm:block' />

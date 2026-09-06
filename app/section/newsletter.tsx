@@ -100,7 +100,7 @@ export default function Newsletter({ settings }: NewsletterProps) {
         <div className='mx-auto w-full max-w-[1100px] rounded-[28px] bg-[#4304A2] p-7 md:p-[60px]'>
           <div className='grid items-center gap-2 md:grid-cols-2 md:gap-8'>
             <div>
-              <h2 className='recoleta whitespace-pre-line text-[32px] font-bold leading-tight text-[#FFD928] md:text-[36px]'>
+              <h2 className='recoleta whitespace-pre-line text-[32px] font-normal leading-tight text-[#FFD928] md:text-[36px]'>
                 {title}
               </h2>
               <p className='elza mt-4 max-w-[250px] text-[16px] leading-6 text-white/90'>

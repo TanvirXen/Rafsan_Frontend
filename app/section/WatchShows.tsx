@@ -561,6 +561,14 @@ export default function WatchShows() {
                           />
                         )}
 
+                        {!isCenter && visible && (
+                          <div className='pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-black/80 via-black/45 to-transparent px-3 pb-3 pt-10 text-center'>
+                            <span className='recoleta text-[18px] font-normal leading-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,.85)] sm:text-[20px]'>
+                              {item.title}
+                            </span>
+                          </div>
+                        )}
+
                         {isCenter && (
                           <div
                             className='absolute inset-x-0 bottom-0 pointer-events-none'
@@ -582,7 +590,7 @@ export default function WatchShows() {
                               className='flex min-w-0 items-center gap-2 transition-transform duration-200 hover:-translate-y-px sm:gap-3'
                             >
                               <span className='w-1 h-6 bg-[#00D8FF] rounded-full shadow-[0_0_12px_rgba(0,216,255,.7)]' />
-                              <span className='line-clamp-2 min-w-0 text-[15px] font-extrabold leading-tight text-white recoleta sm:text-[20px] md:text-[22px]'>
+                              <span className='line-clamp-2 min-w-0 text-[15px] font-normal leading-tight text-white recoleta sm:text-[20px] md:text-[22px]'>
                                 {item.title}
                               </span>
                             </Link>

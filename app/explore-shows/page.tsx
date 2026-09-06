@@ -79,7 +79,7 @@ export default async function ExploreShowsPage() {
         <div className='site-shell relative z-20 pt-24 pb-10 sm:pt-28 sm:pb-12 lg:pt-32 lg:pb-16'>
           <div className='mx-auto w-full max-w-[1100px]'>
             <div className='mb-6 flex items-center gap-3 border-l-4 border-[#00D8FF] pl-5'>
-              <h1 className='recoleta text-[28px] font-bold leading-none text-white drop-shadow-[0_2px_6px_rgba(0,0,0,.7)] sm:text-[34px] lg:text-[40px]'>
+              <h1 className='recoleta text-[28px] font-normal leading-none text-white drop-shadow-[0_2px_6px_rgba(0,0,0,.7)] sm:text-[34px] lg:text-[40px]'>
                 Watch Shows
               </h1>
             </div>
@@ -107,8 +107,8 @@ export default async function ExploreShowsPage() {
                         className='object-cover transition-transform duration-300 group-hover:scale-[1.04]'
                       />
                       <div className='absolute inset-0 bg-black/55 transition-opacity duration-300 group-hover:bg-black/45' />
-                      <div className='absolute inset-0 grid place-items-center p-4'>
-                        <p className='recoleta text-center text-[1.6rem] font-bold drop-shadow-[0_2px_8px_rgba(0,0,0,.85)]'>
+                      <div className='absolute inset-0 grid items-end justify-items-center p-4 pb-6'>
+                        <p className='recoleta text-center text-[1.6rem] font-normal drop-shadow-[0_2px_8px_rgba(0,0,0,.85)]'>
                           {c.title}
                         </p>
                       </div>

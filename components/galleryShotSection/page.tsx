@@ -60,7 +60,7 @@ export default function ShotsSection({ shots }: ShotsSectionProps) {
             className="lg:h-9 h-6 lg:w-11 w-6 text-white/90"
             aria-hidden
           />
-          <h3 className="recoleta lg:text-[40px] text-2xl font-bold text-white">
+          <h3 className="recoleta lg:text-[48px] text-2xl font-normal text-white">
             Shots
           </h3>
         </div>
