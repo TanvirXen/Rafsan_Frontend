@@ -148,7 +148,7 @@ export default function Help() {
         <div className='grid w-full grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4 lg:gap-4 max-md:flex max-md:snap-x max-md:snap-mandatory max-md:overflow-x-auto max-md:px-1 max-md:pb-3'>
           <ZigWrap from='left' delay={0.12} className='max-md:w-[min(78vw,300px)] max-md:shrink-0 max-md:snap-center'>
             <Card
-              className='border border-black/10 bg-[#00D8FF] text-[#121212]'
+              className='border-2 border-black/10 bg-[#00D8FF] text-[#121212]'
               titleClass='text-[#121212]'
               bodyClass='text-[#121212]'
               ctaClassName='border-2 border-[#121212] text-[#121212] hover:bg-black/5'
@@ -162,7 +162,7 @@ export default function Help() {
 
           <ZigWrap from='right' delay={0.16} className='max-md:w-[min(78vw,300px)] max-md:shrink-0 max-md:snap-center'>
             <Card
-              className='border-[3px] border-[#FFD928] bg-[rgba(255,217,40,0.20)] text-[#FFD928] shadow-none'
+              className='border-2 border-[#FFD928] bg-[rgba(255,217,40,0.20)] text-[#FFD928] shadow-none'
               titleClass='text-[#FFD928]'
               bodyClass='text-[#FFD928]'
               ctaClassName='border-2 border-[#FFD928] text-[#FFD928] hover:bg-[#FFD928]/10'
@@ -176,7 +176,7 @@ export default function Help() {
 
           <ZigWrap from='left' delay={0.2} className='max-md:w-[min(78vw,300px)] max-md:shrink-0 max-md:snap-center'>
             <Card
-              className='border-[3px] border-[#00D8FF] bg-[rgba(0,216,255,0.20)] text-[#00D8FF]'
+              className='border-2 border-[#00D8FF] bg-[rgba(0,216,255,0.20)] text-[#00D8FF]'
               titleClass='text-[#00D8FF]'
               bodyClass='text-[#00D8FF]'
               ctaClassName='border-2 border-[#00D8FF] text-[#00D8FF] hover:bg-[#00D8FF]/10'
@@ -190,7 +190,7 @@ export default function Help() {
 
           <ZigWrap from='right' delay={0.24} className='max-md:w-[min(78vw,300px)] max-md:shrink-0 max-md:snap-center'>
             <Card
-              className='border border-black/10 bg-[#FFD928] text-[#121212]'
+              className='border-2 border-black/10 bg-[#FFD928] text-[#121212]'
               titleClass='text-[#121212]'
               bodyClass='text-[#121212]'
               ctaClassName='border-2 border-[#121212] text-[#121212] hover:bg-black/5'
