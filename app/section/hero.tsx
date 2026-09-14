@@ -15,10 +15,10 @@ export default function Hero(props: HeroProps) {
   const subtitle = props.subtitle || "";
   const description =
     props.description ||
-    `I'm the guy who hosts shows, makes people laugh, and turns
-regular ideas into conversations you won't forget. I dive into
-everything from corporate conferences and live events to my own hit
-show, "What a Show." Enough talk, let's get to work.`;
+    `I am Rafsan Sabab, your host of What a Show! Besides hosting, I am
+also into Standup Comedy and content creation, entertaining an audience
+base of 4 Million people across different social media and TV. Welcome
+to my official website!`;
 
   const bgImage =
     props.image && props.image.trim().length > 0
@@ -66,7 +66,7 @@ show, "What a Show." Enough talk, let's get to work.`;
               href={props.hasUpcomingEvent ? '/events' : '/explore-shows'}
               className='elza inline-flex h-11 items-center justify-center rounded-full bg-[#00D8FF] px-6 text-sm font-bold text-[#121212] shadow-[0_12px_32px_rgba(0,216,255,.24)] transition hover:brightness-95 sm:h-12 sm:flex-1 sm:text-base'
             >
-              {props.hasUpcomingEvent ? 'View Events' : 'Watch My Contents'}
+              {props.hasUpcomingEvent ? 'View Events' : 'Watch My Content'}
             </Link>
           </div>
         </div>

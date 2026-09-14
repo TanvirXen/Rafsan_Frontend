@@ -417,7 +417,7 @@ export default function WatchShows() {
         {/* INNER content rail is exactly 1100 on md+; fluid on small */}
         <div className='mx-auto w-full max-w-[1100px]'>
           <h2 className='recoleta mt-9 mb-3 text-center text-[32px] font-normal leading-tight text-white sm:text-[36px] md:mt-[52px] md:text-[48px]'>
-            Watch My Contents
+            Watch My Content
           </h2>
 
           {/* tabs (labels from API titles if present, else fallback) */}

@@ -122,7 +122,7 @@ function Card({
 export default function Help() {
   const hostingTitle = "Hosting an Event";
   const hostingBody =
-    "From corporate gatherings to cultural festivals, I focus on creating a truly engaging and lively atmosphere. My sincere humor and audience connection ensure a seamless, inclusive, and memorable event";
+    "With the experience of 100+ events, let's collab and make a difference with hosting for your event - be it a corporate show, a festival, a concert or a brand gala night";
 
   const sessionsTitle = "Sessions & Workshops";
   const sessionsBody =

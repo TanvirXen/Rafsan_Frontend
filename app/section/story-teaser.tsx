@@ -15,12 +15,12 @@ export default function StoryTeaser({
   description,
   image,
 }: StoryTeaserProps) {
-  const fallbackTitle = "Host | Content Creator | Storyteller";
+  const fallbackTitle = "Anchor | Content Creator | Standup Comedian";
   const headingSource = title || fallbackTitle;
   const headingParts = headingSource.split("|");
 
   const fallbackDescription =
-    "I've gone from cracking jokes on tiny screens to hosting shows for thousands. It hasn't always been pretty, but it's been a journey. Learn more about the story of how it all came together.";
+    "From Cadet College to IBA to the stage of What a Show! and many more, I have a story to tell. The dream is to reach the stage of Oscars one day.";
 
   const bodyText = description || fallbackDescription;
   const imgSrc = image || "/assets/story.jpg";

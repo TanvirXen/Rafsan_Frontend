@@ -255,7 +255,7 @@ export default function HelpDextop() {
                 bodyClass="text-[#121212] elza"
                 iconSrc="/assets/Icon (2).png"
                 title="Hosting an Event"
-                body="From corporate gatherings to cultural festivals, I focus on creating a truly engaging and lively atmosphere. My sincere humor and audience connection ensure a seamless, inclusive, and memorable event"
+                body="With the experience of 100+ events, let's collab and make a difference with hosting for your event - be it a corporate show, a festival, a concert or a brand gala night"
                 mobileH="h-[148px]"
                 lgH="lg:h-[530px]"
               />
