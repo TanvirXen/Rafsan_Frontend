@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const SITE_NAME = "Rafsan Sabab";
-export const SITE_TITLE = "Rafsan Sabab — Host • Comedian • Creator";
+export const SITE_TITLE = "Rafsan Sabab — Anchor • Content Creator • Standup Comedian";
 export const SITE_META_IMAGE = "/rafsanmeta.jpeg";
 export const WHAT_A_SHOW_META_IMAGE = "/whatashowmeta.jpeg";
 
@@ -28,7 +28,7 @@ export const SITE_URL = normalizeSiteUrl(
 );
 
 export const SITE_DESCRIPTION =
-  "I’m Rafsan Sabab — a Bangladeshi host, comedian, and content creator passionate about entertainment, storytelling, and connecting with people. Explore my shows, projects, latest work, and journey across television, digital media, and the world of entertainment.";
+  "I’m Rafsan Sabab — a Bangladeshi anchor, content creator, and standup comedian passionate about entertainment, storytelling, and connecting with people. Explore my shows, projects, latest work, and journey across television, digital media, and the world of entertainment.";
 
 export const WHAT_A_SHOW_DESCRIPTION =
   "Welcome to What a Show! — my space for unforgettable conversations, comedy, games, and stories with some of Bangladesh’s most exciting personalities. Hosted by me, Rafsan Sabab, What a Show! brings together entertainment, laughter, and real conversations for audiences across Bangladesh.";
@@ -134,7 +134,7 @@ export function buildPersonJsonLd() {
     url: SITE_URL,
     description: SITE_DESCRIPTION,
     sameAs: SITE_SOCIALS,
-    jobTitle: ["Event Host", "Podcaster", "Vlogger", "Content Creator"],
+    jobTitle: ["Anchor", "Content Creator", "Standup Comedian"],
     knowsAbout: [
       "Event hosting",
       "Corporate shows",

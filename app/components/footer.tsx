@@ -187,10 +187,25 @@ export default async function Footer() {
       </div>
 
       <div className='bg-black'>
-        <div className='site-shell py-4 md:py-5'>
+        <div className='site-shell flex flex-col items-center justify-center gap-2 py-4 md:flex-row md:justify-between md:gap-4 md:py-5'>
           <p className='elza text-center text-[13px] text-[#FFD928] md:text-[15px]'>
             Copyright Rafsan Sabab 2026. All rights reserved
           </p>
+          <a
+            href='https://techupsight.com'
+            target='_blank'
+            rel='noreferrer'
+            className='elza flex items-center gap-2 text-[12px] text-white/60 transition hover:text-[#FFD928] md:text-[13px]'
+          >
+            Maintained by
+            <Image
+              src='/techupsight-logo.png'
+              alt='TechUpsight'
+              width={100}
+              height={28}
+              className='h-5 w-auto object-contain'
+            />
+          </a>
         </div>
       </div>
     </footer>

@@ -15,7 +15,7 @@ export default function AboutBanner({ banner }: Props) {
     banner?.kicker ||
     "From the classrooms of IBA to the bright lights of the stage and screen.";
   const title = banner?.title || "RAFSAN SABAB";
-  const ctaLabel = banner?.ctaLabel || "Host | Content Creator | Storyteller";
+  const ctaLabel = banner?.ctaLabel || "Anchor | Content Creator | Standup Comedian";
   const ctaHref = banner?.ctaHref || "/about";
 
   const bgMobile =
