@@ -1,26 +1,25 @@
 "use client";
 
 import Image from "next/image";
-import React from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { FiArrowUpRight } from "react-icons/fi";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
-function ZigWrap({
-  from,
-  delay = 0,
-  className = "",
-  children,
-}: {
-  from: "left" | "right";
-  delay?: number;
-  className?: string;
-  children: React.ReactNode;
-}) {
+const ZigWrap = React.forwardRef<
+  HTMLDivElement,
+  {
+    from: "left" | "right";
+    delay?: number;
+    className?: string;
+    children: React.ReactNode;
+  }
+>(function ZigWrap({ from, delay = 0, className = "", children }, ref) {
   const x0 = from === "left" ? -18 : 18;
 
   return (
     <motion.div
+      ref={ref}
       initial={{ opacity: 0, x: x0, y: 16 }}
       whileInView={{ opacity: 1, x: 0, y: 0 }}
       viewport={{ once: true, amount: 0.35, margin: "-10% 0px -10% 0px" }}
@@ -37,7 +36,7 @@ function ZigWrap({
       {children}
     </motion.div>
   );
-}
+});
 
 function Card({
   className = "",
@@ -120,6 +119,38 @@ function Card({
 }
 
 export default function Help() {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [active, setActive] = useState(0);
+
+  const onTrackScroll = useCallback(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    const items = itemRefs.current.filter(Boolean) as HTMLDivElement[];
+    if (!items.length) return;
+
+    const trackCenter = track.scrollLeft + track.clientWidth / 2;
+    let closest = 0;
+    let closestDist = Infinity;
+    items.forEach((item, i) => {
+      const itemCenter = item.offsetLeft + item.offsetWidth / 2;
+      const dist = Math.abs(itemCenter - trackCenter);
+      if (dist < closestDist) {
+        closestDist = dist;
+        closest = i;
+      }
+    });
+    setActive(closest);
+  }, []);
+
+  const scrollToCard = (i: number) => {
+    itemRefs.current[i]?.scrollIntoView({
+      behavior: "smooth",
+      inline: "center",
+      block: "nearest",
+    });
+  };
+
   const hostingTitle = "Hosting an Event";
   const hostingBody =
     "With the experience of 100+ events, let's collab and make a difference with hosting for your event - be it a corporate show, a festival, a concert or a brand gala night";
@@ -147,66 +178,109 @@ export default function Help() {
           </div>
         </ZigWrap>
 
-        <div className='grid w-full grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4 lg:gap-4 max-md:flex max-md:snap-x max-md:snap-mandatory max-md:overflow-x-auto max-md:px-1 max-md:pb-3'>
-          <ZigWrap from='left' delay={0.12} className='max-md:w-[min(78vw,300px)] max-md:shrink-0 max-md:snap-center'>
-            <Card
-              className='border-2 border-black/10 bg-[#00D8FF] text-[#121212]'
-              titleClass='text-[#121212]'
-              bodyClass='text-[#121212]'
-              ctaClassName='border-2 border-[#121212] text-[#121212] hover:bg-black/5'
-              iconSrc='/assets/Icon (2).png'
-              title={hostingTitle}
-              body={hostingBody}
-              ctaLabel='Book Hosting'
-              minHeight='min-h-[180px] sm:min-h-[220px] lg:min-h-[220px] xl:min-h-[240px]'
-            />
-          </ZigWrap>
+        <div className='relative w-full'>
+          <div
+            ref={trackRef}
+            onScroll={onTrackScroll}
+            className='grid w-full grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4 lg:gap-4 max-md:flex max-md:snap-x max-md:snap-mandatory max-md:overflow-x-auto max-md:scroll-px-6 max-md:px-6 max-md:pb-3'
+          >
+            <ZigWrap
+              ref={(el) => { itemRefs.current[0] = el; }}
+              from='left'
+              delay={0.12}
+              className='max-md:w-[82%] max-md:max-w-[300px] max-md:shrink-0 max-md:snap-center'
+            >
+              <Card
+                className='border-2 border-black/10 bg-[#00D8FF] text-[#121212]'
+                titleClass='text-[#121212]'
+                bodyClass='text-[#121212]'
+                ctaClassName='border-2 border-[#121212] text-[#121212] hover:bg-black/5'
+                iconSrc='/assets/Icon (2).png'
+                title={hostingTitle}
+                body={hostingBody}
+                ctaLabel='Book Hosting'
+                minHeight='min-h-[180px] sm:min-h-[220px] lg:min-h-[220px] xl:min-h-[240px]'
+              />
+            </ZigWrap>
 
-          <ZigWrap from='right' delay={0.16} className='max-md:w-[min(78vw,300px)] max-md:shrink-0 max-md:snap-center'>
-            <Card
-              className='border-2 border-black/10 bg-[#FFD928] text-[#121212] shadow-none'
-              titleClass='text-[#121212]'
-              bodyClass='text-[#121212]'
-              ctaClassName='border-2 border-[#121212] text-[#121212] hover:bg-black/5'
-              iconSrc='/assets/Icon (1).png'
-              iconClassName='brightness-0'
-              title={sessionsTitle}
-              body={sessionsBody}
-              ctaLabel='Plan Workshop'
-              minHeight='min-h-[200px] sm:min-h-[240px] lg:min-h-[220px] xl:min-h-[240px]'
-            />
-          </ZigWrap>
+            <ZigWrap
+              ref={(el) => { itemRefs.current[1] = el; }}
+              from='right'
+              delay={0.16}
+              className='max-md:w-[82%] max-md:max-w-[300px] max-md:shrink-0 max-md:snap-center'
+            >
+              <Card
+                className='border-2 border-black/10 bg-[#FFD928] text-[#121212] shadow-none'
+                titleClass='text-[#121212]'
+                bodyClass='text-[#121212]'
+                ctaClassName='border-2 border-[#121212] text-[#121212] hover:bg-black/5'
+                iconSrc='/assets/Icon (1).png'
+                iconClassName='brightness-0'
+                title={sessionsTitle}
+                body={sessionsBody}
+                ctaLabel='Plan Workshop'
+                minHeight='min-h-[200px] sm:min-h-[240px] lg:min-h-[220px] xl:min-h-[240px]'
+              />
+            </ZigWrap>
 
-          <ZigWrap from='left' delay={0.2} className='max-md:w-[min(78vw,300px)] max-md:shrink-0 max-md:snap-center'>
-            <Card
-              className='border-2 border-black/10 bg-[#00D8FF] text-[#121212]'
-              titleClass='text-[#121212]'
-              bodyClass='text-[#121212]'
-              ctaClassName='border-2 border-[#121212] text-[#121212] hover:bg-black/5'
-              iconSrc='/assets/Star.png'
-              iconClassName='brightness-0'
-              title={brandTitle}
-              body={brandBody}
-              ctaLabel='Start Collaboration'
-              minHeight='min-h-[180px] sm:min-h-[220px] lg:min-h-[220px] xl:min-h-[240px]'
-            />
-          </ZigWrap>
+            <ZigWrap
+              ref={(el) => { itemRefs.current[2] = el; }}
+              from='left'
+              delay={0.2}
+              className='max-md:w-[82%] max-md:max-w-[300px] max-md:shrink-0 max-md:snap-center'
+            >
+              <Card
+                className='border-2 border-black/10 bg-[#00D8FF] text-[#121212]'
+                titleClass='text-[#121212]'
+                bodyClass='text-[#121212]'
+                ctaClassName='border-2 border-[#121212] text-[#121212] hover:bg-black/5'
+                iconSrc='/assets/Star.png'
+                iconClassName='brightness-0'
+                title={brandTitle}
+                body={brandBody}
+                ctaLabel='Start Collaboration'
+                minHeight='min-h-[180px] sm:min-h-[220px] lg:min-h-[220px] xl:min-h-[240px]'
+              />
+            </ZigWrap>
 
-          <ZigWrap from='right' delay={0.24} className='max-md:w-[min(78vw,300px)] max-md:shrink-0 max-md:snap-center'>
-            <Card
-              className='border-2 border-black/10 bg-[#FFD928] text-[#121212]'
-              titleClass='text-[#121212]'
-              bodyClass='text-[#121212]'
-              ctaClassName='border-2 border-[#121212] text-[#121212] hover:bg-black/5'
-              iconSrc='/assets/Icon (2).png'
-              title={corporateTitle}
-              body={corporateBody}
-              ctaLabel='Book Corporate Show'
-              minHeight='min-h-[180px] sm:min-h-[220px] lg:min-h-[220px] xl:min-h-[240px]'
-            />
-          </ZigWrap>
+            <ZigWrap
+              ref={(el) => { itemRefs.current[3] = el; }}
+              from='right'
+              delay={0.24}
+              className='max-md:w-[82%] max-md:max-w-[300px] max-md:shrink-0 max-md:snap-center'
+            >
+              <Card
+                className='border-2 border-black/10 bg-[#FFD928] text-[#121212]'
+                titleClass='text-[#121212]'
+                bodyClass='text-[#121212]'
+                ctaClassName='border-2 border-[#121212] text-[#121212] hover:bg-black/5'
+                iconSrc='/assets/Icon (2).png'
+                title={corporateTitle}
+                body={corporateBody}
+                ctaLabel='Book Corporate Show'
+                minHeight='min-h-[180px] sm:min-h-[220px] lg:min-h-[220px] xl:min-h-[240px]'
+              />
+            </ZigWrap>
+          </div>
+
+          {/* Peek hint: fades the trailing edge so the next card is visibly cut off */}
+          <div className='pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-[#121212] to-transparent md:hidden' />
         </div>
 
+        <div className='flex items-center justify-center gap-2 md:hidden'>
+          {[0, 1, 2, 3].map((i) => (
+            <button
+              key={i}
+              type='button'
+              aria-label={`Go to card ${i + 1}`}
+              onClick={() => scrollToCard(i)}
+              className={[
+                "h-1.5 rounded-full transition-all",
+                active === i ? "w-6 bg-[#FFD928]" : "w-1.5 bg-white/30",
+              ].join(" ")}
+            />
+          ))}
+        </div>
       </div>
 
       <div className='pointer-events-none absolute inset-x-0 bottom-0 h-px bg-black/10' />
