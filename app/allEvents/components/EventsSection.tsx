@@ -48,19 +48,29 @@ export default function EventsSection({
           </h2>
         </div>
 
-        {/* Mobile: Carousel */}
-        <MobileCarousel events={events} variant={variant} />
+        {events.length === 0 ? (
+          <div className='rounded-2xl border border-white/10 bg-white/[0.04] px-6 py-10 text-center'>
+            <p className='elza text-[15px] text-white/70 md:text-[17px]'>
+              No events right now — check back soon!
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* Mobile: Carousel */}
+            <MobileCarousel events={events} variant={variant} />
 
-        {/* Desktop: Grid */}
-        <div className={`hidden md:grid gap-[20px] ${
-          variant === "small"
-            ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"
-            : "grid-cols-2 lg:grid-cols-3"
-        }`}>
-          {events.map((ev) => (
-            <EventCard key={ev.id} ev={ev} variant={variant} />
-          ))}
-        </div>
+            {/* Desktop: Grid */}
+            <div className={`hidden md:grid gap-[20px] ${
+              variant === "small"
+                ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"
+                : "grid-cols-2 lg:grid-cols-3"
+            }`}>
+              {events.map((ev) => (
+                <EventCard key={ev.id} ev={ev} variant={variant} />
+              ))}
+            </div>
+          </>
+        )}
 
         {divider && (
           <div className='mx-auto mt-10 hidden w-full max-w-[520px] md:block'>
