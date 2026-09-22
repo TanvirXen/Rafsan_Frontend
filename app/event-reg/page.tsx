@@ -9,7 +9,7 @@ import { createPageMetadata } from "@/app/lib/siteSeo";
 export const metadata: Metadata = createPageMetadata({
   title: "Event Registration | Rafsan Sabab",
   description: "Find current Rafsan Sabab event registrations and ticket information.",
-  path: "/events",
+  path: "/event-reg",
   keywords: ["Rafsan Sabab tickets", "event registration Bangladesh"],
   noIndex: true,
 });

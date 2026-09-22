@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { portfolioTypeHref } from "@/app/lib/portfolioNotableEvents";
 
 type Workshop = {
   src: string;
@@ -282,7 +283,7 @@ export default function WorkshopsSection() {
 
         <div className='mt-3 sm:mt-6 flex justify-center'>
           <Link
-            href='/workshops'
+            href={portfolioTypeHref("Sessions & Workshops")}
             className='elza inline-flex items-center justify-center
               h-[48px] w-[159px] rounded-full
               border border-[#00D8FF] px-6 text-[16px] font-normal text-white
