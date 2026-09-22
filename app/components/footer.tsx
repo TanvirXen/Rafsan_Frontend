@@ -201,8 +201,9 @@ export default async function Footer() {
             <Image
               src='/techupsight-logo.png'
               alt='TechUpsight'
-              width={100}
-              height={28}
+              width={529}
+              height={239}
+              unoptimized
               className='h-5 w-auto object-contain'
             />
           </a>
