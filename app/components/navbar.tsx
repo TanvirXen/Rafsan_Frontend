@@ -392,8 +392,7 @@ export default function Navbar() {
             aria-modal='true'
             className='
               fixed inset-0 z-[60] md:hidden
-              bg-[#0b0b0b]/35 backdrop-blur-2xl backdrop-saturate-150
-              supports-[backdrop-filter]:bg-[#0b0b0b]/20
+              bg-[#0b0b0b]
               text-white w-full min-h-screen
               supports-[height:100dvh]:min-h-[100dvh]
               flex flex-col
@@ -401,7 +400,7 @@ export default function Navbar() {
           >
             {/* Top bar (safe-area aware) */}
             <div
-              className='flex h-16 items-center justify-between border-b border-white/10 bg-black/15 backdrop-blur-xl'
+              className='flex h-16 items-center justify-between border-b border-white/10 bg-[#0b0b0b]'
               style={{
                 paddingLeft: "max(1rem, env(safe-area-inset-left))",
                 paddingRight: "max(1rem, env(safe-area-inset-right))",
