@@ -127,9 +127,17 @@ async function fetchGalleryBanner(): Promise<BannerApi | null> {
 }
 
 export default async function Page() {
+  // A failed API call must not crash the page (or the build while
+  // pre-rendering), so each section falls back to empty content.
   const [shots, notable, banner] = await Promise.all([
-    fetchShots(),
-    fetchNotableEvents(),
+    fetchShots().catch((err) => {
+      console.error("Failed to load shots", err);
+      return [] as Shot[];
+    }),
+    fetchNotableEvents().catch((err) => {
+      console.error("Failed to load notable events", err);
+      return { featured: undefined, events: [] as FeaturedEvent[] };
+    }),
     fetchGalleryBanner(),
   ]);
 

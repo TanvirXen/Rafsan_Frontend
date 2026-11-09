@@ -9,7 +9,12 @@ type UpcomingProps = {
 };
 
 export default async function UpcomingEvents({ showFilter }: UpcomingProps) {
-  const all = await fetchAllEvents(200);
+  // A failed or slow API call must not crash the page (or the whole build
+  // while pre-rendering), so fall back to an empty list.
+  const all = await fetchAllEvents(200).catch((err) => {
+    console.error("Failed to load events", err);
+    return [];
+  });
 
   const filtered = showFilter
     ? all.filter((ev) => {
