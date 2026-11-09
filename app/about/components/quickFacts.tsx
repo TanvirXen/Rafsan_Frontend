@@ -72,14 +72,12 @@ function FactCard({
   bg,
   border,
   text,
-  from = "left",
   delay = 0,
 }: Fact & { from?: "left" | "right"; delay?: number }) {
-  const x0 = from === "left" ? -56 : 56;
 
   return (
     <motion.article
-      initial={{ opacity: 0, x: x0, y: 12 }}
+      initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, x: 0, y: 0 }}
       viewport={{ once: true, amount: 0.35 }}
       transition={{

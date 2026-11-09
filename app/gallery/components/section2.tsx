@@ -35,7 +35,7 @@ export default function Section2({
           <div className='relative flex h-[244px] overflow-hidden rounded-[16px] shadow-[0_14px_28px_rgba(0,0,0,.35)] ring-1 ring-white/10'>
             {/* Image LEFT (245×244) — slide from LEFT */}
             <motion.div
-              initial={{ opacity: 0, x: -32, y: 12 }}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, x: 0, y: 0 }}
               viewport={{ once: true, amount: 0.35 }}
               transition={{
@@ -58,7 +58,7 @@ export default function Section2({
 
             {/* Card RIGHT (yellow panel 115×244) — slide from RIGHT */}
             <motion.aside
-              initial={{ opacity: 0, x: 32, y: 12 }}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, x: 0, y: 0 }}
               viewport={{ once: true, amount: 0.35 }}
               transition={{

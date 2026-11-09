@@ -35,7 +35,7 @@ export default function Section5({
           <div className='relative flex h-[244px] overflow-hidden rounded-[16px] shadow-[0_14px_28px_rgba(0,0,0,.35)] ring-1 ring-white/10'>
             {/* Left cyan panel 115×244 — slide in from LEFT */}
             <motion.aside
-              initial={{ opacity: 0, x: -32, y: 12 }}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, x: 0, y: 0 }}
               viewport={{ once: true, amount: 0.35 }}
               transition={{
@@ -63,7 +63,7 @@ export default function Section5({
 
             {/* Right image 245×244 — slide in from RIGHT */}
             <motion.div
-              initial={{ opacity: 0, x: 32, y: 12 }}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, x: 0, y: 0 }}
               viewport={{ once: true, amount: 0.35 }}
               transition={{

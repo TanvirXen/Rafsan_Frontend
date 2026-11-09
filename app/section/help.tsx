@@ -118,6 +118,27 @@ function Card({
   );
 }
 
+/**
+ * Plain wrapper for each card. Cards used to animate individually on scroll
+ * into view, but inside the mobile swipe row the off-screen cards only
+ * entered the viewport while swiping, so they jumped up mid-swipe, and the
+ * hover lift fired on touch. The row now animates once as a whole and the
+ * lift is desktop-only CSS.
+ */
+const CardSlot = React.forwardRef<
+  HTMLDivElement,
+  { className?: string; children: React.ReactNode }
+>(function CardSlot({ className = "", children }, ref) {
+  return (
+    <div
+      ref={ref}
+      className={`transition-transform duration-300 md:hover:-translate-y-1 md:hover:scale-[1.01] ${className}`}
+    >
+      {children}
+    </div>
+  );
+});
+
 export default function Help() {
   const trackRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -178,16 +199,20 @@ export default function Help() {
           </div>
         </ZigWrap>
 
-        <div className='relative w-full'>
+        <motion.div
+          className='relative w-full'
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ type: "spring", stiffness: 120, damping: 16, mass: 0.6, delay: 0.1 }}
+        >
           <div
             ref={trackRef}
             onScroll={onTrackScroll}
             className='grid w-full grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4 lg:gap-4 max-md:flex max-md:snap-x max-md:snap-mandatory max-md:overflow-x-auto max-md:scroll-px-6 max-md:px-6 max-md:pb-3'
           >
-            <ZigWrap
+            <CardSlot
               ref={(el) => { itemRefs.current[0] = el; }}
-              from='left'
-              delay={0.12}
               className='max-md:w-[82%] max-md:max-w-[300px] max-md:shrink-0 max-md:snap-center'
             >
               <Card
@@ -201,12 +226,10 @@ export default function Help() {
                 ctaLabel='Book Hosting'
                 minHeight='min-h-[180px] sm:min-h-[220px] lg:min-h-[220px] xl:min-h-[240px]'
               />
-            </ZigWrap>
+            </CardSlot>
 
-            <ZigWrap
+            <CardSlot
               ref={(el) => { itemRefs.current[1] = el; }}
-              from='right'
-              delay={0.16}
               className='max-md:w-[82%] max-md:max-w-[300px] max-md:shrink-0 max-md:snap-center'
             >
               <Card
@@ -221,12 +244,10 @@ export default function Help() {
                 ctaLabel='Plan Workshop'
                 minHeight='min-h-[200px] sm:min-h-[240px] lg:min-h-[220px] xl:min-h-[240px]'
               />
-            </ZigWrap>
+            </CardSlot>
 
-            <ZigWrap
+            <CardSlot
               ref={(el) => { itemRefs.current[2] = el; }}
-              from='left'
-              delay={0.2}
               className='max-md:w-[82%] max-md:max-w-[300px] max-md:shrink-0 max-md:snap-center'
             >
               <Card
@@ -241,12 +262,10 @@ export default function Help() {
                 ctaLabel='Start Collaboration'
                 minHeight='min-h-[180px] sm:min-h-[220px] lg:min-h-[220px] xl:min-h-[240px]'
               />
-            </ZigWrap>
+            </CardSlot>
 
-            <ZigWrap
+            <CardSlot
               ref={(el) => { itemRefs.current[3] = el; }}
-              from='right'
-              delay={0.24}
               className='max-md:w-[82%] max-md:max-w-[300px] max-md:shrink-0 max-md:snap-center'
             >
               <Card
@@ -260,12 +279,12 @@ export default function Help() {
                 ctaLabel='Book Corporate Show'
                 minHeight='min-h-[180px] sm:min-h-[220px] lg:min-h-[220px] xl:min-h-[240px]'
               />
-            </ZigWrap>
+            </CardSlot>
           </div>
 
           {/* Peek hint: fades the trailing edge so the next card is visibly cut off */}
           <div className='pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-[#121212] to-transparent md:hidden' />
-        </div>
+        </motion.div>
 
         <div className='flex items-center justify-center gap-2 md:hidden'>
           {[0, 1, 2, 3].map((i) => (

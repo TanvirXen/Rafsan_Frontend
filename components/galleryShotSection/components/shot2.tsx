@@ -26,7 +26,7 @@ export default function Shot2({
             <div className="flex h-full flex-col lg:gap-10 gap-5">
               {leftTopSrc && (
                 <motion.figure
-                  initial={{ opacity: 0, x: -36, y: 12 }}
+                  initial={{ opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, x: 0, y: 0 }}
                   viewport={{ once: true, amount: 0.35 }}
                   transition={{ type: "spring", stiffness: 120, damping: 16, mass: 0.6 }}
@@ -46,7 +46,7 @@ export default function Shot2({
 
               {leftBottomSrc && (
                 <motion.figure
-                  initial={{ opacity: 0, x: 36, y: 12 }}
+                  initial={{ opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, x: 0, y: 0 }}
                   viewport={{ once: true, amount: 0.35 }}
                   transition={{
@@ -74,7 +74,7 @@ export default function Shot2({
 
         {rightSrc && (
           <motion.figure
-            initial={{ opacity: 0, x: -36, y: 12 }}
+            initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, x: 0, y: 0 }}
             viewport={{ once: true, amount: 0.35 }}
             transition={{
@@ -106,7 +106,7 @@ export default function Shot2({
               <div className="flex h-full flex-col lg:gap-10 gap-5">
                 {leftTopSrc && (
                   <motion.figure
-                    initial={{ opacity: 0, x: -36, y: 12 }}
+                    initial={{ opacity: 0, y: 16 }}
                     whileInView={{ opacity: 1, x: 0, y: 0 }}
                     viewport={{ once: true, amount: 0.35 }}
                     transition={{
@@ -131,7 +131,7 @@ export default function Shot2({
 
                 {leftBottomSrc && (
                   <motion.figure
-                    initial={{ opacity: 0, x: 36, y: 12 }}
+                    initial={{ opacity: 0, y: 16 }}
                     whileInView={{ opacity: 1, x: 0, y: 0 }}
                     viewport={{ once: true, amount: 0.35 }}
                     transition={{
@@ -159,7 +159,7 @@ export default function Shot2({
 
           {rightSrc && (
             <motion.figure
-              initial={{ opacity: 0, x: -36, y: 12 }}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, x: 0, y: 0 }}
               viewport={{ once: true, amount: 0.35 }}
               transition={{

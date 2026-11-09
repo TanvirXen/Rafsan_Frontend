@@ -38,7 +38,7 @@ export default function Journey3({
         <div className="grid grid-cols-1 items-stretch gap-5 lg:gap-10 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           {left && (
             <motion.figure
-              initial={{ opacity: 0, x: reverse ? 56 : -56, y: 12 }}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, x: 0, y: 0 }}
               viewport={{ once: true, amount: 0.35 }}
               transition={{
@@ -72,7 +72,7 @@ export default function Journey3({
             >
               {topRight && (
                 <motion.figure
-                  initial={{ opacity: 0, x: reverse ? -56 : 56, y: 12 }}
+                  initial={{ opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, x: 0, y: 0 }}
                   viewport={{ once: true, amount: 0.35 }}
                   transition={{
@@ -99,7 +99,7 @@ export default function Journey3({
 
               {bottomRight && (
                 <motion.figure
-                  initial={{ opacity: 0, x: reverse ? -56 : 56, y: 12 }}
+                  initial={{ opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, x: 0, y: 0 }}
                   viewport={{ once: true, amount: 0.35 }}
                   transition={{
@@ -131,7 +131,7 @@ export default function Journey3({
           {cards.map(({ card, reverse: cardReverse }, idx) => (
             <motion.figure
               key={`${card.img}-${idx}`}
-              initial={{ opacity: 0, x: cardReverse ? 56 : -56, y: 12 }}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, x: 0, y: 0 }}
               viewport={{ once: true, amount: 0.35 }}
               transition={{

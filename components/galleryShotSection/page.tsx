@@ -69,7 +69,7 @@ export default function ShotsSection({ shots }: ShotsSectionProps) {
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:hidden">
           {heroPair[0] && (
             <motion.figure
-              initial={{ opacity: 0, x: -36, y: 12 }}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, x: 0, y: 0 }}
               viewport={{ once: true, amount: 0.35 }}
               transition={{ type: "spring", stiffness: 120, damping: 16, mass: 0.6 }}
@@ -89,7 +89,7 @@ export default function ShotsSection({ shots }: ShotsSectionProps) {
 
           {heroPair[1] && (
             <motion.figure
-              initial={{ opacity: 0, x: 36, y: 12 }}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, x: 0, y: 0 }}
               viewport={{ once: true, amount: 0.35 }}
               transition={{
@@ -117,7 +117,7 @@ export default function ShotsSection({ shots }: ShotsSectionProps) {
         <div className="hidden lg:grid grid-cols-1 gap-10 md:grid-cols-2">
           {heroPair[0] && (
             <motion.figure
-              initial={{ opacity: 0, x: -36, y: 12 }}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, x: 0, y: 0 }}
               viewport={{ once: true, amount: 0.35 }}
               transition={{ type: "spring", stiffness: 120, damping: 16, mass: 0.6 }}
@@ -137,7 +137,7 @@ export default function ShotsSection({ shots }: ShotsSectionProps) {
 
           {heroPair[1] && (
             <motion.figure
-              initial={{ opacity: 0, x: 36, y: 12 }}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, x: 0, y: 0 }}
               viewport={{ once: true, amount: 0.35 }}
               transition={{

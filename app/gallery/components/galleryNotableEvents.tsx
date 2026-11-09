@@ -95,7 +95,7 @@ export default function GalleryNotableEvents({ featured, events = [] }: Props) {
 
         <div className='mx-auto mb-8 grid w-full max-w-[28rem] min-h-[16rem] overflow-hidden rounded-[18px] shadow-[0_14px_28px_rgba(0,0,0,.35)] ring-1 ring-white/10 grid-cols-[minmax(0,1.7fr)_minmax(7.25rem,1fr)]'>
           <motion.div
-            initial={{ opacity: 0, x: -32, y: 12 }}
+            initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, x: 0, y: 0 }}
             viewport={{ once: true, amount: 0.35 }}
             transition={{ type: "spring", stiffness: 120, damping: 16, mass: 0.6 }}
@@ -112,7 +112,7 @@ export default function GalleryNotableEvents({ featured, events = [] }: Props) {
           </motion.div>
 
           <motion.aside
-            initial={{ opacity: 0, x: 32, y: 12 }}
+            initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, x: 0, y: 0 }}
             viewport={{ once: true, amount: 0.35 }}
             transition={{

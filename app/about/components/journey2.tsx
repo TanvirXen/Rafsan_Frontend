@@ -25,7 +25,7 @@ export default function Journey2({
       <div className="grid grid-cols-1 gap-5 lg:gap-10 md:grid-cols-2">
         {/* LEFT card (zig from left) */}
         <motion.figure
-          initial={{ opacity: 0, x: -56, y: 12 }}
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, x: 0, y: 0 }}
           viewport={{ once: true, amount: 0.35 }}
           transition={{ type: "spring", stiffness: 120, damping: 16, mass: 0.6, delay: 0.05 }}
@@ -46,7 +46,7 @@ export default function Journey2({
 
         {/* RIGHT card (zig from right) */}
         <motion.figure
-          initial={{ opacity: 0, x: 56, y: 12 }}
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, x: 0, y: 0 }}
           viewport={{ once: true, amount: 0.35 }}
           transition={{ type: "spring", stiffness: 120, damping: 16, mass: 0.6, delay: 0.12 }}

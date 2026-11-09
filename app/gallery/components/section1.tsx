@@ -76,7 +76,7 @@ export default function Section1({
                     <>
                       {/* ✅ PANEL LEFT (on top + clickable) */}
                       <motion.aside
-                        initial={{ opacity: 0, x: -32, y: 12 }}
+                        initial={{ opacity: 0, y: 16 }}
                         whileInView={{ opacity: 1, x: 0, y: 0 }}
                         viewport={{ once: true, amount: 0.35 }}
                         transition={{
@@ -122,7 +122,7 @@ export default function Section1({
 
                       {/* ✅ IMAGE RIGHT (cannot block clicks) */}
                       <motion.div
-                        initial={{ opacity: 0, x: 32, y: 12 }}
+                        initial={{ opacity: 0, y: 16 }}
                         whileInView={{ opacity: 1, x: 0, y: 0 }}
                         viewport={{ once: true, amount: 0.35 }}
                         transition={{
@@ -148,7 +148,7 @@ export default function Section1({
                     <>
                       {/* ✅ IMAGE LEFT (cannot block clicks) */}
                       <motion.div
-                        initial={{ opacity: 0, x: -32, y: 12 }}
+                        initial={{ opacity: 0, y: 16 }}
                         whileInView={{ opacity: 1, x: 0, y: 0 }}
                         viewport={{ once: true, amount: 0.35 }}
                         transition={{
@@ -171,7 +171,7 @@ export default function Section1({
 
                       {/* ✅ PANEL RIGHT (on top + clickable) */}
                       <motion.aside
-                        initial={{ opacity: 0, x: 32, y: 12 }}
+                        initial={{ opacity: 0, y: 16 }}
                         whileInView={{ opacity: 1, x: 0, y: 0 }}
                         viewport={{ once: true, amount: 0.35 }}
                         transition={{
