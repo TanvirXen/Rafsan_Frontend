@@ -46,6 +46,23 @@ function extractLastNumber(input?: string | null): number {
   return Number(m[m.length - 1]);
 }
 
+// Only trust explicit episode markers ("Ep 5", "Episode 05", "E12"),
+// so titles like "800 free burgers" are not read as episode 800.
+function parseEpisodeNumber(title?: string | null): number {
+  if (!title) return -1;
+  const m = title.match(/\b(?:episode|ep|e)\s*[.#:-]?\s*(\d{1,3})\b/i);
+  return m ? Number(m[1]) : -1;
+}
+
+function episodeBadge(seasonTitle: string, title: string): string {
+  const s = extractLastNumber(seasonTitle);
+  const e = parseEpisodeNumber(title);
+  const parts: string[] = [];
+  if (s >= 0) parts.push(`S${s}`);
+  if (e >= 0) parts.push(`E${String(e).padStart(2, "0")}`);
+  return parts.join(" · ");
+}
+
 function getYouTubeId(input: string): string | null {
   try {
     const u = new URL(input);
@@ -183,7 +200,7 @@ export default function EnhancedPlayer({
           playable: src.platform !== null,
           watchUrl: src.youtubeId ? toWatchUrl(src.youtubeId) : ep.link || null,
           seasonTitle: seasonById.get(ep.seasonId)?.title || "Season",
-          _epSort: extractLastNumber(ep.title),
+          _epSort: parseEpisodeNumber(ep.title),
         };
       }),
     [episodes, seasonById]
@@ -202,7 +219,8 @@ export default function EnhancedPlayer({
         const an = a._epSort ?? -1;
         const bn = b._epSort ?? -1;
         if (bn !== an) return bn - an;
-        return (b.title || "").localeCompare(a.title || "");
+        // No episode numbers: keep the API order (newest first) instead of alphabetical.
+        return 0;
       });
       bySeason.set(sid, arr);
     }
@@ -365,12 +383,13 @@ export default function EnhancedPlayer({
           isFullscreen ? "rounded-none" : ""
         )}
       >
-        <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_420px]">
-          <div className="flex min-h-0 flex-col gap-4 p-3 sm:p-4 lg:p-5">
+        <div className="flex min-h-0 flex-1 flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_420px]">
+          <div className="flex shrink-0 flex-col gap-3 p-3 sm:gap-4 sm:p-4 lg:min-h-0 lg:shrink lg:p-5">
             <div
               className={cn(
-                "relative min-h-[44svh] flex-1 overflow-hidden rounded-[28px] border border-white/10 bg-black",
+                "relative aspect-video w-full shrink-0 overflow-hidden rounded-[20px] border border-white/10 bg-black sm:rounded-[28px]",
                 "ring-1 ring-purple-500/15 shadow-[0_18px_60px_rgba(0,0,0,.55)]",
+                "lg:aspect-auto lg:min-h-[44svh] lg:flex-1 lg:shrink",
                 theater ? "lg:min-h-0" : ""
               )}
             >
@@ -431,7 +450,7 @@ export default function EnhancedPlayer({
                 <p className="elza text-xs font-extrabold uppercase tracking-[0.34em] text-purple-200/70">
                   Now Playing
                 </p>
-                <h1 className="recoleta text-[18px] font-extrabold leading-snug sm:text-[22px] lg:text-[26px]">
+                <h1 className="recoleta line-clamp-2 text-[18px] font-extrabold leading-snug sm:text-[22px] lg:text-[26px]">
                   <PipeText text={current?.title ?? ""} pipeClassName="recoleta" />
                 </h1>
               </div>
@@ -511,7 +530,7 @@ export default function EnhancedPlayer({
             className={cn(
               "border-t border-white/10 bg-[linear-gradient(180deg,rgba(18,12,30,.98),rgba(10,9,16,.98))] lg:border-l lg:border-t-0",
               panelOpen ? "flex" : "hidden lg:flex",
-              "min-h-0 flex-col"
+              "min-h-0 flex-1 flex-col lg:flex-none"
             )}
           >
             <div className="flex min-h-0 flex-1 flex-col p-4">
@@ -628,14 +647,14 @@ export default function EnhancedPlayer({
                           : "border-white/10 bg-white/5 hover:border-violet-400/20 hover:bg-white/10"
                       )}
                     >
-                      <div className="elza w-10 pt-1 text-[11px] font-extrabold text-white/55">
-                        {extractLastNumber(ep.seasonTitle) >= 0
-                          ? `S${extractLastNumber(ep.seasonTitle)}`
-                          : "S"}
-                        {extractLastNumber(ep.title) >= 0
-                          ? ` · E${String(extractLastNumber(ep.title)).padStart(2, "0")}`
-                          : ""}
-                      </div>
+                      {(() => {
+                        const badge = episodeBadge(ep.seasonTitle, ep.title);
+                        return badge ? (
+                          <div className="elza w-10 shrink-0 pt-1 text-[11px] font-extrabold text-white/55">
+                            {badge}
+                          </div>
+                        ) : null;
+                      })()}
 
                       <div className="relative h-[56px] w-[96px] overflow-hidden rounded-xl bg-black ring-1 ring-white/10">
                         <Image

@@ -91,62 +91,113 @@ function SeasonRail({ season, episodes, showSlug }: SeasonRailProps) {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
+  // Native horizontal scroll with snap points, so the rail can be swiped on
+  // touch screens (same behaviour as the Featured Episodes slider).
   const railRef = useRef<HTMLDivElement | null>(null);
-  const [railW, setRailW] = useState(0);
+  const pages = Math.max(1, Math.ceil(episodes.length / perView));
+  const [index, setIndex] = useState(0);
 
-  useEffect(() => {
-    if (showAll) return;
+  const pageWidth = () => {
+    const el = railRef.current;
+    const card = el?.querySelector<HTMLElement>(".season-card");
+    if (!el || !card) return 0;
+    return (card.offsetWidth + GAP) * perView;
+  };
+
+  const scrollToPage = (page: number, smooth = true) => {
     const el = railRef.current;
     if (!el) return;
+    const target = ((page % pages) + pages) % pages;
+    el.scrollTo({ left: target * pageWidth(), behavior: smooth ? "smooth" : "auto" });
+    setIndex(target);
+  };
 
-    const measure = () => {
-      const w = Math.floor(el.getBoundingClientRect().width);
-      setRailW(w);
+  // Keep the dots in sync while the user swipes.
+  useEffect(() => {
+    const el = railRef.current;
+    if (!el || showAll) return;
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(() => {
+        ticking = false;
+        const w = pageWidth();
+        if (!w) return;
+        setIndex(Math.max(0, Math.min(pages - 1, Math.round(el.scrollLeft / w))));
+      });
     };
-    measure();
-
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [showAll]);
-
-  const pages = useMemo(
-    () => Math.max(1, Math.ceil(episodes.length / perView)),
-    [perView, episodes.length]
-  );
-  const totalSlots = pages * perView;
-  const fillerCount = Math.max(0, totalSlots - episodes.length);
-
-  const [index, setIndex] = useState(0);
-  const maxIndex = pages - 1;
-
-  useEffect(() => {
-    setIndex((i) => (i > maxIndex ? maxIndex : i));
-  }, [maxIndex]);
-
-  const next = () => setIndex((i) => (i >= maxIndex ? 0 : i + 1));
-  const prev = () => setIndex((i) => (i <= 0 ? maxIndex : i - 1));
-
-  const timerRef = useRef<number | null>(null);
-  const start = () => {
-    if (timerRef.current) window.clearInterval(timerRef.current);
-    if (!showAll && episodes.length > perView) timerRef.current = window.setInterval(next, 3500);
-  };
-  const stop = () => {
-    if (timerRef.current) window.clearInterval(timerRef.current);
-    timerRef.current = null;
-  };
-
-  useEffect(() => {
-    start();
-    return stop;
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pages, railW, showAll, episodes.length]);
+  }, [pages, perView, showAll]);
 
-  const GAP = 24;
-  const itemW = perView === 1 ? railW : (railW - GAP * (perView - 1)) / perView;
-  const trackW = pages * railW;
-  const translateX = -index * railW;
+  const activeIndex = Math.min(index, pages - 1);
+
+  // Auto-advance, paused while the user is touching / hovering the rail and
+  // for a few seconds after they swipe.
+  const pausedRef = useRef(false);
+  const resumeTimer = useRef<number | null>(null);
+  const indexRef = useRef(activeIndex);
+  useEffect(() => {
+    indexRef.current = activeIndex;
+  }, [activeIndex]);
+
+  const pause = () => {
+    pausedRef.current = true;
+    if (resumeTimer.current) window.clearTimeout(resumeTimer.current);
+  };
+  const resumeSoon = (delay = 4000) => {
+    if (resumeTimer.current) window.clearTimeout(resumeTimer.current);
+    resumeTimer.current = window.setTimeout(() => {
+      pausedRef.current = false;
+    }, delay);
+  };
+
+  useEffect(() => {
+    if (showAll || pages <= 1) return;
+    const id = window.setInterval(() => {
+      if (!pausedRef.current) scrollToPage(indexRef.current + 1);
+    }, 3500);
+    return () => {
+      window.clearInterval(id);
+      if (resumeTimer.current) window.clearTimeout(resumeTimer.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pages, perView, showAll]);
+
+  // Mouse drag for desktop (touch uses native scrolling).
+  const dragRef = useRef({ active: false, startX: 0, startLeft: 0, dist: 0 });
+  const onMouseDown: React.MouseEventHandler<HTMLDivElement> = (e) => {
+    const el = railRef.current;
+    if (!el) return;
+    e.preventDefault();
+    dragRef.current = { active: true, startX: e.pageX, startLeft: el.scrollLeft, dist: 0 };
+    el.style.scrollSnapType = "none";
+  };
+  const onMouseMove: React.MouseEventHandler<HTMLDivElement> = (e) => {
+    const el = railRef.current;
+    const d = dragRef.current;
+    if (!el || !d.active) return;
+    const dist = e.pageX - d.startX;
+    d.dist = Math.abs(dist);
+    el.scrollLeft = d.startLeft - dist;
+  };
+  const endDrag = () => {
+    const el = railRef.current;
+    if (!el || !dragRef.current.active) return;
+    dragRef.current.active = false;
+    el.style.scrollSnapType = "";
+  };
+  const onClickCapture: React.MouseEventHandler<HTMLDivElement> = (e) => {
+    if (dragRef.current.dist > 10) {
+      e.preventDefault();
+      e.stopPropagation();
+      dragRef.current.dist = 0;
+    }
+  };
+
+  const cardBasis = `calc((100% - ${GAP * (perView - 1)}px) / ${perView})`;
 
   return (
     <section className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-0 pt-10 pb-6 text-white overflow-x-hidden">
@@ -159,7 +210,6 @@ function SeasonRail({ season, episodes, showSlug }: SeasonRailProps) {
           onClick={() => {
             setShowAll((v) => !v);
             setIndex(0);
-            stop();
           }}
           className="elza rounded-md bg-white/10 px-3 py-1 text-xs text-white ring-1 ring-white/15 hover:bg-white/20"
           aria-label={showAll ? "See less" : "See all"}
@@ -176,50 +226,73 @@ function SeasonRail({ season, episodes, showSlug }: SeasonRailProps) {
         </div>
       ) : (
         <>
-          <div ref={railRef} className="overflow-hidden" onMouseEnter={stop} onMouseLeave={start}>
-            <div
-              className="flex will-change-transform transition-transform duration-500"
-              style={{
-                gap: GAP,
-                width: trackW || "100%",
-                transform: `translateX(${translateX}px)`,
-              }}
-            >
+          <div
+            ref={railRef}
+            className="
+              overflow-x-auto snap-x snap-mandatory overscroll-x-contain cursor-grab
+              [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden
+            "
+            onMouseEnter={pause}
+            onMouseLeave={() => {
+              endDrag();
+              resumeSoon(0);
+            }}
+            onMouseDown={onMouseDown}
+            onMouseMove={onMouseMove}
+            onMouseUp={endDrag}
+            onTouchStart={pause}
+            onTouchEnd={() => resumeSoon()}
+            onClickCapture={onClickCapture}
+          >
+            <div className="flex" style={{ gap: GAP }}>
               {episodes.map((e) => (
-                <EpisodeCard key={e._id} ep={e} showSlug={showSlug} style={{ width: itemW }} />
-              ))}
-              {Array.from({ length: fillerCount }).map((_, k) => (
-                <div key={`filler-${k}`} style={{ width: itemW }} aria-hidden />
+                <EpisodeCard
+                  key={e._id}
+                  ep={e}
+                  showSlug={showSlug}
+                  className="season-card snap-start"
+                  style={{ flex: `0 0 ${cardBasis}` }}
+                />
               ))}
             </div>
           </div>
 
-          <div className="mt-5 flex items-center justify-center gap-2">
-            {Array.from({ length: pages }, (_, i) => (
-              <button
-                key={i}
-                onClick={() => setIndex(i)}
-                aria-label={`Go to page ${i + 1}`}
-                className={`h-2 w-2 rounded-full transition ${
-                  index === i ? "bg-white" : "bg-white/40 hover:bg-white/70"
-                }`}
-              />
-            ))}
-          </div>
+          {pages > 1 && (
+            <div className="mt-5 flex items-center justify-center gap-2">
+              {Array.from({ length: pages }, (_, i) => (
+                <button
+                  key={i}
+                  onClick={() => {
+                    pause();
+                    scrollToPage(i);
+                    resumeSoon();
+                  }}
+                  aria-label={`Go to page ${i + 1}`}
+                  className={`h-2 w-2 rounded-full transition ${
+                    activeIndex === i ? "bg-white" : "bg-white/40 hover:bg-white/70"
+                  }`}
+                />
+              ))}
+            </div>
+          )}
         </>
       )}
     </section>
   );
 }
 
+const GAP = 24;
+
 function EpisodeCard({
   ep,
   showSlug,
   style,
+  className = "",
 }: {
   ep: Episode;
   showSlug: string;
   style: React.CSSProperties;
+  className?: string;
 }) {
   const hasLink = !!ep.link?.trim(); // we only enable play if there is a link
   const playerHref = `/shows/${encodeURIComponent(showSlug)}?ep=${encodeURIComponent(
@@ -228,17 +301,18 @@ function EpisodeCard({
 
   return (
     <article
-      className="
+      className={`
         group relative overflow-hidden rounded-2xl ring-1 ring-white/10
-        shadow-[0_10px_25px_rgba(0,0,0,.45)]
-        h-[240px] sm:h-[260px] md:h-[195px]
-      "
+        shadow-[0_10px_25px_rgba(0,0,0,.45)] select-none
+        h-[240px] sm:h-[260px] md:h-[195px] ${className}
+      `}
       style={style}
     >
       <Image
         src={resolveMediaUrl(ep.thumbnail, "/assets/exp1.jpg")}
         alt={ep.title}
         fill
+        draggable={false}
         className="object-cover transition-transform duration-700 group-hover:scale-110"
         sizes="(max-width: 1024px) calc(100vw - 2rem), 33vw"
       />

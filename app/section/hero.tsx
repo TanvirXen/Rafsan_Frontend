@@ -28,7 +28,7 @@ to my official website!`;
   return (
     <section className='relative isolate overflow-hidden'>
       <div
-        className='absolute inset-0 -z-10 bg-[#2D1B59] bg-cover bg-no-repeat [background-position:60%_top] md:[background-position:60%_0%] lg:[background-position:60%_0%]'
+        className='absolute inset-0 -z-10 bg-[#2D1B59] bg-cover bg-no-repeat [background-position:68%_top] md:[background-position:62%_0%] lg:[background-position:60%_0%]'
         style={{
           backgroundImage: `
             linear-gradient(180deg, rgba(45,27,89,0.08) 0%, rgba(18,18,18,0.42) 58%, #121212 100%),

@@ -22,7 +22,7 @@ export default function GalleryBanner({
           fill
           priority
           sizes='(max-width: 768px) calc(100vw - 1px), calc(100vw - 15px)'
-          className='object-cover object-center'
+          className='object-cover [object-position:56%_30%] md:object-center'
         />
       </div>
 
@@ -31,7 +31,7 @@ export default function GalleryBanner({
       <div className='absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(0,0,0,.12)_0%,rgba(0,0,0,.10)_35%,rgba(0,0,0,.55)_75%,rgba(0,0,0,.92)_100%)]' />
       <div className="pointer-events-none absolute inset-0 -z-10 bg-repeat opacity-[0.14] mix-blend-overlay [background-image:url('/assets/grain.png')]" />
 
-      <div className='site-shell-wide relative flex min-h-[100svh] items-end justify-center py-12 lg:items-end lg:pb-16 lg:pt-24'>
+      <div className='site-shell-wide relative flex min-h-[64svh] items-end md:min-h-[100svh] justify-center py-12 lg:items-end lg:pb-16 lg:pt-24'>
         <div className='max-w-[36rem] space-y-4 text-center sm:space-y-5 lg:space-y-6'>
           <div className='mb-3 flex items-center justify-center'>
             <h1 className='recoleta text-[clamp(2.1rem,5vw,3rem)] leading-[0.95] text-white drop-shadow-[0_10px_30px_rgba(0,0,0,.55)]'>

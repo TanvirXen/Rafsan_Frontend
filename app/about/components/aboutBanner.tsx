@@ -31,7 +31,7 @@ export default function AboutBanner({ banner }: Props) {
   return (
     <section className='relative isolate min-h-[100svh] overflow-hidden'>
       <div
-        className='absolute inset-0 -z-10 bg-[#121212] bg-cover bg-no-repeat lg:hidden [background-position:60%_top] md:[background-position:60%_15%]'
+        className='absolute inset-0 -z-10 bg-[#121212] bg-cover bg-no-repeat lg:hidden [background-position:49%_top] md:[background-position:50%_15%]'
         style={{
           backgroundImage: `
             linear-gradient(180deg, rgba(0,0,0,.08) 0%, rgba(0,0,0,.45) 80%, rgba(0,0,0,.88) 100%),

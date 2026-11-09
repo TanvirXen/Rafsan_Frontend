@@ -62,7 +62,9 @@ async function fetchShots(): Promise<Shot[]> {
   }
 
   const json = await res.json();
-  const shots: Shot[] = (json.shots || []) as Shot[];
+  const shots: Shot[] = ((json.shots || []) as Shot[])
+    .map((s) => ({ ...s, image: resolveMediaUrl(s.image) }))
+    .filter((s) => s.image);
   return shots.sort((a, b) => a.sequence - b.sequence);
 }
 

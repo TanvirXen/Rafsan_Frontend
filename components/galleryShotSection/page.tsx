@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import Image from "next/image";
+import Image from "./components/SafeImage";
 import { FiCamera } from "react-icons/fi";
 import { motion } from "framer-motion";
 import Shot1 from "./components/shot1";

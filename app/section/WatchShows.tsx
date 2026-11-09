@@ -230,27 +230,6 @@ export default function WatchShows() {
 
   const [active, setActive] = useState(0);
   const isMobile = CENTER_H === 220;
-  const [flipDirections, setFlipDirections] = useState<
-    Record<number, "in" | "out">
-  >({});
-  const previousActiveRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (!isMobile || items.length <= 1) {
-      previousActiveRef.current = active;
-      setFlipDirections({});
-      return;
-    }
-
-    const previousActive = previousActiveRef.current;
-    previousActiveRef.current = active;
-
-    if (previousActive === null || previousActive === active) return;
-
-    setFlipDirections({ [active]: "in", [previousActive]: "out" });
-    const timeout = window.setTimeout(() => setFlipDirections({}), 520);
-    return () => window.clearTimeout(timeout);
-  }, [active, isMobile, items.length]);
 
   // if items length shrinks below active index, clamp
   useEffect(() => {
@@ -490,7 +469,6 @@ export default function WatchShows() {
 
                   const w = isCenter ? CENTER_W : SIDE_W;
                   const h = isCenter ? CENTER_H : SIDE_H;
-                  const flipDirection = isMobile ? flipDirections[i] : undefined;
                   return (
                     <article
                       key={item.id}
@@ -530,14 +508,7 @@ export default function WatchShows() {
                       >
                         <FiArrowUpRight className='h-4 w-4' />
                       </span>
-                      <div
-                        className={[
-                          "relative h-full w-full",
-                          flipDirection === "in" ? "mobile-card-flip-in" : "",
-                          flipDirection === "out" ? "mobile-card-flip-out" : "",
-                        ].join(" ")}
-                        style={{ animationDuration: "520ms" }}
-                      >
+                      <div className="relative h-full w-full">
                         <Image
                           src={item.src}
                           alt={item.alt}
