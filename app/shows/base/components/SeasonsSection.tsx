@@ -229,7 +229,7 @@ function SeasonRail({ season, episodes, showSlug }: SeasonRailProps) {
           <div
             ref={railRef}
             className="
-              overflow-x-auto snap-x snap-mandatory overscroll-x-contain cursor-grab
+              overflow-x-auto overflow-y-hidden snap-x snap-mandatory overscroll-x-contain cursor-grab
               [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden
             "
             onMouseEnter={pause}

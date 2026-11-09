@@ -189,7 +189,7 @@ export default function Help() {
     "Turn your workplace into a stage of laughter and energy. Fun, interactive corporate shows that boost morale, spirit, and teamwork.";
 
   return (
-    <section className='site-shell-wide relative isolate z-[2] overflow-x-hidden pt-2 pb-10 sm:pt-4 sm:pb-12 lg:pt-8 lg:pb-16'>
+    <section className='site-shell-wide relative isolate z-[2] overflow-x-clip pt-2 pb-10 sm:pt-4 sm:pb-12 lg:pt-8 lg:pb-16'>
       <div className='mx-auto flex w-full max-w-none flex-col items-center gap-3 sm:gap-4 lg:gap-6'>
         <ZigWrap from='left' delay={0.05}>
           <div className='w-full'>
@@ -209,7 +209,7 @@ export default function Help() {
           <div
             ref={trackRef}
             onScroll={onTrackScroll}
-            className='grid w-full grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4 lg:gap-4 max-md:flex max-md:snap-x max-md:snap-mandatory max-md:overflow-x-auto max-md:scroll-px-6 max-md:px-6 max-md:pb-3'
+            className='grid w-full grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4 lg:gap-4 max-md:flex max-md:snap-x max-md:snap-mandatory max-md:overflow-x-auto max-md:overflow-y-hidden max-md:overscroll-x-contain max-md:scroll-px-6 max-md:px-6 max-md:pb-3'
           >
             <CardSlot
               ref={(el) => { itemRefs.current[0] = el; }}
