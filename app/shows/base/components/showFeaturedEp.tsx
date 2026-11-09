@@ -248,7 +248,7 @@ export default function ShowFeaturedEp({
       <div
         ref={railRef}
         className="
-          relative overflow-x-auto overflow-y-hidden overscroll-x-contain cursor-grab
+          relative overflow-x-auto overflow-y-hidden overscroll-x-contain overscroll-y-none cursor-grab
           snap-x snap-mandatory
           [scrollbar-width:none] [-ms-overflow-style:none]
           [&::-webkit-scrollbar]:hidden
