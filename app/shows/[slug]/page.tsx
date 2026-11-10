@@ -24,7 +24,11 @@ import {
   buildBreadcrumbJsonLd,
 } from "@/app/lib/siteSeo";
 
-export const revalidate = 15;
+// This page reads searchParams (?ep=, ?play=all), so it must render per
+// request. Pre-rendering it via generateStaticParams made Next treat it as
+// static ISR and throw DYNAMIC_SERVER_USAGE (HTTP 500) at runtime. The API
+// fetches below still cache for 15s via `next.revalidate`.
+export const dynamic = "force-dynamic";
 
 type Show = {
   _id: string;
@@ -98,13 +102,6 @@ async function fetchShowData(showId: string) {
     console.error(`Failed to load show data for ${showId}`, error);
     return null;
   }
-}
-
-export async function generateStaticParams() {
-  const shows = await fetchShowsList();
-  return shows.map((s) => ({
-    slug: slugifyTitle(s.title),
-  }));
 }
 
 /* ---------------------- SEO: dynamic episode title ---------------------- */
