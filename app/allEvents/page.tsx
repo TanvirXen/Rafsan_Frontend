@@ -30,7 +30,7 @@ export default async function Page({ searchParams }: PageProps) {
     typeof raw === "string" && raw.trim().length > 0 ? raw.trim() : undefined;
 
   return (
-    <div>
+    <div className="pt-16 sm:pt-[72px]">
       <h1 className="sr-only">All Rafsan Sabab Events</h1>
       <UpcomingEvents showFilter={showFilter} />
       <PastEvents showFilter={showFilter} />
