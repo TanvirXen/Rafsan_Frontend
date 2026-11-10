@@ -20,7 +20,7 @@ const DEFAULT_LOGOS: Logo[] = [
 
 function Tile({ logo }: { logo: Logo }) {
   const inner = (
-    <figure className='relative flex h-[210px] w-[210px] items-center justify-center rounded-xl'>
+    <figure className='relative flex w-[210px] items-center justify-center rounded-xl'>
       <div
         className={[
           "relative overflow-hidden",
@@ -65,7 +65,7 @@ export default function Collaboration({
 }) {
   return (
     <section className='mx-auto mt-[60px] max-w-6xl px-6 text-white'>
-      <h2 className='recoleta mb-5 text-center text-[32px] leading-tight md:mb-8 md:text-[32px]'>
+      <h2 className='recoleta mb-0 text-center text-[32px] leading-tight md:text-[32px]'>
         {title}
       </h2>
 
