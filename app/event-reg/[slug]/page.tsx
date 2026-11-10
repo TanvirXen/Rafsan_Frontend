@@ -26,16 +26,27 @@ export async function generateMetadata(props: {
 }): Promise<Metadata> {
   const { slug } = await props.params;
   try {
-    const event = await fetchEventBySlugOrId(slug);
-    const isWhatAShow = /what\s*a\s*show/i.test(event?.title || event?.category || "");
-    const image = isWhatAShow ? WHAT_A_SHOW_META_IMAGE : SITE_META_IMAGE;
+    // Slug may carry a "--YYYY-MM-DD" occurrence suffix; strip it before lookup.
+    const { key, token } = splitKey(slug);
+    const event = await fetchEventBySlugOrId(key);
+    const isWhatAShow = /what\s*a\s*show/i.test(
+      `${event?.title || ""} ${event?.category || ""}`
+    );
+    // Prefer the event's portrait poster (same image shown on the reg banner card).
+    let image = isWhatAShow ? WHAT_A_SHOW_META_IMAGE : SITE_META_IMAGE;
+    if (event) {
+      const occ = chooseOccurrence(event, token);
+      const { posterSrc } = pickEventBannerAssets(event, "", occ);
+      if (isNE(posterSrc)) image = posterSrc;
+    }
     const title = `${event?.title || "Event Registration"} | Rafsan Sabab`;
+    const description = isWhatAShow ? WHAT_A_SHOW_DESCRIPTION : SITE_DESCRIPTION;
     return {
       title: { absolute: title },
-      description: isWhatAShow ? WHAT_A_SHOW_DESCRIPTION : SITE_DESCRIPTION,
+      description,
       alternates: { canonical: `/event-reg/${encodeURIComponent(slug)}` },
-      openGraph: { title, description: isWhatAShow ? WHAT_A_SHOW_DESCRIPTION : SITE_DESCRIPTION, images: [{ url: image }] },
-      twitter: { card: "summary_large_image", title, description: isWhatAShow ? WHAT_A_SHOW_DESCRIPTION : SITE_DESCRIPTION, images: [image] },
+      openGraph: { title, description, images: [{ url: image, alt: event?.title || title }] },
+      twitter: { card: "summary_large_image", title, description, images: [image] },
     };
   } catch {
     return { title: { absolute: "Event Registration | Rafsan Sabab" }, description: SITE_DESCRIPTION, robots: { index: false, follow: true } };
