@@ -331,25 +331,14 @@ export default function EventDetailsSection({
             </div>
           )}
 
-          {venue && (
-            <div className='mb-6 flex items-start gap-3'>
-              <IconBadge src='/assets/icon (6).png' alt='Location' />
-              {mapLink ? (
-                <a
-                  href={mapLink}
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  className='elza text-xl font-bold text-[#00D8FF] underline decoration-[#00D8FF]/40 underline-offset-4 transition hover:decoration-[#00D8FF] sm:text-2xl'
-                >
-                  {venue}
-                </a>
-              ) : (
-                <p className='elza text-xl font-bold text-[#00D8FF] sm:text-2xl'>
-                  {venue}
-                </p>
-              )}
-            </div>
-          )}
+          {/* Location is kept private on the public page; approved attendees
+              get the exact venue + Google Maps link in their email. */}
+          <div className='mb-6 flex items-start gap-3'>
+            <IconBadge src='/assets/icon (6).png' alt='Location' />
+            <p className='elza text-xl font-bold text-[#00D8FF] sm:text-2xl'>
+              To Be Announced
+            </p>
+          </div>
 
           <ul className='space-y-1 text-sm leading-6 text-white/85 sm:text-base md:text-lg'>
             {notes.map((n, i) => (

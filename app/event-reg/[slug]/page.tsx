@@ -295,9 +295,10 @@ export default async function Page(props: {
     eventStatus: "https://schema.org/EventScheduled",
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
     location: {
+      // Venue is kept private publicly; shared with approved attendees by email.
       "@type": "Place",
-      name: venueLine || "Bangladesh",
-      address: venueLine || "Bangladesh",
+      name: "To Be Announced",
+      address: "Bangladesh",
     },
     performer: { "@type": "Person", name: "Rafsan Sabab" },
     organizer: { "@type": "Person", name: "Rafsan Sabab" },
