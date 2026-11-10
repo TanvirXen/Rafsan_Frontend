@@ -95,7 +95,7 @@ export default function RegBanner({
             ))}
           </div>
 
-          <p className="elza max-h-[40vh] max-w-[34rem] overflow-y-auto whitespace-pre-line text-[14px] leading-6 text-white md:text-[16px]">
+          <p className="blurb-scroll elza max-h-[40vh] max-w-[34rem] overflow-y-auto whitespace-pre-line pr-3 text-[14px] leading-6 text-white md:text-[16px]">
             {blurb}
           </p>
 
