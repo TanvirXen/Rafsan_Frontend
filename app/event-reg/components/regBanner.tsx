@@ -24,7 +24,7 @@ export default function RegBanner({
     <section
       className="
         relative isolate overflow-hidden
-        py-8 sm:py-10 md:py-14
+        pt-16 pb-8 sm:pt-20 sm:pb-10 md:pt-28 md:pb-14
         bg-[#121212]
       "
     >

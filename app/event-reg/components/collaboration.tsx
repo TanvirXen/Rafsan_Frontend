@@ -20,20 +20,20 @@ const DEFAULT_LOGOS: Logo[] = [
 
 function Tile({ logo }: { logo: Logo }) {
   const inner = (
-    <figure className='relative flex h-[84px] w-[84px] items-center justify-center rounded-xl'>
+    <figure className='relative flex h-[148px] w-[148px] items-center justify-center rounded-xl'>
       <div
         className={[
           "relative overflow-hidden bg-white/10",
           logo.shape === "square"
-            ? "h-[58px] w-[58px] rounded-md"
-            : "h-16 w-16 rounded-full",
+            ? "h-[112px] w-[112px] rounded-lg"
+            : "h-32 w-32 rounded-full",
         ].join(" ")}
       >
         <Image
           src={logo.src}
           alt={logo.alt}
           fill
-          sizes='84px'
+          sizes='148px'
           className='object-contain'
         />
       </div>
