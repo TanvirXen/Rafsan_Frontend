@@ -23,7 +23,7 @@ function Tile({ logo }: { logo: Logo }) {
     <figure className='relative flex h-[148px] w-[148px] items-center justify-center rounded-xl'>
       <div
         className={[
-          "relative overflow-hidden bg-white/10",
+          "relative overflow-hidden",
           logo.shape === "square"
             ? "h-[112px] w-[112px] rounded-lg"
             : "h-32 w-32 rounded-full",

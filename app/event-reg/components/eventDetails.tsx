@@ -52,7 +52,7 @@ export default function EventDetailsSection({
   notes = [
     "Limited seats available; early booking recommended.",
     "Doors open 1 hour before recording starts.",
-    "Audience must be 16+ (younger attendees allowed with guardians).",
+    "Audience must be 16+.",
     "No outside recording devices allowed inside.",
     "T&C apply.",
   ],
