@@ -89,6 +89,7 @@ type EventDoc = {
   }>;
   notes?: string[];
   ticketUrl?: string;
+  mapLink?: string;
 };
 const TZ = "Asia/Dhaka";
 function dateOnlyInTz(iso: string, tz = TZ) {
@@ -341,6 +342,7 @@ export default async function Page(props: {
         primaryDate={primaryDateLabel}
         timeText={readableTime(selectedISO)} // ✅ pinned to BD
         venue={venueLine || undefined}
+        mapLink={ev.mapLink || undefined}
         notes={notes}
         customFields={ev.customFields ?? []}
         availableDates={availableDates}

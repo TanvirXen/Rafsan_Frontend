@@ -34,6 +34,7 @@ type Props = {
   primaryDate?: string;
   timeText?: string;
   venue?: string;
+  mapLink?: string;
   notes?: string[];
 
   /** When provided, the form below is rendered dynamically from these fields */
@@ -49,6 +50,7 @@ export default function EventDetailsSection({
   primaryDate,
   timeText,
   venue,
+  mapLink,
   notes = [
     "Limited seats available; early booking recommended.",
     "Doors open 1 hour before recording starts.",
@@ -332,9 +334,20 @@ export default function EventDetailsSection({
           {venue && (
             <div className='mb-6 flex items-start gap-3'>
               <IconBadge src='/assets/icon (6).png' alt='Location' />
-              <p className='elza text-xl font-bold text-[#00D8FF] sm:text-2xl'>
-                {venue}
-              </p>
+              {mapLink ? (
+                <a
+                  href={mapLink}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='elza text-xl font-bold text-[#00D8FF] underline decoration-[#00D8FF]/40 underline-offset-4 transition hover:decoration-[#00D8FF] sm:text-2xl'
+                >
+                  {venue}
+                </a>
+              ) : (
+                <p className='elza text-xl font-bold text-[#00D8FF] sm:text-2xl'>
+                  {venue}
+                </p>
+              )}
             </div>
           )}
 
