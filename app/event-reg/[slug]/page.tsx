@@ -77,6 +77,7 @@ type EventDoc = {
   backgroundImage?: string;
   shortBlurb?: string;
   longBlurb?: string;
+  description?: string;
   brands?: BrandDoc[];
   customFields?: Array<{
     id?: string;
@@ -259,7 +260,7 @@ export default async function Page(props: {
 
   const title = ev.title || "What A Show";
   const blurb =
-    pickFirst(ev.longBlurb, ev.shortBlurb) ||
+    pickFirst(ev.description, ev.longBlurb, ev.shortBlurb) ||
     "Grab the chances to watch my upcoming shows!";
 
   const { posterSrc, bgSrc } = pickEventBannerAssets(ev, "/assets/reg.png", occ);
