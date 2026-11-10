@@ -65,7 +65,7 @@ export default function Collaboration({
 }) {
   return (
     <section className='mx-auto mt-[60px] max-w-6xl px-6 text-white'>
-      <h2 className='recoleta mb-10 text-center text-[32px] leading-tight md:mb-[60px] md:text-[32px]'>
+      <h2 className='recoleta mb-5 text-center text-[32px] leading-tight md:mb-8 md:text-[32px]'>
         {title}
       </h2>
 
