@@ -96,6 +96,7 @@ type EventDoc = {
     label: string;
     type: "text" | "email" | "phone" | "number" | "select" | "textarea" | "image";
     required?: boolean;
+    placeholder?: string;
     options?: string[];
   }>;
   notes?: string[];

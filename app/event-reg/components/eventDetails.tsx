@@ -22,6 +22,7 @@ type CustomField = {
   label: string;
   type: "text" | "email" | "phone" | "number" | "select" | "textarea" | "image";
   required?: boolean;
+  placeholder?: string;
   options?: string[];
 };
 
@@ -70,6 +71,7 @@ export default function EventDetailsSection({
       label: f.label || f.name || "Field",
       type: (f.type || "text") as CustomField["type"],
       required: !!f.required,
+      placeholder: (f.placeholder || "").trim(),
       options: Array.isArray(f.options) ? f.options.filter(Boolean) : [],
     }));
   }, [customFields]);
@@ -470,7 +472,7 @@ export default function EventDetailsSection({
                     ) : f.type === "textarea" ? (
                       <textarea
                         id={f.id}
-                        placeholder={f.label}
+                        placeholder={f.placeholder || f.label}
                         value={val}
                         onChange={(e) =>
                           setForm((p) => ({ ...p, [f.name]: e.target.value }))
@@ -492,7 +494,7 @@ export default function EventDetailsSection({
                         disabled={submitting || hasEnded}
                       >
                         <option value='' disabled>
-                          {`Select ${f.label}`}
+                          {f.placeholder || `Select ${f.label}`}
                         </option>
                         {(f.options || []).map((opt) => (
                           <option key={opt} value={opt}>
@@ -504,7 +506,7 @@ export default function EventDetailsSection({
                       <input
                         id={f.id}
                         type={f.type === "phone" ? "tel" : f.type}
-                        placeholder={f.label}
+                        placeholder={f.placeholder || f.label}
                         value={val}
                         onChange={(e) =>
                           setForm((p) => ({ ...p, [f.name]: e.target.value }))
